@@ -1,0 +1,817 @@
+<title>Klinavi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Overpass:wght@600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+/* Layout: one-column phone app like a hospital sign; editor + QR views widen to a two-column work surface. */
+:root{
+  --bg:#EDF1F0; --surface:#FFFFFF; --ink:#13201E; --muted:#56655F; --line:#D2DBD8;
+  --brand:#0D5A55; --brand-ink:#FFFFFF; --tint:#E1EEEC;
+  --route:#D9520C; --route-soft:#F5CDB4;
+  --plan-bg:#F8FAF9; --room:#E4EBE9; --room-line:#BFCCC8; --corridor:#FFFFFF; --wall:#8A9C97;
+  --fc0:#5B4FC4; --fc1:#0E7C74; --fc2:#A86A12; --fc3:#B0365F; --fc4:#2F6DB5; --fc5:#5F7A24;
+  --danger:#B42318;
+  --font-sign:'Overpass','Helvetica Neue',Arial,sans-serif;
+  --font-body:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1514; --surface:#162120; --ink:#E5EEEC; --muted:#93A4A0; --line:#2A3A37;
+  --brand:#4FBFB4; --brand-ink:#08201E; --tint:#1C3230;
+  --route:#FF8A3D; --route-soft:#5A3420;
+  --plan-bg:#18221F; --room:#22302D; --room-line:#38504B; --corridor:#33433F; --wall:#5E726D;
+  --danger:#F97066; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1514; --surface:#162120; --ink:#E5EEEC; --muted:#93A4A0; --line:#2A3A37;
+  --brand:#4FBFB4; --brand-ink:#08201E; --tint:#1C3230;
+  --route:#FF8A3D; --route-soft:#5A3420;
+  --plan-bg:#18221F; --room:#22302D; --room-line:#38504B; --corridor:#33433F; --wall:#5E726D;
+  --danger:#F97066; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{color:var(--ink);font:16px/1.5 var(--font-body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--route);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+h1,h2,h3{font-family:var(--font-sign);text-wrap:balance;margin:0;line-height:1.15}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{display:flex;gap:10px;align-items:center;min-width:0}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--brand);display:grid;place-items:center;flex:none}
+.logo svg{width:20px;height:20px}
+.brand b{display:block;font:800 17px/1.1 var(--font-sign)}
+.brand small{color:var(--muted);font-size:13px}
+.wordmark{letter-spacing:-.01em}
+.modes{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px}
+.modes button{border:0;background:none;padding:6px 11px;border-radius:8px;font-size:14px;font-weight:700;color:var(--muted)}
+.modes button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:16px 120px;display:flex;flex-direction:column;gap:16px}
+.wrap.wide{max-width:1100px}
+.eyebrow{font:800 12px/1 var(--font-sign);letter-spacing:.12em;text-transform:uppercase}
+
+/* "Sie sind hier" sign */
+.here{background:var(--brand);color:var(--brand-ink);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.here .eyebrow{opacity:.85}
+.here-row{display:flex;gap:12px;align-items:center}
+.here-row strong{font:800 clamp(22px,6vw,28px)/1.1 var(--font-sign)}
+.sim{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;opacity:.95;border-top:1px solid color-mix(in srgb,var(--brand-ink) 25%,transparent);padding-top:10px}
+.sim select{background:color-mix(in srgb,var(--brand-ink) 14%,transparent);color:var(--brand-ink);border:1px solid color-mix(in srgb,var(--brand-ink) 35%,transparent);border-radius:8px;padding:5px 8px;max-width:100%;min-width:0}
+.sim select option{color:#13201E;background:#fff}
+
+.fb{--fc:var(--fc1);width:38px;height:38px;flex:none;border-radius:9px;background:var(--fc);color:#fff;display:grid;place-items:center;font:800 15px/1 var(--font-sign);font-variant-numeric:tabular-nums;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
+.fb.sm{width:28px;height:28px;font-size:12px;border-radius:7px}
+
+.search input{width:100%;padding:14px 16px 14px 46px;border-radius:14px;border:2px solid var(--line);background:var(--surface) no-repeat 15px 50%/20px;font-size:17px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2388968f' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5 21 21'/%3E%3C/svg%3E")}
+.search input:focus{border-color:var(--brand);outline:none}
+
+.group{display:flex;flex-direction:column;gap:6px}
+.group h3{font:800 12px/1 var(--font-sign);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:10px 2px 4px}
+.row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--line);background:var(--surface)}
+.row:hover{border-color:var(--brand)}
+.row .t{min-width:0}
+.row b{display:block;font-size:16px;line-height:1.25}
+.row small{display:block;color:var(--muted);font-size:13.5px;line-height:1.35;margin-top:2px}
+.chev{color:var(--muted);font-size:22px;line-height:1}
+.empty{color:var(--muted);text-align:center;padding:24px 8px}
+
+/* route */
+.back{align-self:flex-start;border:0;background:none;color:var(--brand);font-weight:700;padding:4px 0}
+.dest-head{display:flex;flex-direction:column;gap:6px}
+.dest-head .eyebrow{color:var(--route)}
+.dest-head h1{font-size:clamp(24px,6.5vw,30px);font-weight:800}
+.dest-head p{margin:0;color:var(--muted)}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+
+.mapcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.maptools{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.floors{display:flex;gap:6px;flex-wrap:wrap}
+.floors button{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:3px 9px 3px 3px;font-size:13px;font-weight:700}
+.floors button[aria-pressed="true"]{border-color:var(--ink);background:var(--surface)}
+.ghost{border:1px solid var(--line);background:none;border-radius:9px;padding:5px 10px;font-size:13px;font-weight:700}
+.ghost[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.plan{aspect-ratio:1000/620;max-width:100%;background:var(--plan-bg);touch-action:manipulation}
+.plan svg{display:block;width:100%;height:100%}
+
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.steps button{display:grid;grid-template-columns:40px 1fr;gap:12px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;align-items:start}
+.steps .ic{width:40px;height:40px;border-radius:10px;background:var(--bg);display:grid;place-items:center;color:var(--muted)}
+.steps .ic svg{width:24px;height:24px}
+.steps b{display:block;font:800 15px/1.2 var(--font-sign);margin-top:2px}
+.steps span.tx{display:block;color:var(--muted);font-size:15px;line-height:1.4;margin-top:3px}
+.steps li.on button{border-color:var(--route);background:color-mix(in srgb,var(--route) 7%,var(--surface))}
+.steps li.on .ic{background:var(--route);color:#fff}
+.steps li.on span.tx{color:var(--ink)}
+.steps li.done{opacity:.6}
+.flabel{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted);padding:8px 2px 2px}
+.walkctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.walkctl .note{flex-basis:100%;font-size:13.5px;color:var(--muted);margin:0}
+.walkctl .note.err{color:var(--danger)}
+.walkctl label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--muted)}
+.walkctl select{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:6px 8px;font-size:14px}
+.live{background:var(--ink);color:var(--surface);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.live.warn{background:var(--route);color:#fff}
+.live-top{display:flex;align-items:center;gap:10px}
+.live-top b{flex:1;font:800 18px/1.25 var(--font-sign)}
+.live-top button{background:transparent;color:inherit;border:1px solid currentColor;border-radius:9px;padding:5px 10px;font-weight:700;font-size:13px}
+.pulse{width:10px;height:10px;border-radius:50%;background:var(--route);flex:none;animation:pl 1.2s infinite}
+.live.warn .pulse{background:#fff}
+@keyframes pl{50%{opacity:.25}}
+.lbar{height:6px;background:color-mix(in srgb,currentColor 22%,transparent);border-radius:9px;overflow:hidden}
+.lbar i{display:block;height:100%;width:0;background:var(--route);transition:width .3s}
+.live.warn .lbar i{background:#fff}
+.live small{opacity:.85;font-size:13.5px;font-variant-numeric:tabular-nums}
+.p-walked{stroke:var(--brand);stroke-width:14;fill:none;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+.lost{margin:0;font-size:14px;color:var(--muted);background:var(--tint);border-radius:12px;padding:12px 14px}
+
+.navbar{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.navbar .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center}
+.navbar button{padding:13px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-weight:700;font-size:16px}
+.navbar button.primary{background:var(--route);border-color:var(--route);color:#fff}
+.navbar button:disabled{opacity:.4;cursor:default}
+#stepcount{font:800 14px var(--font-sign);color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* plan svg */
+.p-out{fill:var(--plan-bg);stroke:var(--wall);stroke-width:5}
+.p-cb{stroke:var(--room-line);stroke-width:52;stroke-linecap:round;fill:none}
+.p-c{stroke:var(--corridor);stroke-width:46;stroke-linecap:round;fill:none}
+.p-room{fill:var(--room);stroke:var(--room-line);stroke-width:2}
+.p-room.goal{fill:var(--route-soft);stroke:var(--route);stroke-width:3}
+.p-t{font:700 24px var(--font-sign);fill:var(--ink)}
+.p-s{font:400 17px var(--font-body);fill:var(--muted)}
+.p-lift{fill:var(--brand)}
+.p-lift-t{font:800 24px var(--font-sign);fill:var(--brand-ink)}
+.p-door{fill:var(--brand)}
+.p-route{stroke:var(--route-soft);stroke-width:14;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.p-seg{stroke:var(--route);stroke-width:14;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.p-flow{stroke:#fff;stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:1 26;animation:flow 1.1s linear infinite;opacity:.9}
+@keyframes flow{to{stroke-dashoffset:-27}}
+.p-here{fill:var(--brand);stroke:var(--surface);stroke-width:6}
+.p-ring{fill:none;stroke:var(--brand);stroke-width:4;transform-box:fill-box;transform-origin:center;animation:ring 1.8s ease-out infinite}
+@keyframes ring{from{transform:scale(.6);opacity:.9}to{transform:scale(1.9);opacity:0}}
+.p-pin{fill:var(--route);stroke:var(--surface);stroke-width:4}
+.p-tag{fill:var(--surface);stroke:var(--route);stroke-width:3}
+.p-tagt{font:700 22px var(--font-sign);fill:var(--ink)}
+@media (prefers-reduced-motion:reduce){.p-flow,.p-ring{animation:none}}
+
+/* editor */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.howto h2{font-size:20px;font-weight:800}
+.how{margin:12px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;counter-reset:h}
+.how li{counter-increment:h;display:grid;grid-template-columns:32px 1fr;gap:10px;font-size:15px;color:var(--muted)}
+.how li::before{content:counter(h);width:32px;height:32px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font:800 15px var(--font-sign)}
+.how b{color:var(--ink)}
+.bar2{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--brand)}
+.btn.primary{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.btn.warn{color:var(--danger)}
+.btn.warn.armed{background:var(--danger);color:#fff;border-color:var(--danger)}
+.tabbtn{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:4px 10px 4px 4px;font-weight:700;font-size:14px}
+.tabbtn[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.tools{display:flex;gap:6px;flex-wrap:wrap}
+.tools button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 11px;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:7px}
+.tools button[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none}
+.hint{margin:0;font-size:14px;color:var(--muted);min-height:1.5em}
+.ed-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start}
+@media (max-width:820px){.ed-grid{grid-template-columns:1fr}}
+.ed-canvas{background:var(--plan-bg);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0}
+.ed-canvas svg{display:block;width:100%;height:auto;touch-action:none;user-select:none;cursor:crosshair}
+.e-edge{stroke:var(--brand);stroke-width:5;stroke-linecap:round}
+.e-hit{stroke:transparent;stroke-width:24}
+.e-hit:hover+.e-edge,.del .e-hit:hover{stroke:var(--danger)}
+.e-node{stroke:var(--surface);stroke-width:4;cursor:grab}
+.e-sel{fill:none;stroke:var(--ink);stroke-width:4;stroke-dasharray:6 5}
+.e-lab{font:700 20px var(--font-sign);fill:var(--ink);paint-order:stroke;stroke:var(--plan-bg);stroke-width:6px;pointer-events:none}
+.panel{display:flex;flex-direction:column;gap:12px}
+.panel label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
+.panel input[type=text],.panel select,.panel textarea,.field{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:8px 10px;font-size:15px;font-weight:400;color:var(--ink)}
+.panel .check{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-weight:400;font-size:14px}
+.panel h3{font-size:16px;font-weight:800}
+.panel p{margin:0;font-size:14px;color:var(--muted)}
+.data textarea{width:100%;min-height:110px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px;color:var(--ink)}
+.note{font-size:14px;color:var(--muted);margin:0}
+.toast{font-size:14px;font-weight:700;color:var(--brand)}
+
+/* QR */
+.qrgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.qrc{background:#fff;color:#111;border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center}
+.qrc .eyebrow{color:#0D5A55}
+.qrc b{font:800 19px/1.15 var(--font-sign)}
+.qrc .q{width:150px;height:150px}
+.qrc .q img,.qrc .q canvas{width:150px!important;height:150px!important}
+.qrc small{font-size:11px;color:#555;word-break:break-all}
+.qrc .scan{font-size:13px;color:#333}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color:var(--brand-ink)"><path d="M12 22s7-6.6 7-12.2A7 7 0 0 0 5 9.8C5 15.4 12 22 12 22z" fill="currentColor"/><path d="M9 7.6l3 5 3-5" stroke="var(--brand)" stroke-width="2.4"/></svg></span>
+      <div><b class="wordmark">Klinavi</b><small id="bname">Klinikum Demo</small></div>
+    </div>
+    <nav class="modes" role="tablist" aria-label="Ansicht">
+      <button role="tab" data-mode="visitor" aria-selected="true">Besucher</button>
+      <button role="tab" data-mode="editor" aria-selected="false">Plan-Editor</button>
+      <button role="tab" data-mode="qr" aria-selected="false">QR-Codes</button>
+    </nav>
+  </div>
+</header>
+
+<main id="v-visitor" class="wrap">
+  <section id="home" style="display:flex;flex-direction:column;gap:16px">
+    <div class="here">
+      <span class="eyebrow">Sie sind hier</span>
+      <div class="here-row"><span class="fb" id="here-fb"></span><strong id="here-name"></strong></div>
+      <label class="sim" for="start-sel">Demo: QR-Scan simulieren <select id="start-sel"></select></label>
+    </div>
+    <label class="search"><span class="sr">Ziel suchen</span><input id="q" type="search" autocomplete="off" placeholder="Wohin möchten Sie? z. B. Station 2B, Röntgen"></label>
+    <div id="list" style="display:flex;flex-direction:column;gap:6px"></div>
+  </section>
+  <section id="route" hidden style="display:flex;flex-direction:column;gap:14px">
+    <button class="back" id="back">‹ Anderes Ziel wählen</button>
+    <div class="dest-head"><span class="eyebrow">Ihr Ziel</span><h1 id="r-name"></h1><p id="r-info"></p><div class="meta" id="r-meta"></div></div>
+    <div class="walkctl" id="walkctl">
+      <button class="btn primary" id="walk-start">Mitlaufen starten</button>
+      <button class="btn" id="walk-sim">Gehen simulieren</button>
+      <label for="walk-len">Schrittlänge <select id="walk-len"><option value="0.5">kurz (50 cm)</option><option value="0.65" selected>normal (65 cm)</option><option value="0.75">lang (75 cm)</option></select></label>
+      <p class="note" id="walk-note">Beim Mitlaufen zählt das Handy Ihre Schritte und schaltet bei Abbiegungen selbst weiter. Die Sensordaten bleiben auf Ihrem Gerät.</p>
+    </div>
+    <div class="live" id="live" hidden aria-live="polite">
+      <div class="live-top"><span class="pulse" aria-hidden="true"></span><b id="live-msg">Mitlaufen aktiv</b><button id="live-stop">Beenden</button></div>
+      <div class="lbar"><i id="live-bar"></i></div>
+      <small id="live-sub"></small>
+    </div>
+    <div class="mapcard">
+      <div class="maptools"><div id="r-floors" class="floors"></div><button id="r-full" class="ghost" aria-pressed="false">Ganzer Plan</button></div>
+      <div class="plan" id="r-plan"></div>
+    </div>
+    <ol id="r-steps" class="steps"></ol>
+    <p class="lost">Verlaufen? Scannen Sie den QR-Code beim nächsten Aufzug. Die Route startet dann neu von dort.</p>
+  </section>
+</main>
+<div class="navbar" id="navbar" hidden><div class="in"><button id="prev">Zurück</button><div id="stepcount"></div><button id="next" class="primary">Weiter</button></div></div>
+
+<main id="v-editor" class="wrap wide" hidden>
+  <section class="card howto">
+    <h2>So kommt Ihr Hausplan in die App</h2>
+    <ol class="how">
+      <li><div><b>Plan fotografieren.</b> Die Fluchtwegpläne hängen auf jeder Ebene. Ein Handyfoto pro Stockwerk genügt, besser noch ein PDF oder Bild von der Haustechnik.</div></li>
+      <li><div><b>Foto hochladen und Wege nachklicken.</b> Gang-Punkte entlang der Flure setzen, dann Ziele und Aufzüge eintragen. Aufzüge mit gleichem Namen verbinden die Stockwerke.</div></li>
+      <li><div><b>QR-Codes aufhängen.</b> Unter „QR-Codes“ für Eingänge und Aufzüge ausdrucken. In der Besucher-Ansicht testen Sie jede Route sofort.</div></li>
+    </ol>
+  </section>
+  <div class="bar2" id="ed-floors"></div>
+  <div class="bar2" id="ed-floorbar"></div>
+  <div class="tools" id="ed-tools"></div>
+  <p class="hint" id="ed-hint"></p>
+  <div class="ed-grid">
+    <div class="ed-canvas" id="ed-canvas"></div>
+    <aside class="panel card" id="ed-panel"></aside>
+  </div>
+  <section class="card data" style="display:flex;flex-direction:column;gap:10px">
+    <h2 style="font-size:18px;font-weight:800">Daten sichern & übernehmen</h2>
+    <p class="note">Alle Änderungen gelten sofort in der Besucher-Ansicht und werden in diesem Browser zwischengespeichert. Für die echte App exportieren Sie die Daten als Text (JSON).</p>
+    <div class="bar2">
+      <button class="btn primary" id="exp">Daten exportieren</button>
+      <button class="btn" id="imp">Eingefügte Daten laden</button>
+      <button class="btn" id="reset-demo">Demo-Klinikum wiederherstellen</button>
+      <button class="btn warn" id="reset-empty">Leeres Gebäude beginnen</button>
+      <span class="toast" id="data-toast" aria-live="polite"></span>
+    </div>
+    <label class="sr" for="json">JSON-Daten</label>
+    <textarea id="json" placeholder="Hier erscheinen die exportierten Daten. Zum Laden JSON hier einfügen und „Eingefügte Daten laden“ drücken."></textarea>
+  </section>
+</main>
+
+<main id="v-qr" class="wrap wide" hidden>
+  <section class="card" style="display:flex;flex-direction:column;gap:10px">
+    <h2 style="font-size:20px;font-weight:800">QR-Codes für die Standorte</h2>
+    <p class="note">Jeder Code öffnet den Wegweiser mit dem passenden Startpunkt. Eingänge und Aufzüge bekommen automatisch einen Code, weitere Punkte markieren Sie im Plan-Editor als „QR-Standort“. Tragen Sie die Adresse ein, unter der die App später läuft.</p>
+    <label style="display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted)" for="qr-base">Adresse der App
+      <input id="qr-base" class="field" type="text" value="https://wegweiser.ihre-klinik.at/"></label>
+  </section>
+  <div class="qrgrid" id="qr-grid"></div>
+</main>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const KEY=(window.NMC?'nmc':'demo')+'-wegweiser-v2', SCALE=0.08, LIFT_COST=300;
+const CATS=[['Station','Stationen'],['Ambulanz','Ambulanzen & Untersuchungen'],['Gebäude','Gebäude'],['Anreise','Anreise & Eingänge'],['Service','Service & Orientierung']];
+const TYPES={g:['Gang-Punkt','var(--muted)'],z:['Ziel','var(--route)'],l:['Aufzug / Stiege','var(--brand)'],e:['Eingang','var(--fc4)']};
+
+function demoData(){
+  const floors=[{id:'UG',name:'Untergeschoß',short:'UG'},{id:'EG',name:'Erdgeschoß',short:'EG'},{id:'1',name:'1. Stock',short:'1'},{id:'2',name:'2. Stock',short:'2'}];
+  const nodes=[],edges=[];
+  for(const {id:f} of floors){
+    nodes.push({id:f+'-A',f,x:120,y:300,t:'l',name:'Aufzüge A'},{id:f+'-w',f,x:300,y:300,t:'g'},{id:f+'-c',f,x:500,y:300,t:'g'},{id:f+'-o',f,x:700,y:300,t:'g'},{id:f+'-B',f,x:880,y:300,t:'l',name:'Aufzüge B'});
+    edges.push([f+'-A',f+'-w'],[f+'-w',f+'-c'],[f+'-c',f+'-o'],[f+'-o',f+'-B']);
+  }
+  nodes.push({id:'EG-s',f:'EG',x:500,y:490,t:'g'},{id:'EG-eingang',f:'EG',x:500,y:585,t:'e',name:'Haupteingang',cat:'Service',info:'Barrierefreier Seiteneingang rechts neben der Drehtür'});
+  edges.push(['EG-c','EG-s'],['EG-s','EG-eingang']);
+  const Z=(id,f,x,y,via,name,cat,lab,info,extra={})=>{nodes.push({id,f,x,y,t:'z',name,cat,lab,info,...extra});edges.push([via,id])};
+  Z('EG-info','EG',400,490,'EG-s','Information & Portier','Service',['Portier','Information'],'Rund um die Uhr besetzt');
+  Z('EG-aufn','EG',600,490,'EG-s','Patientenaufnahme & Kassa','Service',['Aufnahme','& Kassa'],'Mo–Fr 7:00–15:30 Uhr');
+  Z('EG-cafe','EG',300,180,'EG-w','Cafeteria','Service',['Cafeteria'],'Mo–Fr 7:30–18:00, Sa/So 9:00–17:00 Uhr');
+  Z('EG-trafik','EG',300,400,'EG-w','Trafik & Blumen','Service',['Trafik','& Blumen'],'Zeitungen, Blumen, kleine Geschenke');
+  Z('EG-notauf','EG',700,180,'EG-o','Notaufnahme','Ambulanz',['Notaufnahme'],'Bei Notfällen direkt hierher kommen');
+  Z('EG-wc','EG',700,400,'EG-o','WC (barrierefrei)','Service',['WC','barrierefrei'],'Mit Wickeltisch');
+  Z('UG-rad','UG',300,180,'UG-w','Radiologie (Röntgen, CT, MRT)','Ambulanz',['Radiologie','Röntgen · CT · MRT'],'Bitte am Radiologie-Schalter anmelden');
+  Z('UG-labor','UG',300,400,'UG-w','Labor & Blutabnahme','Ambulanz',['Labor','Blutabnahme'],'Mo–Fr 7:00–11:00 Uhr, ohne Termin');
+  Z('UG-physio','UG',700,180,'UG-o','Physiotherapie','Ambulanz',['Physio-','therapie'],'Nur mit Termin');
+  Z('UG-kapelle','UG',700,400,'UG-o','Kapelle & Raum der Stille','Service',['Kapelle','Raum der Stille'],'Täglich 7:00–20:00 Uhr geöffnet');
+  nodes.push({id:'UG-garage',f:'UG',x:880,y:430,t:'e',name:'Tiefgarage',cat:'Service',lab:['Tiefgarage'],rw:120,info:'Kassenautomat neben dem Ausgang'});edges.push(['UG-B','UG-garage']);
+  Z('1-1a','1',300,180,'1-w','Station 1A – Innere Medizin','Station',['Station 1A','Innere Medizin'],'Besuchszeit täglich 14:00–19:00 Uhr');
+  Z('1-1b','1',700,180,'1-o','Station 1B – Chirurgie','Station',['Station 1B','Chirurgie'],'Besuchszeit täglich 14:00–19:00 Uhr');
+  Z('1-kard','1',300,400,'1-w','Kardiologische Ambulanz','Ambulanz',['Ambulanz','Kardiologie'],'Nur mit Termin, Anmeldung direkt vor Ort');
+  Z('1-tk','1',700,400,'1-o','Tagesklinik','Ambulanz',['Tagesklinik'],'Mo–Fr 7:00–17:00 Uhr');
+  Z('2-2a','2',300,180,'2-w','Station 2A – Geburtshilfe','Station',['Station 2A','Geburtshilfe'],'Besuchszeit 15:00–18:00 Uhr, Partner jederzeit');
+  Z('2-kreiss','2',300,400,'2-w','Kreißsaal','Station',['Kreißsaal'],'Bitte an der Glocke läuten');
+  Z('2-2b','2',700,180,'2-o','Station 2B – Kinder- und Jugendheilkunde','Station',['Station 2B','Kinderheilkunde'],'Eltern sind jederzeit willkommen');
+  Z('2-icu','2',700,400,'2-o','Intensivstation','Station',['Intensiv-','station'],'Besuch nur nach Anmeldung an der Gegensprechanlage');
+  return {name:'Klinikum Demo',floors,nodes,edges};
+}
+function load(){try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):null}catch(e){return null}}
+/*NMC-SLOT*/
+const freshData=()=>window.NMC?nmcData():demoData();
+let D=load()||freshData();
+let G=null;
+function changed(){G=null;try{localStorage.setItem(KEY,JSON.stringify(D))}catch(e){}}
+
+/* ---------- graph ---------- */
+const byId=id=>graph().byId.get(id);
+const floorOf=id=>D.floors.find(f=>f.id===id);
+const fIdx=id=>Math.max(0,D.floors.findIndex(f=>f.id===id));
+const fColor=id=>`var(--fc${fIdx(id)%6})`;
+const nb=(n,sm)=>n&&n.badge?`<span class="fb${sm?' sm':''}" style="--fc:${n.badge.c}">${esc(n.badge.t)}</span>`:fb(n.f,sm);
+const fb=(fid,sm)=>{const F=floorOf(fid);return `<span class="fb${sm?' sm':''}" style="--fc:${fColor(fid)}">${esc(F?F.short:'?')}</span>`};
+function graph(){
+  if(G)return G;
+  const bm=new Map(D.nodes.map(n=>[n.id,n])),adj=new Map();
+  const link=(a,b,w)=>{if(!adj.has(a))adj.set(a,[]);adj.get(a).push([b,w])};
+  for(const [a,b] of D.edges){const A=bm.get(a),B=bm.get(b);if(!A||!B||A.f!==B.f)continue;const w=Math.hypot(A.x-B.x,A.y-B.y);link(a,b,w);link(b,a,w)}
+  const lifts=D.nodes.filter(n=>n.t==='l'&&n.name);
+  for(const a of lifts)for(const b of lifts){if(a===b)continue;if(a.name.trim().toLowerCase()!==b.name.trim().toLowerCase())continue;if(Math.abs(fIdx(a.f)-fIdx(b.f))===1)link(a.id,b.id,LIFT_COST)}
+  return G={byId:bm,adj};
+}
+function shortest(a,b){
+  const g=graph(),dist=new Map([[a,0]]),prev=new Map(),done=new Set(),q=[a];
+  while(q.length){let bi=0;for(let i=1;i<q.length;i++)if(dist.get(q[i])<dist.get(q[bi]))bi=i;const u=q.splice(bi,1)[0];if(done.has(u))continue;done.add(u);if(u===b)break;
+    for(const [v,w] of g.adj.get(u)||[]){const nd=dist.get(u)+w;if(nd<(dist.get(v)??Infinity)){dist.set(v,nd);prev.set(v,u);q.push(v)}}}
+  if(!dist.has(b))return null;const p=[b];while(p[0]!==a)p.unshift(prev.get(p[0]));return p;
+}
+const turnAng=(a,b,c)=>{const x1=b.x-a.x,y1=b.y-a.y,x2=c.x-b.x,y2=c.y-b.y;return Math.atan2(x1*y2-y1*x2,x1*x2+y1*y2)*180/Math.PI};
+const legLen=l=>l.reduce((s,p,i)=>i?s+Math.hypot(p.x-l[i-1].x,p.y-l[i-1].y):0,0);
+const scaleOf=fid=>floorOf(fid)?.scale||SCALE;
+const meters=m=>{return m<10?Math.max(1,Math.round(m))+' m':Math.round(m/5)*5+' m'};
+const toFloor=fid=>{const n=floorOf(fid).name;return /stock$/i.test(n)?'in den '+n:'ins '+n};
+const dirWord=a=>a>0?'rechts':'links';
+function turnInfo(a){const x=Math.abs(a);
+  if(x<25)return{title:'Geradeaus',lead:'Gehen Sie geradeaus weiter, ca. {m}',rot:0};
+  if(x<60)return{title:'Leicht '+dirWord(a),lead:'Halten Sie sich leicht '+dirWord(a)+' und gehen Sie ca. {m}',rot:a>0?45:-45};
+  if(x<150)return{title:dirWord(a)==='rechts'?'Rechts abbiegen':'Links abbiegen',lead:'Biegen Sie '+dirWord(a)+' ab und gehen Sie ca. {m}',rot:a>0?90:-90};
+  return{title:'Umkehren',lead:'Kehren Sie um und gehen Sie ca. {m}',rot:180};}
+const sideText=a=>a==null||Math.abs(a)<25||Math.abs(a)>=150?'direkt vor Ihnen':a>0?'auf der rechten Seite':'auf der linken Seite';
+
+function makeSteps(p){
+  const N=p.map(byId),runs=[];let cur=[N[0]];
+  for(let k=1;k<N.length;k++){if(N[k].f!==N[k-1].f){runs.push(cur);cur=[N[k]]}else cur.push(N[k])}
+  runs.push(cur);
+  const steps=[],last=runs.length-1,start=N[0];
+  runs.forEach((run,ri)=>{
+    if(ri>0){
+      if(run.length===1&&ri<last)return;
+      const L=run[0];
+      steps.push({kind:'lift',title:L.name||'Aufzug',text:`Fahren Sie ${toFloor(L.f)}.`,f:L.f,pts:[L]});
+    }
+    if(run.length<2){ if(ri===last&&ri>0){steps.push({kind:'arrive',title:'Angekommen',text:`${run[0].name||'Ihr Ziel'} liegt direkt vor Ihnen.`,f:run[0].f,pts:[run[0]]})} return;}
+    const legs=[];let s=0;
+    for(let k=1;k<run.length;k++){if(k===run.length-1||Math.abs(turnAng(run[k-1],run[k],run[k+1]))>=25){legs.push(run.slice(s,k+1));s=k}}
+    legs.forEach((leg,li)=>{
+      const finalLeg=ri===last&&li===legs.length-1,end=leg[leg.length-1],len=legLen(leg)*scaleOf(leg[0].f),raw=legLen(leg);
+      const ang=li>0?turnAng(legs[li-1][legs[li-1].length-2],leg[0],leg[1]):null;
+      if(finalLeg&&(end.t==='z'||end.t==='e')&&raw<220&&(li>0||ri>0)){
+        steps.push({kind:'arrive',title:'Angekommen',text:end.then?`Der Eingang zu ${end.bau||'Ihrem Ziel'} liegt ${sideText(ang)}.`:`${end.name} liegt ${sideText(ang)}.`,f:end.f,pts:leg});return;
+      }
+      let st;
+      if(li===0&&ri===0)st={kind:'turn',rot:0,title:'Losgehen',lead:start.t==='e'?'Gehen Sie ca. {m} geradeaus':'Folgen Sie dem Gang ca. {m}, wie im Plan gezeigt'};
+      else if(li===0)st={kind:'turn',rot:0,title:'Aussteigen',lead:'Steigen Sie aus und folgen Sie dem Gang ca. {m}'};
+      else{const t=turnInfo(ang);st={kind:'turn',rot:t.rot,title:t.title,lead:t.lead}}
+      const tail=end.t==='l'&&!finalLeg?`, bis Sie „${end.name}“ erreichen.`:'.';
+      steps.push({kind:st.kind,rot:st.rot,title:st.title,text:st.lead.replace('{m}',meters(len))+tail,f:leg[0].f,pts:leg,dist:len});
+      if(finalLeg)steps.push({kind:'arrive',title:'Angekommen',text:end.then?`Sie stehen vor dem Eingang zu ${end.bau||'Ihrem Ziel'}.`:`${end.name} liegt direkt vor Ihnen.`,f:end.f,pts:[end]});
+    });
+  });
+  const dz=N[N.length-1];if(dz.then&&steps.length){steps[steps.length-1].title='Eingang erreicht';steps.push({kind:'inside',title:'Im Gebäude',text:dz.then,f:dz.f,pts:[dz]})}
+  return steps;
+}
+
+/* ---------- plan rendering ---------- */
+function planSVG(fid,o={}){
+  const F=floorOf(fid);if(!F)return'';const H=F.h||620;
+  const nodes=D.nodes.filter(n=>n.f===fid),ids=new Set(nodes.map(n=>n.id));
+  const bm=graph().byId;
+  const edges=D.edges.filter(([a,b])=>ids.has(a)&&ids.has(b));
+  let s='';
+  if(F.image)s+=`<image href="${F.image}" x="0" y="0" width="1000" height="${H}" preserveAspectRatio="none"/>`;
+  if(!F.image){
+    s+=`<rect class="p-out" x="60" y="60" width="880" height="${H-140}" rx="8"/>`;
+    const seg=edges.map(([a,b])=>{const A=bm.get(a),B=bm.get(b);return`M${A.x} ${A.y}L${B.x} ${B.y}`}).join('');
+    if(!o.editor&&seg)s+=`<path class="p-cb" d="${seg}"/><path class="p-c" d="${seg}"/>`;
+    for(const n of nodes)if(n.t==='z'||(n.t==='e'&&n.lab)){
+      const w=n.rw||150,h=80,lab=n.lab||[n.name];
+      s+=`<rect class="p-room${o.goal===n.id?' goal':''}" x="${n.x-w/2}" y="${n.y-h/2}" width="${w}" height="${h}" rx="6"/>`;
+      if(o.editor)continue;
+      s+=`<text class="p-t" x="${n.x}" y="${n.y+(lab[1]?-4:8)}" text-anchor="middle">${esc(lab[0])}</text>`;
+      if(lab[1])s+=`<text class="p-s" x="${n.x}" y="${n.y+20}" text-anchor="middle">${esc(lab[1])}</text>`;
+    }
+    if(!o.editor)for(const n of nodes)if(n.t==='e'&&!n.lab){
+      s+=`<rect class="p-door" x="${n.x-40}" y="${n.y-46}" width="80" height="12" rx="3"/><text class="p-t" x="${n.x}" y="${Math.min(n.y+4,H-10)}" text-anchor="middle">${esc(n.name)}</text>`;
+    }
+  }
+  if(!o.editor)for(const n of nodes)if(n.t==='l'){
+    s+=`<rect class="p-lift" x="${n.x-24}" y="${n.y-24}" width="48" height="48" rx="9"/><path d="M${n.x-9} ${n.y-4}l9-10 9 10zM${n.x-9} ${n.y+4}l9 10 9-10z" fill="var(--brand-ink)"/>`;
+    if(!F.image)s+=`<text class="p-s" x="${n.x}" y="${n.y+50}" text-anchor="middle">${esc(n.name||'')}</text>`;
+  }
+  if(o.routeRuns)for(const r of o.routeRuns)if(r.length>1)s+=`<polyline class="p-route" points="${r.map(p=>p.x+','+p.y).join(' ')}"/>`;
+  if(o.seg&&o.seg.length>1){const pts=o.seg.map(p=>p.x+','+p.y).join(' ');s+=`<polyline class="p-seg" points="${pts}"/><polyline class="p-flow" points="${pts}"/>`}
+  if(o.end){const e=o.end;
+    s+=`<path class="p-pin" d="M${e.x} ${e.y}c-6-14-22-22-22-38a22 22 0 1 1 44 0c0 16-16 24-22 38z"/><circle cx="${e.x}" cy="${e.y-38}" r="8" fill="var(--surface)"/>`;
+    if(F.image){const t=e.tag||e.name||'Ziel',w=t.length*12+28;s+=`<rect class="p-tag" x="${e.x-w/2}" y="${e.y-104}" width="${w}" height="38" rx="8"/><text class="p-tagt" x="${e.x}" y="${e.y-78}" text-anchor="middle">${esc(t)}</text>`}
+  }
+  if(o.seg)s+=`<polyline id="walked" class="p-walked" points=""/>`;
+  if(o.here){const h=o.here;s+=`<circle id="here-ring" class="p-ring" cx="${h.x}" cy="${h.y}" r="20"/><circle id="here-dot" class="p-here" cx="${h.x}" cy="${h.y}" r="15"/>`}
+  if(o.editor)s+=o.editor;
+  return s;
+}
+
+/* ---------- visitor ---------- */
+const V={start:null,dest:null,path:null,steps:[],i:0,show:null,full:false,vb:null};
+const startPoints=()=>D.nodes.filter(n=>n.t==='e'||n.t==='l'||n.qr);
+const dests=()=>D.nodes.filter(n=>(n.t==='z'||n.t==='e')&&n.name);
+const nodeLabel=n=>(n.name||TYPES[n.t][0])+' · '+(floorOf(n.f)?.name||'');
+function pickStart(){
+  const h=decodeURIComponent((location.hash||'').slice(1));
+  if(h.startsWith('s-')&&graph().byId.has(h.slice(2)))return h.slice(2);
+  if(V.start&&graph().byId.has(V.start))return V.start;
+  const e=D.nodes.find(n=>n.start)||D.nodes.find(n=>n.t==='e'&&n.f==='EG')||D.nodes.find(n=>n.t==='e')||D.nodes[0];
+  return e?e.id:null;
+}
+function renderHome(){
+  V.start=pickStart();
+  $('#bname').textContent=D.name||'Klinikum';
+  const st=V.start&&byId(V.start);
+  $('#here-name').textContent=st?(st.name||'Standort'):'Noch kein Plan angelegt';
+  $('#here-fb').outerHTML=st?nb(st).replace('class="fb"','class="fb" id="here-fb"'):'<span class="fb" id="here-fb">–</span>';
+  $('#start-sel').innerHTML=startPoints().map(n=>`<option value="${esc(n.id)}"${n.id===V.start?' selected':''}>${esc(nodeLabel(n))}</option>`).join('');
+  renderList();
+}
+function renderList(){
+  const q=$('#q').value.trim().toLowerCase();
+  const all=dests().filter(n=>n.id!==V.start&&(!q||(n.name+' '+(n.info||'')+' '+(n.where||'')+' '+(n.lab||[]).join(' ')+' '+(floorOf(n.f)?.name||'')).toLowerCase().includes(q)));
+  if(!all.length){$('#list').innerHTML=`<p class="empty">${D.nodes.length?'Kein Ziel gefunden. Versuchen Sie einen anderen Begriff, z. B. „Station“ oder „WC“.':'Im Plan-Editor sind noch keine Ziele eingetragen.'}</p>`;return}
+  let h='';
+  for(const [c,label] of CATS){
+    const items=all.filter(n=>(n.cat||'Service')===c).sort((a,b)=>fIdx(a.f)-fIdx(b.f)||a.name.localeCompare(b.name,'de'));
+    if(!items.length)continue;
+    h+=`<div class="group"><h3>${label}</h3>`+items.map(n=>`<button class="row" data-dest="${esc(n.id)}">${nb(n)}<span class="t"><b>${esc(n.name)}</b><small>${esc(n.where||floorOf(n.f).name)}${n.info?' · '+esc(n.info):''}</small></span><span class="chev" aria-hidden="true">›</span></button>`).join('')+`</div>`;
+  }
+  $('#list').innerHTML=h;
+}
+function openRoute(id){
+  stopWalk();
+  V.dest=id;V.i=0;V.show=null;V.full=false;V.vb=null;
+  const d=byId(id);
+  V.path=V.start===id?[id]:shortest(V.start,id);
+  V.steps=V.path?(V.path.length===1?[{kind:'arrive',title:'Angekommen',text:'Sie befinden sich bereits hier.',f:d.f,pts:[d]}]:makeSteps(V.path)):[];
+  $('#home').hidden=true;$('#route').hidden=false;$('#navbar').hidden=!V.path;$('#walkctl').hidden=!V.path||V.steps.length<2;
+  $('#r-name').textContent=d.name;$('#r-info').textContent=d.info||'';$('#r-info').hidden=!d.info;
+  if(!V.path){$('#r-meta').innerHTML='';$('#r-floors').innerHTML='';$('#r-plan').innerHTML='';$('#r-steps').innerHTML=`<li class="lost">Zu diesem Ziel gibt es von Ihrem Standort noch keinen eingetragenen Weg. Bitte wenden Sie sich an den Portier.</li>`;window.scrollTo(0,0);return}
+  const dist=V.steps.reduce((s,x)=>s+(x.kind!=='lift'?legLen(x.pts)*scaleOf(x.f):0),0),lifts=V.steps.filter(x=>x.kind==='lift');
+  const min=Math.max(1,Math.round((dist/0.9+lifts.length*45)/60));
+  const via=[...new Set(lifts.map(x=>x.title))];
+  $('#r-meta').innerHTML=`<span class="chip">ca. ${min} Min.</span><span class="chip">${meters(dist)} Fußweg</span><span class="chip">${nb(d,true)}${esc(d.badge?(d.bau||floorOf(d.f).name):floorOf(d.f).name)}</span>`+(via.length?`<span class="chip">über ${esc(via.join(', '))}</span>`:'');
+  renderRoute(true);window.scrollTo(0,0);
+}
+const ICON={
+  arrow:r=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(${r}deg)"><path d="M12 20V5M6 11l6-6 6 6"/></svg>`,
+  lift:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8.5 10 12 6.5 15.5 10zM8.5 14 12 17.5 15.5 14z" fill="currentColor"/></svg>`,
+  pin:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.6" fill="currentColor"/></svg>`};
+function renderRoute(fresh){
+  const st=V.steps[V.i];const floor=V.show||st.f;
+  const floorsInRoute=[...new Set(V.path.map(id=>byId(id).f))];
+  $('#r-floors').innerHTML=floorsInRoute.map(f=>`<button data-floor="${esc(f)}" aria-pressed="${f===floor}">${fb(f,true)}${esc(floorOf(f).name)}</button>`).join('');
+  $('#r-full').setAttribute('aria-pressed',V.full||!!V.show);
+  const runs=[];let cur=[];for(const id of V.path){const n=byId(id);if(n.f===floor)cur.push(n);else if(cur.length){runs.push(cur);cur=[]}}if(cur.length)runs.push(cur);
+  const dest=byId(V.dest);
+  const onFloor=st.f===floor;
+  const svgInner=planSVG(floor,{routeRuns:runs,seg:onFloor?st.pts:null,here:onFloor&&st.kind!=='arrive'?st.pts[0]:(onFloor&&st.pts.length>1?st.pts[0]:null),end:dest.f===floor?dest:null,goal:V.dest});
+  const F=floorOf(floor),H=F.h||620;
+  let target=[0,0,1000,H];
+  if(!V.full&&!V.show&&onFloor){
+    const xs=st.pts.map(p=>p.x),ys=st.pts.map(p=>p.y);
+    if(st.kind==='arrive'||V.i===V.steps.length-1){xs.push(dest.x);ys.push(dest.y-60)}
+    let x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+    let w=Math.max(x1-x0+260,460),h=w*0.62;if(y1-y0+220>h){h=y1-y0+220;w=h/0.62}
+    w=Math.min(w,1000);h=Math.min(h,H);
+    let cx=(x0+x1)/2,cy=(y0+y1)/2;
+    let x=Math.min(Math.max(cx-w/2,0),1000-w),y=Math.min(Math.max(cy-h/2,0),H-h);
+    target=[x,y,w,h];
+  }
+  const box=$('#r-plan');
+  box.innerHTML=`<svg viewBox="${(V.vb&&!fresh&&V.vbFloor===floor?V.vb:target).join(' ')}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Plan ${esc(F.name)} mit Route">${svgInner}</svg>`;
+  tweenVB(box.firstChild,(V.vb&&!fresh&&V.vbFloor===floor)?V.vb:target,target);V.vb=target;V.vbFloor=floor;
+  let h='',lastF=null;
+  V.steps.forEach((x,k)=>{
+    if(x.f!==lastF){h+=`<li class="flabel">${fb(x.f,true)}${esc(floorOf(x.f).name)}</li>`;lastF=x.f}
+    const ic=x.kind==='lift'||x.kind==='inside'?ICON.lift:x.kind==='arrive'?ICON.pin:ICON.arrow(x.rot||0);
+    h+=`<li class="${k===V.i?'on':k<V.i?'done':''}"><button data-step="${k}" aria-current="${k===V.i?'step':'false'}"><span class="ic">${ic}</span><span><b>${esc(x.title)}</b><span class="tx">${esc(x.text)}</span></span></button></li>`;
+  });
+  $('#r-steps').innerHTML=h;
+  $('#stepcount').textContent=`${V.i+1} / ${V.steps.length}`;
+  $('#prev').disabled=V.i===0;
+  $('#next').textContent=V.i===V.steps.length-1?'Fertig':'Weiter';
+  walkSync();
+}
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function tweenVB(svg,a,b){
+  if(reduce||a.join()===b.join()){svg.setAttribute('viewBox',b.join(' '));return}
+  const t0=performance.now(),D_=380;
+  const f=t=>{let k=Math.min(1,(t-t0)/D_);k=1-Math.pow(1-k,3);svg.setAttribute('viewBox',a.map((v,i)=>v+(b[i]-v)*k).join(' '));if(k<1)requestAnimationFrame(f)};
+  requestAnimationFrame(f);
+}
+function goHome(){stopWalk();V.dest=null;$('#route').hidden=true;$('#home').hidden=false;$('#navbar').hidden=true;renderHome();window.scrollTo(0,0)}
+
+$('#start-sel').addEventListener('change',e=>{V.start=e.target.value;try{history.replaceState(null,'','#s-'+V.start)}catch(_){}renderHome()});
+$('#q').addEventListener('input',renderList);
+$('#list').addEventListener('click',e=>{const b=e.target.closest('[data-dest]');if(b)openRoute(b.dataset.dest)});
+$('#back').addEventListener('click',goHome);
+$('#r-steps').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b)return;V.i=+b.dataset.step;V.show=null;V.full=false;renderRoute()});
+$('#r-floors').addEventListener('click',e=>{const b=e.target.closest('[data-floor]');if(!b)return;const f=b.dataset.floor;V.show=f===V.steps[V.i].f?null:f;renderRoute()});
+$('#r-full').addEventListener('click',()=>{if(V.show){V.show=null;V.full=false}else V.full=!V.full;renderRoute()});
+$('#prev').addEventListener('click',()=>{if(V.i>0){V.i--;V.show=null;V.full=false;renderRoute();scrollStep()}});
+$('#next').addEventListener('click',()=>{if(V.i<V.steps.length-1){V.i++;V.show=null;V.full=false;renderRoute();scrollStep()}else goHome()});
+function scrollStep(){const el=document.querySelector('.steps li.on');if(el){const r=el.getBoundingClientRect();if(r.bottom>innerHeight-90||r.top<70)el.scrollIntoView({block:'center',behavior:reduce?'auto':'smooth'})}}
+addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(['visitor','editor','qr'].includes(h)){setMode(h);return}V.start=null;if(mode==='visitor')goHome()});
+
+/* ---------- Mitlaufen ---------- */
+const W={on:false,sim:false,paused:false,prog:0,stepIdx:-1,base:null,hd:null,warned:false,inLeg:0,steps:0,seen:false,timer:null,len:0.65,wake:null};
+try{const l=parseFloat(localStorage.getItem('klinavi-step'));if(l){W.len=l;$('#walk-len').value=String(l)}}catch(_){}
+const ORIENT='ondeviceorientationabsolute' in window?'deviceorientationabsolute':'deviceorientation';
+const stepM=st=>legLen(st.pts)*scaleOf(st.f);
+const angDiff=(a,b)=>((a-b+540)%360)-180;
+const vib=p=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(_){}};
+function pointAt(pts,frac){const L=legLen(pts);let d=frac*L;
+  for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],sg=Math.hypot(b.x-a.x,b.y-a.y);if(d<=sg){const t=sg?d/sg:0;return{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,i}}d-=sg}
+  return{...pts[pts.length-1],i:pts.length-1};}
+function placeDot(){
+  const st=V.steps[V.i];if(!st||st.pts.length<2)return;
+  const f=Math.min(1,W.prog/Math.max(stepM(st),0.5)),p=pointAt(st.pts,f);
+  for(const id of ['here-dot','here-ring']){const c=document.getElementById(id);if(c){c.setAttribute('cx',p.x);c.setAttribute('cy',p.y)}}
+  const wk=document.getElementById('walked');if(wk)wk.setAttribute('points',W.prog>0?[...st.pts.slice(0,p.i),p].map(q=>q.x+','+q.y).join(' '):'');
+}
+function soonText(nx){return nx.kind==='turn'?nx.title.charAt(0).toLowerCase()+nx.title.slice(1):nx.kind==='lift'?`erreichen Sie „${nx.title}“`:'sind Sie am Ziel'}
+function live(msg,frac,sub,warn){$('#live-msg').textContent=msg;$('#live-bar').style.width=Math.round(Math.min(1,frac)*100)+'%';$('#live-sub').textContent=sub||'';$('#live').classList.toggle('warn',!!warn)}
+function walkSync(){
+  if(W.stepIdx===V.i){if(W.on)placeDot();return}
+  W.stepIdx=V.i;W.prog=0;W.base=null;W.warned=false;W.inLeg=0;W.paused=false;
+  if(!W.on)return;
+  const st=V.steps[V.i];
+  if(st.kind==='lift'){W.paused=true;
+    live(st.text,0,W.sim?'Simulation: Der Aufzug fährt …':'Tippen Sie nach dem Aussteigen auf „Weiter“.');
+    if(W.sim)setTimeout(()=>{if(W.on&&V.steps[V.i]===st)goStep(V.i+1)},2500);return}
+  if(st.kind==='inside'){live('Eingang erreicht',1,st.text);stopWalk(true);return}
+  evaluate();
+}
+function goStep(i){if(i>=V.steps.length)return;V.i=i;V.show=null;V.full=false;vib(40);renderRoute();scrollStep()}
+function onStep(){
+  if(!W.on||W.paused)return;const st=V.steps[V.i];if(!st||st.kind==='lift'||st.kind==='inside')return;
+  W.steps++;W.inLeg++;W.prog+=W.len;
+  if(W.inLeg===3&&W.hd!=null)W.base=W.hd;
+  evaluate();
+}
+function evaluate(){
+  const st=V.steps[V.i],nx=V.steps[V.i+1],tot=Math.max(stepM(st),0.5),frac=W.prog/tot,rem=Math.max(0,tot-W.prog);
+  placeDot();
+  if(st.kind==='arrive'){
+    if(frac>=1){vib([300,120,300]);if(nx&&nx.kind==='inside'){goStep(V.i+1);return}live('Sie sind angekommen',1,st.text);stopWalk(true);return}
+    live(`Gleich am Ziel · noch ca. ${Math.ceil(rem)} m`,frac,st.text);return;
+  }
+  if(nx&&!W.warned&&(rem<=5||frac>=0.85)){W.warned=true;vib([150,80,150])}
+  const turnNext=nx&&nx.kind==='turn'&&Math.abs(nx.rot||0)>=45;
+  if(nx&&frac>=1&&(W.sim||!turnNext||W.hd==null||frac>=1.15)){goStep(V.i+1);return}
+  if(nx&&frac>=1)live(`Jetzt ${soonText(nx)}`,1,'Klinavi schaltet weiter, sobald Sie abgebogen sind.',true);
+  else if(W.warned&&nx)live(`Gleich ${soonText(nx)}`,frac,`noch ca. ${Math.ceil(rem)} m`,true);
+  else live(`${st.title} · noch ca. ${Math.ceil(rem)} m`,frac,`${W.steps} Schritte gezählt`);
+}
+function onMotion(e){
+  const a=e.accelerationIncludingGravity;if(!a||a.x==null)return;W.seen=true;
+  const m=Math.hypot(a.x,a.y,a.z);W.g=W.g==null?m:W.g*0.5+m*0.5;W.gb=W.gb==null?W.g:W.gb*0.98+W.g*0.02;
+  const t=performance.now();
+  if(!W.up&&W.g>W.gb+0.9)W.up=true;
+  else if(W.up&&W.g<W.gb+0.2){W.up=false;if(t-(W.last||0)>320){W.last=t;onStep()}}
+}
+function onOrient(e){
+  const h=e.webkitCompassHeading!=null?e.webkitCompassHeading:(e.alpha!=null?(360-e.alpha)%360:null);if(h==null)return;
+  W.hd=W.hd==null?h:(W.hd+angDiff(h,W.hd)*0.25+360)%360;
+  if(!W.on||W.paused||W.base==null)return;
+  const st=V.steps[V.i],nx=V.steps[V.i+1];if(!nx||nx.kind!=='turn'||Math.abs(nx.rot||0)<45)return;
+  const frac=W.prog/Math.max(stepM(st),0.5),d=angDiff(W.hd,W.base);
+  if(frac>=0.6&&Math.sign(d)===Math.sign(nx.rot)&&Math.abs(d)>=45)goStep(V.i+1);
+}
+function walkNote(t,err){const n=$('#walk-note');n.textContent=t;n.classList.toggle('err',!!err)}
+async function startWalk(sim){
+  if(!sim){
+    try{
+      if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){if(await DeviceMotionEvent.requestPermission()!=='granted')throw 0}
+      if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){try{await DeviceOrientationEvent.requestPermission()}catch(_){}}
+    }catch(_){walkNote('Ohne Freigabe der Bewegungssensoren funktioniert Mitlaufen nicht. Sie können weiterhin mit „Weiter“ navigieren.',true);return}
+    W.seen=false;addEventListener('devicemotion',onMotion);addEventListener(ORIENT,onOrient);
+    setTimeout(()=>{if(W.on&&!W.sim&&!W.seen){stopWalk();walkNote('Keine Bewegungsdaten empfangen. In der Vorschau sind die Sensoren gesperrt. Öffnen Sie Klinavi auf dem Handy über die echte Web-Adresse oder testen Sie mit „Gehen simulieren“.',true)}},2500);
+  }
+  W.sim=sim;W.on=true;W.steps=0;W.hd=null;
+  if(sim)W.timer=setInterval(onStep,450);
+  try{W.wake=navigator.wakeLock?await navigator.wakeLock.request('screen'):null}catch(_){}
+  $('#walkctl').hidden=true;$('#live').hidden=false;$('#live-stop').textContent='Beenden';
+  W.stepIdx=-1;walkSync();
+}
+function stopWalk(done){
+  clearInterval(W.timer);W.timer=null;removeEventListener('devicemotion',onMotion);removeEventListener(ORIENT,onOrient);
+  try{W.wake&&W.wake.release()}catch(_){}W.wake=null;W.on=false;
+  if(done){$('#live-stop').textContent='Schließen';$('#live').classList.remove('warn')}
+  else{$('#live').hidden=true;$('#walkctl').hidden=!V.path||V.steps.length<2}
+}
+$('#walk-start').addEventListener('click',()=>startWalk(false));
+$('#walk-sim').addEventListener('click',()=>startWalk(true));
+$('#live-stop').addEventListener('click',()=>{stopWalk();walkNote('Beim Mitlaufen zählt das Handy Ihre Schritte und schaltet bei Abbiegungen selbst weiter. Die Sensordaten bleiben auf Ihrem Gerät.')});
+$('#walk-len').addEventListener('change',e=>{W.len=parseFloat(e.target.value);try{localStorage.setItem('klinavi-step',e.target.value)}catch(_){}});
+
+/* ---------- modes ---------- */
+let mode='visitor';
+function setMode(m){if(m!=='visitor')stopWalk();mode=m;
+  document.querySelectorAll('.modes button').forEach(b=>b.setAttribute('aria-selected',b.dataset.mode===m));
+  $('#v-visitor').hidden=m!=='visitor';$('#v-editor').hidden=m!=='editor';$('#v-qr').hidden=m!=='qr';
+  $('#navbar').hidden=!(m==='visitor'&&V.dest&&V.path);
+  if(m==='visitor'){if(V.dest&&byId(V.dest))openRoute(V.dest);else goHome()}
+  if(m==='editor')edAll();
+  if(m==='qr')renderQR();
+}
+document.querySelector('.modes').addEventListener('click',e=>{const b=e.target.closest('[data-mode]');if(b)setMode(b.dataset.mode)});
+
+/* ---------- editor ---------- */
+const E={floor:(D.floors.find(f=>f.id==='EG')||D.floors[0]||{}).id,tool:'g',sel:null,armed:null};
+const TOOLS=[['g','Gang-Punkt','Klicken Sie entlang der Flure. Jeder neue Punkt wird mit dem markierten Punkt verbunden, so zeichnen Sie Wege in einem Zug.'],
+  ['z','Ziel','Klicken Sie auf einen Raum (Station, Ambulanz, WC …). Den Namen tragen Sie rechts ein.'],
+  ['l','Aufzug / Stiege','Setzen Sie Aufzüge und Stiegen. Gleicher Name auf mehreren Ebenen, z. B. „Aufzüge A“, verbindet die Stockwerke.'],
+  ['e','Eingang','Eingänge sind Startpunkte für die Besucher und bekommen einen QR-Code.'],
+  ['c','Verbinden','Klicken Sie nacheinander auf zwei Punkte, um einen Weg zwischen ihnen anzulegen.'],
+  ['x','Löschen','Klicken Sie auf einen Punkt oder eine Verbindungslinie, um sie zu entfernen.']];
+function edAll(){if(!floorOf(E.floor))E.floor=D.floors[0]?.id;edFloors();edTools();edDraw();edPanel()}
+function edFloors(){
+  $('#ed-floors').innerHTML=D.floors.map(f=>`<button class="tabbtn" data-ef="${esc(f.id)}" aria-pressed="${f.id===E.floor}">${fb(f.id,true)}${esc(f.name)}</button>`).join('')+`<button class="btn" id="ed-addf">+ Ebene</button>`;
+  const F=floorOf(E.floor);
+  $('#ed-floorbar').innerHTML=F?`<label class="sr" for="ed-fname">Name der Ebene</label><input id="ed-fname" class="field" style="width:auto;flex:1 1 160px;min-width:0" value="${esc(F.name)}">
+    <label class="sr" for="ed-fshort">Kürzel</label><input id="ed-fshort" class="field" style="width:70px" maxlength="3" value="${esc(F.short)}">
+    <label class="btn primary" for="ed-file" style="cursor:pointer">${F.image?'Plan-Foto ersetzen':'Plan-Foto hochladen'}</label><input id="ed-file" type="file" accept="image/*" hidden>
+    ${F.image?'<button class="btn" id="ed-noimg">Foto entfernen</button>':''}
+    <button class="btn warn${E.armed==='floor'?' armed':''}" id="ed-delf">${E.armed==='floor'?'Wirklich löschen?':'Ebene löschen'}</button>`:'<p class="note">Legen Sie zuerst eine Ebene an.</p>';
+}
+function edTools(){
+  $('#ed-tools').innerHTML=TOOLS.map(([k,l])=>`<button data-tool="${k}" aria-pressed="${k===E.tool}">${TYPES[k]?`<span class="dot" style="background:${TYPES[k][1]}"></span>`:''}${l}</button>`).join('');
+  $('#ed-hint').textContent=TOOLS.find(t=>t[0]===E.tool)[2];
+}
+function edDraw(){
+  const F=floorOf(E.floor);if(!F){$('#ed-canvas').innerHTML='';return}
+  const H=F.h||620,bm=graph().byId;
+  const nodes=D.nodes.filter(n=>n.f===E.floor),ids=new Set(nodes.map(n=>n.id));
+  let ed='';
+  D.edges.forEach(([a,b],i)=>{if(!ids.has(a)||!ids.has(b))return;const A=bm.get(a),B=bm.get(b);ed+=`<g data-e="${i}"><line class="e-hit" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/><line class="e-edge" x1="${A.x}" y1="${A.y}" x2="${B.x}" y2="${B.y}"/></g>`});
+  for(const n of nodes){const r=n.t==='g'?9:14;
+    ed+=`<g data-n="${esc(n.id)}">${n.id===E.sel?`<circle class="e-sel" cx="${n.x}" cy="${n.y}" r="${r+9}"/>`:''}<circle class="e-node" cx="${n.x}" cy="${n.y}" r="${r}" style="fill:${TYPES[n.t][1]}"/>${n.name?`<text class="e-lab" x="${n.x+r+6}" y="${n.y+7}">${esc(n.name)}</text>`:''}</g>`}
+  $('#ed-canvas').innerHTML=`<svg viewBox="0 0 1000 ${H}" class="${E.tool==='x'?'del':''}" aria-label="Plan-Editor ${esc(F.name)}">${planSVG(E.floor,{editor:ed})}</svg>`;
+}
+function edPanel(){
+  const n=E.sel&&byId(E.sel);
+  if(!n){$('#ed-panel').innerHTML=`<h3>Kein Punkt markiert</h3><p>Wählen Sie oben ein Werkzeug und klicken Sie in den Plan. Bestehende Punkte können Sie anklicken und mit der Maus oder dem Finger verschieben.</p>
+    <p><b style="color:var(--ink)">${D.nodes.filter(n=>n.f===E.floor).length}</b> Punkte auf dieser Ebene · <b style="color:var(--ink)">${dests().length}</b> Ziele im ganzen Haus</p>`;return}
+  $('#ed-panel').innerHTML=`<h3>${esc(TYPES[n.t][0])}</h3>
+    <label for="p-type">Art<select id="p-type">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}"${k===n.t?' selected':''}>${v[0]}</option>`).join('')}</select></label>
+    ${n.t!=='g'?`<label for="p-name">Name<input id="p-name" type="text" value="${esc(n.name||'')}" placeholder="${n.t==='l'?'z. B. Aufzüge A':'z. B. Station 3C – Neurologie'}"></label>`:''}
+    ${n.t==='z'||n.t==='e'?`<label for="p-cat">Kategorie<select id="p-cat">${CATS.map(([k,l])=>`<option value="${k}"${(n.cat||'Service')===k?' selected':''}>${l}</option>`).join('')}</select></label>
+    <label for="p-info">Hinweis für Besucher<textarea id="p-info" rows="2" placeholder="z. B. Besuchszeit 14:00–19:00 Uhr">${esc(n.info||'')}</textarea></label>`:''}
+    ${n.t==='g'||n.t==='z'?`<label class="check" for="p-qr"><input id="p-qr" type="checkbox"${n.qr?' checked':''}> QR-Standort (Startpunkt mit eigenem QR-Code)</label>`:''}
+    <div class="bar2"><button class="btn" id="p-test"${n.t==='g'?' hidden':''}>Route hierher testen</button><button class="btn warn" id="p-del">Punkt löschen</button></div>`;
+}
+function svgPt(svg,e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const r=p.matrixTransform(svg.getScreenCTM().inverse());return{x:Math.round(r.x),y:Math.round(r.y)}}
+function addEdge(a,b){if(a===b)return;if(D.edges.some(([x,y])=>(x===a&&y===b)||(x===b&&y===a)))return;D.edges.push([a,b])}
+function delNode(id){D.nodes=D.nodes.filter(n=>n.id!==id);D.edges=D.edges.filter(([a,b])=>a!==id&&b!==id);if(E.sel===id)E.sel=null}
+let drag=null;
+$('#ed-canvas').addEventListener('pointerdown',e=>{
+  const svg=e.currentTarget.querySelector('svg');if(!svg)return;
+  const ng=e.target.closest('[data-n]'),eg=e.target.closest('[data-e]');
+  const p=svgPt(svg,e);
+  if(ng){drag={id:ng.dataset.n,x:e.clientX,y:e.clientY,moved:false};svg.setPointerCapture(e.pointerId);return}
+  if(eg&&E.tool==='x'){D.edges.splice(+eg.dataset.e,1);changed();edDraw();return}
+  if('gzle'.includes(E.tool)){
+    const id='n'+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+    const n={id,f:E.floor,x:p.x,y:p.y,t:E.tool};
+    if(E.tool==='z'){n.name='Neues Ziel';n.cat='Station'}
+    if(E.tool==='l')n.name='Aufzug';
+    if(E.tool==='e'){n.name='Eingang';n.cat='Service'}
+    D.nodes.push(n);G=null;
+    const prev=E.sel&&byId(E.sel);if(prev&&prev.f===E.floor)addEdge(prev.id,id);
+    E.sel=id;changed();edDraw();edPanel();
+    if(n.t!=='g'){const i=$('#p-name');if(i){i.focus();i.select()}}
+  }else if(E.tool==='c'){E.sel=null;edDraw();edPanel()}
+});
+$('#ed-canvas').addEventListener('pointermove',e=>{
+  if(!drag)return;if(!drag.moved&&Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<5)return;
+  drag.moved=true;const svg=e.currentTarget.querySelector('svg'),p=svgPt(svg,e),n=byId(drag.id);n.x=p.x;n.y=p.y;edDraw();
+});
+$('#ed-canvas').addEventListener('pointerup',()=>{
+  if(!drag)return;const id=drag.id,moved=drag.moved;drag=null;
+  if(moved){changed();edDraw();return}
+  if(E.tool==='x'){delNode(id);changed()}
+  else if(E.tool==='c'&&E.sel&&E.sel!==id){addEdge(E.sel,id);changed();E.sel=id}
+  else E.sel=id;
+  edDraw();edPanel();
+});
+$('#ed-tools').addEventListener('click',e=>{const b=e.target.closest('[data-tool]');if(!b)return;E.tool=b.dataset.tool;if(E.tool==='c')E.sel=null;edTools();edDraw();edPanel()});
+$('#ed-floors').addEventListener('click',e=>{
+  const b=e.target.closest('[data-ef]');
+  if(b){E.floor=b.dataset.ef;E.sel=null;E.armed=null;edAll();return}
+  if(e.target.id==='ed-addf'){const n=D.floors.length;const f={id:'f'+Date.now().toString(36),name:'Neue Ebene',short:String(n)};D.floors.push(f);E.floor=f.id;E.sel=null;changed();edAll();const i=$('#ed-fname');i.focus();i.select()}
+});
+$('#ed-floorbar').addEventListener('input',e=>{const F=floorOf(E.floor);if(e.target.id==='ed-fname')F.name=e.target.value;if(e.target.id==='ed-fshort')F.short=e.target.value;changed();
+  document.querySelectorAll(`[data-ef="${CSS.escape(F.id)}"]`).forEach(b=>b.innerHTML=fb(F.id,true)+esc(F.name))});
+$('#ed-floorbar').addEventListener('click',e=>{
+  const F=floorOf(E.floor);
+  if(e.target.id==='ed-noimg'){delete F.image;delete F.h;changed();edAll()}
+  if(e.target.id==='ed-delf'){
+    if(E.armed!=='floor'){E.armed='floor';edFloors();setTimeout(()=>{if(E.armed==='floor'){E.armed=null;edFloors()}},4000);return}
+    E.armed=null;D.nodes.filter(n=>n.f===F.id).forEach(n=>delNode(n.id));D.floors=D.floors.filter(f=>f!==F);E.floor=D.floors[0]?.id;changed();edAll();
+  }
+});
+$('#ed-floorbar').addEventListener('change',e=>{
+  if(e.target.id!=='ed-file'||!e.target.files[0])return;
+  const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{
+    const max=1600,s=Math.min(1,max/img.naturalWidth),c=document.createElement('canvas');c.width=Math.round(img.naturalWidth*s);c.height=Math.round(img.naturalHeight*s);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    const F=floorOf(E.floor);F.image=c.toDataURL('image/jpeg',0.82);F.h=Math.round(1000*img.naturalHeight/img.naturalWidth);changed();edAll();
+  };img.src=r.result};r.readAsDataURL(e.target.files[0]);
+});
+$('#ed-panel').addEventListener('input',e=>{
+  const n=byId(E.sel);if(!n)return;
+  if(e.target.id==='p-name')n.name=e.target.value;
+  if(e.target.id==='p-info')n.info=e.target.value;
+  changed();if(e.target.id==='p-name')edDraw();
+});
+$('#ed-panel').addEventListener('change',e=>{
+  const n=byId(E.sel);if(!n)return;
+  if(e.target.id==='p-type'){n.t=e.target.value;if(n.t!=='g'&&!n.name)n.name=n.t==='l'?'Aufzug':'Neues Ziel';if((n.t==='z'||n.t==='e')&&!n.cat)n.cat='Service';changed();edDraw();edPanel()}
+  if(e.target.id==='p-cat'){n.cat=e.target.value;changed()}
+  if(e.target.id==='p-qr'){n.qr=e.target.checked;changed()}
+});
+$('#ed-panel').addEventListener('click',e=>{
+  if(e.target.id==='p-del'){delNode(E.sel);changed();edDraw();edPanel()}
+  if(e.target.id==='p-test'){const id=E.sel;setMode('visitor');openRoute(id)}
+});
+const toast=t=>{$('#data-toast').textContent=t;setTimeout(()=>{if($('#data-toast').textContent===t)$('#data-toast').textContent=''},3500)};
+$('#exp').addEventListener('click',()=>{const t=JSON.stringify(D);$('#json').value=t;$('#json').select();
+  if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('Exportiert und in die Zwischenablage kopiert.'),()=>toast('Exportiert. Text ist markiert, bitte kopieren.'));else toast('Exportiert. Text ist markiert, bitte kopieren.')});
+$('#imp').addEventListener('click',()=>{try{const d=JSON.parse($('#json').value);if(!Array.isArray(d.floors)||!Array.isArray(d.nodes)||!Array.isArray(d.edges))throw 0;D=d;E.floor=D.floors[0]?.id;E.sel=null;changed();edAll();toast('Daten geladen.')}catch(_){toast('Das ist kein gültiger Wegweiser-Export. Bitte den vollständigen Text einfügen.')}});
+$('#reset-demo').textContent=window.NMC?'Neuromed-Entwurf wiederherstellen':'Demo-Klinikum wiederherstellen';
+$('#reset-demo').addEventListener('click',()=>{D=freshData();E.floor=D.floors[0].id;E.sel=null;changed();edAll();toast('Ausgangsdaten wiederhergestellt.')});
+$('#reset-empty').addEventListener('click',e=>{
+  const b=e.currentTarget;if(!b.classList.contains('armed')){b.classList.add('armed');b.textContent='Wirklich alles leeren?';setTimeout(()=>{b.classList.remove('armed');b.textContent='Leeres Gebäude beginnen'},4000);return}
+  b.classList.remove('armed');b.textContent='Leeres Gebäude beginnen';
+  D={name:'Mein Krankenhaus',floors:[{id:'EG',name:'Erdgeschoß',short:'EG'}],nodes:[],edges:[]};E.floor='EG';E.sel=null;E.tool='g';changed();edAll();toast('Leeres Gebäude angelegt. Laden Sie jetzt das erste Plan-Foto hoch.');
+});
+
+/* ---------- QR ---------- */
+try{const b=localStorage.getItem(KEY+'-base');if(b)$('#qr-base').value=b}catch(_){}
+function renderQR(){
+  const base=$('#qr-base').value.trim().replace(/#.*$/,'')||'https://wegweiser.ihre-klinik.at/';
+  const pts=startPoints().sort((a,b)=>fIdx(a.f)-fIdx(b.f));
+  $('#qr-grid').innerHTML=pts.length?pts.map((n,i)=>`<div class="qrc"><span class="eyebrow">Sie sind hier</span><b>${esc(n.name||'Standort')}</b>${fb(n.f)}<div class="q" id="qr${i}"></div><span class="scan">Scannen und Weg zum Ziel finden</span><small>${esc(base+'#s-'+n.id)}</small></div>`).join(''):'<p class="empty">Noch keine Eingänge oder Aufzüge eingetragen.</p>';
+  pts.forEach((n,i)=>{const el=document.getElementById('qr'+i);
+    if(window.QRCode)new QRCode(el,{text:base+'#s-'+n.id,width:300,height:300,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+    else el.innerHTML='<small>QR-Bibliothek nicht geladen</small>'});
+}
+$('#qr-base').addEventListener('change',()=>{try{localStorage.setItem(KEY+'-base',$('#qr-base').value)}catch(_){}renderQR()});
+
+const h0=location.hash.slice(1);
+if(['editor','qr'].includes(h0))setMode(h0);else goHome();
+})();
+</script>
