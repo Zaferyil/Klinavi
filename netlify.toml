@@ -1,0 +1,4 @@
+# Netlify: kein Build nötig, die fertige Seite liegt in dist/neuromed
+[build]
+  publish = "dist/neuromed"
+  command = ""
