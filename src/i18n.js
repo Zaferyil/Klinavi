@@ -65,6 +65,12 @@ K('scan_unknown','Dieser QR-Code gehört nicht zu diesem Haus. Bitte scannen Sie
 K('cancel','Abbrechen','Cancel','İptal','Anulați','Odustani','إلغاء','Скасувати','Anuluj','Mégse');
 K('scan_ok','Standort aktualisiert','Location updated','Konum güncellendi','Locație actualizată','Lokacija ažurirana','تم تحديث الموقع','Місце оновлено','Lokalizacja zaktualizowana','Hely frissítve');
 
+
+/* Besuchszeiten und Hinweise */
+K('visit_h','Besuchszeiten','Visiting hours','Ziyaret saatleri','Program de vizită','Vrijeme posjeta','ساعات الزيارة','Години відвідування','Godziny odwiedzin','Látogatási idő');
+K('visit_ask','Besuchszeiten bitte beim Portier oder telefonisch erfragen.','Please ask the porter or call for visiting hours.','Ziyaret saatleri için lütfen danışmaya sorun veya telefonla arayın.','Pentru programul de vizită întrebați la portar sau telefonic.','Za vrijeme posjeta pitajte portira ili nazovite telefonom.','للاستفسار عن ساعات الزيارة يرجى سؤال موظف الاستقبال أو الاتصال هاتفيًا.','Про години відвідування запитайте у портьє або зателефонуйте.','O godziny odwiedzin zapytaj portiera lub zadzwoń.','A látogatási időről kérdezze a portást, vagy telefonáljon.');
+K('rules_h','Hinweise für Besucher','Information for visitors','Ziyaretçiler için bilgiler','Informații pentru vizitatori','Informacije za posjetitelje','معلومات للزوار','Інформація для відвідувачів','Informacje dla odwiedzających','Tudnivalók látogatóknak');
+
 /* Schritte */
 K('straight','Geradeaus','Straight ahead','Düz ilerleyin','Înainte','Ravno','استمر للأمام','Прямо','Prosto','Egyenesen');
 K('lead_straight','Gehen Sie geradeaus weiter, ca. {m}','Continue straight ahead for about {m}','Yaklaşık {m} düz devam edin','Mergeți drept înainte aproximativ {m}','Nastavite ravno oko {m}','تابع المشي للأمام حوالي {m}','Ідіть прямо приблизно {m}','Idź prosto przez ok. {m}','Haladjon egyenesen kb. {m}-t');

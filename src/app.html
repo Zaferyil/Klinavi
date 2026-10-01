@@ -350,6 +350,16 @@ body{font-size:18px;line-height:1.5}
 .scan-frame{position:absolute;width:min(62vw,260px);aspect-ratio:1;border:4px solid #fff;border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.35);pointer-events:none;top:calc(50% - min(31vw,130px) - 40px)}
 .scan p{margin:0;font-size:19px;text-align:center;max-width:420px}
 .scan.err p{color:#FFB4A8}
+/* Besuchszeiten + Hinweise */
+.visit{display:flex;flex-direction:column;gap:2px;margin-top:6px;padding:12px 14px;border-radius:14px;background:var(--tint);border:2px solid color-mix(in srgb,var(--brand) 35%,var(--line))}
+.visit b{font:800 14px var(--font-sign);letter-spacing:.06em;text-transform:uppercase;color:var(--brand)}
+.visit span{font-size:19px;font-weight:700;line-height:1.35}
+.visit.ask span{font-size:17px;font-weight:600;color:var(--muted)}
+.rules{border:2px solid var(--line);border-radius:16px;padding:0 16px;background:var(--surface)}
+.rules summary{cursor:pointer;min-height:56px;display:flex;align-items:center;font:800 17px var(--font-sign)}
+.rules ul{margin:0 0 14px;padding-inline-start:22px;display:flex;flex-direction:column;gap:8px;font-size:17px}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
+.fld .field{font-weight:400}
 </style>
 
 <header class="top">
@@ -378,10 +388,11 @@ body{font-size:18px;line-height:1.5}
     </div>
     <label class="search"><span class="sr" id="t-search">Ziel suchen</span><input id="q" type="search" autocomplete="off" placeholder="Ziel suchen, z. B. C302"></label>
     <div id="list"></div>
+    <details class="rules" id="rules" hidden><summary id="rules-h">Hinweise für Besucher</summary><ul id="rules-l"></ul></details>
   </section>
   <section id="route" hidden style="display:flex;flex-direction:column;gap:14px">
     <button class="back" id="back"><span class="arr" aria-hidden="true">‹</span> <span id="t-other">Anderes Ziel wählen</span></button>
-    <div class="dest-head"><span class="eyebrow" id="t-goal">Ihr Ziel</span><h1 id="r-name"></h1><p id="r-info"></p><div class="meta" id="r-meta"></div></div>
+    <div class="dest-head"><span class="eyebrow" id="t-goal">Ihr Ziel</span><h1 id="r-name"></h1><p id="r-info"></p><div class="meta" id="r-meta"></div><div class="visit" id="r-visit" hidden><b id="r-visit-h">Besuchszeiten</b><span id="r-visit-t"></span></div></div>
     <div class="walkctl" id="walkctl">
       <button class="btn primary" id="walk-start">Mitlaufen starten</button>
       <button class="btn" id="walk-sim">Gehen simulieren</button>
@@ -437,6 +448,8 @@ body{font-size:18px;line-height:1.5}
       <button class="btn warn" id="reset-empty">Leeres Gebäude beginnen</button>
       <span class="toast" id="data-toast" aria-live="polite"></span>
     </div>
+    <label class="fld" for="d-portier">Telefon des Portiers (erscheint oben auf jeder Seite)<input id="d-portier" class="field" type="tel" placeholder="z. B. 05 7680 87-0"></label>
+    <label class="fld" for="d-rules">Hinweise für Besucher (eine Zeile pro Hinweis)<textarea id="d-rules" class="field" rows="3" placeholder="z. B. Bitte Hände desinfizieren."></textarea></label>
     <label class="sr" for="json">JSON-Daten</label>
     <textarea id="json" placeholder="Hier erscheinen die exportierten Daten. Zum Laden JSON hier einfügen und „Eingefügte Daten laden“ drücken."></textarea>
   </section>
@@ -482,15 +495,15 @@ function demoData(){
   Z('UG-physio','UG',700,180,'UG-o','Physiotherapie','Ambulanz',['Physio-','therapie'],'Nur mit Termin');
   Z('UG-kapelle','UG',700,400,'UG-o','Kapelle & Raum der Stille','Service',['Kapelle','Raum der Stille'],'Täglich 7:00–20:00 Uhr geöffnet');
   nodes.push({id:'UG-garage',f:'UG',x:880,y:430,t:'e',name:'Tiefgarage',cat:'Service',lab:['Tiefgarage'],rw:120,info:'Kassenautomat neben dem Ausgang'});edges.push(['UG-B','UG-garage']);
-  Z('1-1a','1',300,180,'1-w','Station 1A – Innere Medizin','Station',['Station 1A','Innere Medizin'],'Besuchszeit täglich 14:00–19:00 Uhr');
-  Z('1-1b','1',700,180,'1-o','Station 1B – Chirurgie','Station',['Station 1B','Chirurgie'],'Besuchszeit täglich 14:00–19:00 Uhr');
+  Z('1-1a','1',300,180,'1-w','Station 1A – Innere Medizin','Station',['Station 1A','Innere Medizin'],'Besuchszeit täglich 14:00–19:00 Uhr',{visit:'Täglich 14:00–19:00 Uhr'});
+  Z('1-1b','1',700,180,'1-o','Station 1B – Chirurgie','Station',['Station 1B','Chirurgie'],'Besuchszeit täglich 14:00–19:00 Uhr',{visit:'Täglich 14:00–19:00 Uhr'});
   Z('1-kard','1',300,400,'1-w','Kardiologische Ambulanz','Ambulanz',['Ambulanz','Kardiologie'],'Nur mit Termin, Anmeldung direkt vor Ort');
   Z('1-tk','1',700,400,'1-o','Tagesklinik','Ambulanz',['Tagesklinik'],'Mo–Fr 7:00–17:00 Uhr');
-  Z('2-2a','2',300,180,'2-w','Station 2A – Geburtshilfe','Station',['Station 2A','Geburtshilfe'],'Besuchszeit 15:00–18:00 Uhr, Partner jederzeit');
+  Z('2-2a','2',300,180,'2-w','Station 2A – Geburtshilfe','Station',['Station 2A','Geburtshilfe'],'Besuchszeit 15:00–18:00 Uhr, Partner jederzeit',{visit:'15:00–18:00 Uhr, Partner jederzeit'});
   Z('2-kreiss','2',300,400,'2-w','Kreißsaal','Station',['Kreißsaal'],'Bitte an der Glocke läuten');
   Z('2-2b','2',700,180,'2-o','Station 2B – Kinder- und Jugendheilkunde','Station',['Station 2B','Kinderheilkunde'],'Eltern sind jederzeit willkommen');
   Z('2-icu','2',700,400,'2-o','Intensivstation','Station',['Intensiv-','station'],'Besuch nur nach Anmeldung an der Gegensprechanlage');
-  return {name:'Klinikum Demo',floors,nodes,edges};
+  return {name:'Klinikum Demo',portier:'0800 000 000',rules:['Bitte Hände beim Betreten der Station desinfizieren.','Mobiltelefone leise stellen.','Bei Erkältungssymptomen bitte keinen Besuch.'],floors,nodes,edges};
 }
 function load(){try{const s=localStorage.getItem(KEY);return s?JSON.parse(s):null}catch(e){return null}}
 /*NMC-SLOT*/
@@ -633,7 +646,11 @@ function renderHome(){
   $('#here-name').textContent=st?(tn(st.name)||'Standort'):'Noch kein Plan angelegt';
   $('#here-fb').outerHTML=st?nb(st).replace('class="fb"','class="fb" id="here-fb"'):'<span class="fb" id="here-fb">–</span>';
   $('#start-sel').innerHTML=startPoints().map(n=>`<option value="${esc(n.id)}"${n.id===V.start?' selected':''}>${esc(nodeLabel(n))}</option>`).join('');
-  renderList();
+  renderRules();renderList();
+}
+function renderRules(){
+  const r=D.rules||[];$('#rules').hidden=!r.length;$('#rules-h').textContent=t('rules_h');
+  $('#rules-l').innerHTML=r.map(x=>`<li>${esc(x)}</li>`).join('');
 }
 const grpKey=n=>n.cat==='Anreise'?'Anreise':(n.bau||floorOf(n.f)?.name||'Sonstiges');
 function groups(items){
@@ -671,6 +688,9 @@ function openRoute(id){
   V.path=V.start===id?[id]:shortest(V.start,id);
   V.steps=V.path?(V.path.length===1?[{kind:'arrive',title:t('arrived'),text:t('here_already'),f:d.f,pts:[d]}]:makeSteps(V.path)):[];
   $('#home').hidden=true;$('#route').hidden=false;$('#navbar').hidden=!V.path;$('#walkctl').hidden=!V.path||V.steps.length<2;
+  const vis=d.visit||(d.cat==='Station'?'':null);
+  $('#r-visit').hidden=vis===null;$('#r-visit').classList.toggle('ask',vis==='');
+  $('#r-visit-h').textContent=t('visit_h');$('#r-visit-t').textContent=vis?vis:t('visit_ask');
   $('#r-name').textContent=tn(d.name);$('#r-info').textContent=tn(d.info)||'';$('#r-info').hidden=!d.info;
   if(!V.path){$('#r-meta').innerHTML='';$('#r-floors').innerHTML='';$('#r-plan').innerHTML='';$('#r-steps').innerHTML=`<li class="lost">${esc(t('no_route'))}</li>`;window.scrollTo(0,0);return}
   const dist=V.steps.reduce((s,x)=>s+(x.kind!=='lift'?legLen(x.pts)*scaleOf(x.f):0),0),lifts=V.steps.filter(x=>x.kind==='lift');
@@ -852,7 +872,12 @@ const TOOLS=[['g','Gang-Punkt','Klicken Sie entlang der Flure. Jeder neue Punkt 
   ['e','Eingang','Eingänge sind Startpunkte für die Besucher und bekommen einen QR-Code.'],
   ['c','Verbinden','Klicken Sie nacheinander auf zwei Punkte, um einen Weg zwischen ihnen anzulegen.'],
   ['x','Löschen','Klicken Sie auf einen Punkt oder eine Verbindungslinie, um sie zu entfernen.']];
-function edAll(){if(!floorOf(E.floor))E.floor=D.floors[0]?.id;edFloors();edTools();edDraw();edPanel()}
+function edData(){$('#d-portier').value=D.portier||'';$('#d-rules').value=(D.rules||[]).join('\n')}
+document.addEventListener('input',e=>{
+  if(e.target.id==='d-portier'){D.portier=e.target.value.trim();changed();renderHome()}
+  if(e.target.id==='d-rules'){D.rules=e.target.value.split('\n').map(x=>x.trim()).filter(Boolean);changed();renderRules()}
+});
+function edAll(){edData();if(!floorOf(E.floor))E.floor=D.floors[0]?.id;edFloors();edTools();edDraw();edPanel()}
 function edFloors(){
   $('#ed-floors').innerHTML=D.floors.map(f=>`<button class="tabbtn" data-ef="${esc(f.id)}" aria-pressed="${f.id===E.floor}">${fb(f.id,true)}${esc(f.name)}</button>`).join('')+`<button class="btn" id="ed-addf">+ Ebene</button>`;
   const F=floorOf(E.floor);
@@ -884,7 +909,8 @@ function edPanel(){
     <label for="p-type">Art<select id="p-type">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}"${k===n.t?' selected':''}>${v[0]}</option>`).join('')}</select></label>
     ${n.t!=='g'?`<label for="p-name">Name<input id="p-name" type="text" value="${esc(n.name||'')}" placeholder="${n.t==='l'?'z. B. Aufzüge A':'z. B. Station 3C – Neurologie'}"></label>`:''}
     ${n.t==='z'||n.t==='e'?`<label for="p-cat">Kategorie<select id="p-cat">${CATS.map(([k,l])=>`<option value="${k}"${(n.cat||'Service')===k?' selected':''}>${l}</option>`).join('')}</select></label>
-    <label for="p-info">Hinweis für Besucher<textarea id="p-info" rows="2" placeholder="z. B. Besuchszeit 14:00–19:00 Uhr">${esc(n.info||'')}</textarea></label>`:''}
+    <label for="p-info">Hinweis für Besucher<textarea id="p-info" rows="2" placeholder="z. B. Parkplatz nur für Besucher">${esc(n.info||'')}</textarea></label>
+    ${n.cat==='Station'||n.cat==='Ambulanz'?`<label for="p-visit">Besuchszeiten<input id="p-visit" type="text" value="${esc(n.visit||'')}" placeholder="z. B. Täglich 14:00–19:00 Uhr"></label>`:''}`:''}
     ${n.t==='g'||n.t==='z'?`<label class="check" for="p-qr"><input id="p-qr" type="checkbox"${n.qr?' checked':''}> QR-Standort (Startpunkt mit eigenem QR-Code)</label>`:''}
     <div class="bar2"><button class="btn" id="p-test"${n.t==='g'?' hidden':''}>Route hierher testen</button><button class="btn warn" id="p-del">Punkt löschen</button></div>`;
 }
@@ -950,6 +976,7 @@ $('#ed-panel').addEventListener('input',e=>{
   const n=byId(E.sel);if(!n)return;
   if(e.target.id==='p-name')n.name=e.target.value;
   if(e.target.id==='p-info')n.info=e.target.value;
+  if(e.target.id==='p-visit')n.visit=e.target.value;
   changed();if(e.target.id==='p-name')edDraw();
 });
 $('#ed-panel').addEventListener('change',e=>{
