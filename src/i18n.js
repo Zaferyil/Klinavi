@@ -76,6 +76,11 @@ K('rules_h','Hinweise für Besucher','Information for visitors','Ziyaretçiler i
 K('fs_minus','Schrift kleiner','Smaller text','Yazıyı küçült','Text mai mic','Manji tekst','تصغير الخط','Менший шрифт','Mniejszy tekst','Kisebb betű');
 K('fs_plus','Schrift größer','Larger text','Yazıyı büyüt','Text mai mare','Veći tekst','تكبير الخط','Більший шрифт','Większy tekst','Nagyobb betű');
 
+
+/* Notfall-Leiste */
+K('sos','Notfall? 144','Emergency? 144','Acil durum? 144','Urgență? 144','Hitna? 144','حالة طارئة؟ 144','Невідкладна допомога? 144','Nagły wypadek? 144','Vészhelyzet? 144');
+K('portier','Portier','Porter','Danışma','Portar','Portir','الاستقبال','Портьє','Portier','Portás');
+
 /* Schritte */
 K('straight','Geradeaus','Straight ahead','Düz ilerleyin','Înainte','Ravno','استمر للأمام','Прямо','Prosto','Egyenesen');
 K('lead_straight','Gehen Sie geradeaus weiter, ca. {m}','Continue straight ahead for about {m}','Yaklaşık {m} düz devam edin','Mergeți drept înainte aproximativ {m}','Nastavite ravno oko {m}','تابع المشي للأمام حوالي {m}','Ідіть прямо приблизно {m}','Idź prosto przez ok. {m}','Haladjon egyenesen kb. {m}-t');

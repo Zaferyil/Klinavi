@@ -58,6 +58,12 @@ Klinavi, hastane ziyaretçilerinin kendi telefonlarıyla QR kod okutup gidecekle
 - İstasyonlar (KUK Neurologie/Psychosomatik sayfası): C102 (+ Schlaflabor), C202, C302 (Stroke Unit/IMCU, EMU), N104 Tagesklinik, N204 Akutnachsorge, D101, D102.
 - **Varsayımlar:** Kat bilgisi istasyon kodundan çıkarıldı (C302 = Bau C, 3. Stock). Yürüme yolları ve bina girişleri plana bakarak tahmin edildi. Örneğin Güney girişten rota Bau K'nın içinden geçiyor. Mesafeler kaba tahmin.
 
+## Son eklenenler
+- **QR tarama (uygulama içi):** Ana ekrandaki "QR scannen" düğmesi ve rota ekranındaki "Standort per QR-Code neu bestimmen". `BarcodeDetector`, yoksa jsQR (cdnjs). Kamera için HTTPS gerekir. QR içeriği `…#s-<nodeId>`; id grafikte yoksa uyarı verir. Tarama sonrası rota yeni konumdan yeniden kurulur.
+- **Ziyaret saatleri:** Düğümde `visit` alanı (Plan-Editor'de Station/Ambulanz için). Station'da boşsa "Besuchszeiten beim Portier erfragen" notu çıkar. Genel ziyaretçi notları `D.rules` (liste), ana ekranda katlanır blok. **Neuromed için gerçek saatler ve kurallar Zafer'den alınacak, uydurulmadı.**
+- **Yazı boyutu A−/A+:** 4 kademe (×1, 1.15, 1.3, 1.5), `body.style.zoom`, `klinavi-fs` ile hatırlanır. ≥1.3'te üst bar sabit kalmaz.
+- **Acil durum çubuğu:** Her ekranda sabit kırmızı bar, "Notfall? 144" (tel:). Portier telefonu `D.portier` alanından gelir (Plan-Editor → "Daten sichern" kartında girilir). **Portier numarası Zafer'den alınacak**, boşsa sadece 144 görünür.
+
 ## Sıradaki adımlar
 1. Zafer gerçek telefonla test edecek: Cloudflare Pages'e `dist/neuromed` yüklenip koridorda Mitlaufen denenecek. Adım sayma eşikleri ve adım uzunluğu sonuçlara göre ayarlanacak.
 2. C, D ve N binalarının ziyaretçi girişleri ve binalar arası iç bağlantılar netleşecek, `nmc-data.js` düzeltilecek.
