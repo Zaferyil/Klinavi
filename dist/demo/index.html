@@ -360,6 +360,8 @@ body{font-size:18px;line-height:1.5}
 .scan{position:fixed;inset:0;z-index:60;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:16px;color:#fff}
 .scan video{width:100%;max-width:520px;max-height:60vh;object-fit:cover;border-radius:18px;background:#111}
 .scan-frame{position:absolute;width:min(62vw,260px);aspect-ratio:1;border:4px solid #fff;border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.35);pointer-events:none;top:calc(50% - min(31vw,130px) - 40px)}
+.toast-ok{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 56px);z-index:55;background:#0B7A3B;color:#fff;border-radius:16px;padding:14px 16px;font-size:18px;font-weight:700;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.toast-ok small{display:block;font-size:15px;font-weight:600;opacity:.95;margin-top:2px}
 .scan p{margin:0;font-size:19px;text-align:center;max-width:420px}
 .scan.err p{color:#FFB4A8}
 /* Besuchszeiten + Hinweise */
@@ -462,6 +464,7 @@ body{padding-top:44px}
     <p class="lost" id="t-lost">Verlaufen? Scannen Sie den QR-Code beim nächsten Aufzug. Die Route startet dann neu von dort.</p>
   </section>
 </main>
+<div class="toast-ok" id="toast-ok" role="status" aria-live="polite" hidden></div>
 <div class="scan" id="scan" hidden role="dialog" aria-modal="true" aria-labelledby="scan-msg">
   <video id="scan-v" playsinline muted></video>
   <div class="scan-frame" aria-hidden="true"></div>
@@ -584,6 +587,7 @@ K('scan_err','Die Kamera ist nicht verfügbar. Bitte erlauben Sie den Zugriff au
 K('scan_unknown','Dieser QR-Code gehört nicht zu diesem Haus. Bitte scannen Sie einen „Sie sind hier“-Code.','This QR code does not belong to this site. Please scan a “You are here” code.','Bu QR kodu bu binaya ait değil. Lütfen bir “Buradasınız” kodu tarayın.','Acest cod QR nu aparține acestei clădiri. Scanați un cod „Sunteți aici”.','Ovaj QR kod ne pripada ovoj zgradi. Skenirajte kod „Vi ste ovdje“.','رمز QR هذا لا يخص هذا المكان. يرجى مسح رمز «أنتم هنا».','Цей QR-код не належить цьому закладу. Скануйте код «Ви тут».','Ten kod QR nie należy do tego miejsca. Zeskanuj kod „Jesteś tutaj”.','Ez a QR-kód nem ehhez a helyhez tartozik. Olvasson be egy „Ön itt van” kódot.');
 K('cancel','Abbrechen','Cancel','İptal','Anulați','Odustani','إلغاء','Скасувати','Anuluj','Mégse');
 K('scan_ok','Standort aktualisiert','Location updated','Konum güncellendi','Locație actualizată','Lokacija ažurirana','تم تحديث الموقع','Місце оновлено','Lokalizacja zaktualizowana','Hely frissítve');
+K('scan_same','Sie sind bereits hier','You are already here','Zaten buradasınız','Vă aflați deja aici','Već ste ovdje','أنت هنا بالفعل','Ви вже тут','Jesteś już tutaj','Már itt van');
 
 
 /* Besuchszeiten und Hinweise */
@@ -1292,7 +1296,14 @@ async function scanLoop(){
 function gotScan(txt){
   const id=scanText(txt);
   if(!id){scanMsg('scan_unknown',true);return}
-  vib(60);closeScan();stopWalk();setStart(id);
+  const same=id===V.start;
+  vib(60);closeScan();stopWalk();setStart(id);window.scrollTo(0,0);
+  showOk(t(same?'scan_same':'scan_ok'),tn(byId(id).name));
+}
+let okTimer=0;
+function showOk(msg,name){
+  const e=$('#toast-ok');e.innerHTML=`${esc(msg)}<small>${esc(name||'')}</small>`;e.hidden=false;
+  clearTimeout(okTimer);okTimer=setTimeout(()=>{e.hidden=true},5000);
 }
 document.addEventListener('click',e=>{if(e.target.closest('[data-scan]'))openScan()});
 $('#scan-x').addEventListener('click',closeScan);

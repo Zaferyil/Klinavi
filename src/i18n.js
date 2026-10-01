@@ -64,6 +64,7 @@ K('scan_err','Die Kamera ist nicht verfügbar. Bitte erlauben Sie den Zugriff au
 K('scan_unknown','Dieser QR-Code gehört nicht zu diesem Haus. Bitte scannen Sie einen „Sie sind hier“-Code.','This QR code does not belong to this site. Please scan a “You are here” code.','Bu QR kodu bu binaya ait değil. Lütfen bir “Buradasınız” kodu tarayın.','Acest cod QR nu aparține acestei clădiri. Scanați un cod „Sunteți aici”.','Ovaj QR kod ne pripada ovoj zgradi. Skenirajte kod „Vi ste ovdje“.','رمز QR هذا لا يخص هذا المكان. يرجى مسح رمز «أنتم هنا».','Цей QR-код не належить цьому закладу. Скануйте код «Ви тут».','Ten kod QR nie należy do tego miejsca. Zeskanuj kod „Jesteś tutaj”.','Ez a QR-kód nem ehhez a helyhez tartozik. Olvasson be egy „Ön itt van” kódot.');
 K('cancel','Abbrechen','Cancel','İptal','Anulați','Odustani','إلغاء','Скасувати','Anuluj','Mégse');
 K('scan_ok','Standort aktualisiert','Location updated','Konum güncellendi','Locație actualizată','Lokacija ažurirana','تم تحديث الموقع','Місце оновлено','Lokalizacja zaktualizowana','Hely frissítve');
+K('scan_same','Sie sind bereits hier','You are already here','Zaten buradasınız','Vă aflați deja aici','Već ste ovdje','أنت هنا بالفعل','Ви вже тут','Jesteś już tutaj','Már itt van');
 
 
 /* Besuchszeiten und Hinweise */
