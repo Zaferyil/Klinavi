@@ -6,32 +6,37 @@
 <title>Klinavi</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Overpass:wght@600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
-/* Layout: one-column phone app like a hospital sign; editor + QR views widen to a two-column work surface. */
+/* Layout: clean clinical one-column phone app; editor + QR views widen to a two-column work surface. */
 :root{
-  --bg:#EDF1F0; --surface:#FFFFFF; --ink:#13201E; --muted:#56655F; --line:#D2DBD8;
-  --brand:#0D5A55; --brand-ink:#FFFFFF; --tint:#E1EEEC;
-  --route:#D9520C; --route-soft:#F5CDB4;
-  --plan-bg:#F8FAF9; --room:#E4EBE9; --room-line:#BFCCC8; --corridor:#FFFFFF; --wall:#8A9C97;
+  --bg:#F5F8FB; --surface:#FFFFFF; --ink:#0B2540; --muted:#5C7087; --line:#E2E9F1;
+  --brand:#0F6FDE; --brand-ink:#FFFFFF; --tint:#EAF3FE;
+  --route:#F2652B; --route-soft:#FBD3C0;
+  --plan-bg:#F7FAFC; --room:#E9F0F6; --room-line:#C8D5E2; --corridor:#FFFFFF; --wall:#8EA2B6;
+  --shadow:0 1px 2px rgba(11,37,64,.05),0 6px 18px rgba(11,37,64,.05);
   --fc0:#5B4FC4; --fc1:#0E7C74; --fc2:#A86A12; --fc3:#B0365F; --fc4:#2F6DB5; --fc5:#5F7A24;
   --danger:#B42318;
-  --font-sign:'Overpass','Helvetica Neue',Arial,sans-serif;
-  --font-body:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-sign:'Plus Jakarta Sans','Helvetica Neue',Arial,sans-serif;
+  --font-body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0E1514; --surface:#162120; --ink:#E5EEEC; --muted:#93A4A0; --line:#2A3A37;
-  --brand:#4FBFB4; --brand-ink:#08201E; --tint:#1C3230;
-  --route:#FF8A3D; --route-soft:#5A3420;
-  --plan-bg:#18221F; --room:#22302D; --room-line:#38504B; --corridor:#33433F; --wall:#5E726D;
-  --danger:#F97066; color-scheme:dark}}
+  --bg:#0A1624; --surface:#12233A; --ink:#E8F0F8; --muted:#8DA3BA; --line:#203650;
+  --brand:#5AA2FF; --brand-ink:#04162B; --tint:#16314F;
+  --route:#FF8A55; --route-soft:#5A3420;
+  --plan-bg:#0F1D2F; --room:#1A2D45; --room-line:#2E4766; --corridor:#26405F; --wall:#607B9A;
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+  --danger:#F97066;
+  color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0E1514; --surface:#162120; --ink:#E5EEEC; --muted:#93A4A0; --line:#2A3A37;
-  --brand:#4FBFB4; --brand-ink:#08201E; --tint:#1C3230;
-  --route:#FF8A3D; --route-soft:#5A3420;
-  --plan-bg:#18221F; --room:#22302D; --room-line:#38504B; --corridor:#33433F; --wall:#5E726D;
-  --danger:#F97066; color-scheme:dark}
+  --bg:#0A1624; --surface:#12233A; --ink:#E8F0F8; --muted:#8DA3BA; --line:#203650;
+  --brand:#5AA2FF; --brand-ink:#04162B; --tint:#16314F;
+  --route:#FF8A55; --route-soft:#5A3420;
+  --plan-bg:#0F1D2F; --room:#1A2D45; --room-line:#2E4766; --corridor:#26405F; --wall:#607B9A;
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+  --danger:#F97066;
+  color-scheme:dark}
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -234,6 +239,28 @@ h1,h2,h3{font-family:var(--font-sign);text-wrap:balance;margin:0;line-height:1.1
 .qrc .q img,.qrc .q canvas{width:150px!important;height:150px!important}
 .qrc small{font-size:11px;color:#555;word-break:break-all}
 .qrc .scan{font-size:13px;color:#333}
+/* clinical polish */
+.top{border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(11,37,64,.02)}
+.logo{background:var(--brand);color:#fff}
+.here,.tile,.row,.mapcard,.card,.steps button{box-shadow:var(--shadow);border-color:transparent}
+.here,.tile,.row{border-radius:16px}
+.here{border-color:var(--line)}
+.search input{border:1px solid var(--line);box-shadow:var(--shadow);border-radius:16px}
+.search input:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 18%,transparent)}
+.tile{border:1px solid var(--line);padding:14px 12px;gap:14px}
+.tile .big{background:color-mix(in srgb,var(--fc) 13%,var(--surface));color:var(--fc);box-shadow:none;border-radius:12px}
+.tile:hover{border-color:color-mix(in srgb,var(--fc) 45%,var(--line));box-shadow:0 6px 20px rgba(11,37,64,.09)}
+.row{border:1px solid var(--line)}
+.row.self{background:var(--tint);border-color:color-mix(in srgb,var(--brand) 30%,var(--line))}
+.eyebrow{letter-spacing:.1em}
+.modes{background:var(--bg)}
+.modes button[aria-selected="true"]{color:var(--brand)}
+.sim summary{background:var(--bg);border-color:transparent}
+.chip{background:var(--tint);border-color:transparent;color:var(--brand)}
+.back,.toast{color:var(--brand)}
+.navbar{box-shadow:0 -4px 20px rgba(11,37,64,.06)}
+.ghost[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.fb{box-shadow:none}
 </style>
 
 </head>
