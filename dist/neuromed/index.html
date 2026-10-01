@@ -45,29 +45,47 @@ h1,h2,h3{font-family:var(--font-sign);text-wrap:balance;margin:0;line-height:1.1
 
 /* top bar */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
-.top-in{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.top-in{max-width:1100px;margin:0 auto;padding:8px 16px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .brand{display:flex;gap:10px;align-items:center;min-width:0}
-.logo{width:34px;height:34px;border-radius:9px;background:var(--brand);display:grid;place-items:center;flex:none}
+.logo{width:30px;height:30px;border-radius:9px;background:var(--brand);display:grid;place-items:center;flex:none}
 .logo svg{width:20px;height:20px}
 .brand b{display:block;font:800 17px/1.1 var(--font-sign)}
-.brand small{color:var(--muted);font-size:13px}
+.brand small{color:var(--muted);font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wordmark{letter-spacing:-.01em}
 .modes{display:flex;background:var(--bg);border-radius:10px;padding:3px;gap:2px}
-.modes button{border:0;background:none;padding:6px 11px;border-radius:8px;font-size:14px;font-weight:700;color:var(--muted)}
+.modes button{border:0;background:none;padding:5px 9px;border-radius:8px;font-size:14px;font-weight:700;color:var(--muted)}
 .modes button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
 
-.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:16px 120px;display:flex;flex-direction:column;gap:16px}
+.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:12px 120px;display:flex;flex-direction:column;gap:12px}
 .wrap.wide{max-width:1100px}
 .eyebrow{font:800 12px/1 var(--font-sign);letter-spacing:.12em;text-transform:uppercase}
 
-/* "Sie sind hier" sign */
-.here{background:var(--brand);color:var(--brand-ink);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px}
-.here .eyebrow{opacity:.85}
-.here-row{display:flex;gap:12px;align-items:center}
-.here-row strong{font:800 clamp(22px,6vw,28px)/1.1 var(--font-sign)}
-.sim{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;opacity:.95;border-top:1px solid color-mix(in srgb,var(--brand-ink) 25%,transparent);padding-top:10px}
-.sim select{background:color-mix(in srgb,var(--brand-ink) 14%,transparent);color:var(--brand-ink);border:1px solid color-mix(in srgb,var(--brand-ink) 35%,transparent);border-radius:8px;padding:5px 8px;max-width:100%;min-width:0}
-.sim select option{color:#13201E;background:#fff}
+/* "Sie sind hier" strip */
+.here{display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.here .fb{width:34px;height:34px}
+.here-t{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.here-t .eyebrow{color:var(--muted);font-size:10.5px}
+.here-t strong{font:800 16px/1.2 var(--font-sign)}
+.sim{font-size:12px;color:var(--muted);position:relative}
+.sim summary{cursor:pointer;list-style:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-weight:700}
+.sim summary::-webkit-details-marker{display:none}
+.sim label{position:absolute;right:0;top:calc(100% + 8px);z-index:5;width:min(78vw,300px);display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.sim select{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:6px;max-width:100%;min-width:0}
+
+/* Bauteil tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.tile{display:flex;flex-direction:column;gap:10px;align-items:flex-start;text-align:left;padding:10px;border-radius:14px;border:1px solid var(--line);background:var(--surface);transition:transform .12s,border-color .12s}
+.tile:hover{border-color:var(--fc)}
+.tile:active{transform:scale(.97)}
+.tile .big{width:38px;height:38px;border-radius:11px;background:var(--fc);color:#fff;display:grid;place-items:center;font:800 18px/1 var(--font-sign);box-shadow:inset 0 0 0 2px rgba(255,255,255,.22)}
+.tile b{display:block;font:800 15px/1.15 var(--font-sign)}
+.tile small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.ghead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ghead .gb{border:1px solid var(--line);background:var(--surface);border-radius:10px;width:38px;height:38px;font-size:22px;line-height:1;flex:none}
+.ghead h2{font-size:20px;font-weight:800}
+.ghead small{display:block;color:var(--muted);font-size:13px;font-weight:400;font-family:var(--font-body)}
+.glist{display:flex;flex-direction:column;gap:6px}
+.row.nb{grid-template-columns:1fr auto}.row.self{background:var(--tint)}
 
 .fb{--fc:var(--fc1);width:38px;height:38px;flex:none;border-radius:9px;background:var(--fc);color:#fff;display:grid;place-items:center;font:800 15px/1 var(--font-sign);font-variant-numeric:tabular-nums;box-shadow:inset 0 0 0 2px rgba(255,255,255,.25)}
 .fb.sm{width:28px;height:28px;font-size:12px;border-radius:7px}
@@ -237,12 +255,12 @@ h1,h2,h3{font-family:var(--font-sign);text-wrap:balance;margin:0;line-height:1.1
 <main id="v-visitor" class="wrap">
   <section id="home" style="display:flex;flex-direction:column;gap:16px">
     <div class="here">
-      <span class="eyebrow">Sie sind hier</span>
-      <div class="here-row"><span class="fb" id="here-fb"></span><strong id="here-name"></strong></div>
-      <label class="sim" for="start-sel">Demo: QR-Scan simulieren <select id="start-sel"></select></label>
+      <span class="fb" id="here-fb"></span>
+      <div class="here-t"><span class="eyebrow">Sie sind hier</span><strong id="here-name"></strong></div>
+      <details class="sim"><summary>Demo</summary><label for="start-sel">QR-Scan simulieren <select id="start-sel"></select></label></details>
     </div>
-    <label class="search"><span class="sr">Ziel suchen</span><input id="q" type="search" autocomplete="off" placeholder="Wohin möchten Sie? z. B. Station 2B, Röntgen"></label>
-    <div id="list" style="display:flex;flex-direction:column;gap:6px"></div>
+    <label class="search"><span class="sr">Ziel suchen</span><input id="q" type="search" autocomplete="off" placeholder="Ziel suchen, z. B. C302"></label>
+    <div id="list"></div>
   </section>
   <section id="route" hidden style="display:flex;flex-direction:column;gap:14px">
     <button class="back" id="back">‹ Anderes Ziel wählen</button>
@@ -504,7 +522,7 @@ function planSVG(fid,o={}){
 }
 
 /* ---------- visitor ---------- */
-const V={start:null,dest:null,path:null,steps:[],i:0,show:null,full:false,vb:null};
+const V={grp:null,start:null,dest:null,path:null,steps:[],i:0,show:null,full:false,vb:null};
 const startPoints=()=>D.nodes.filter(n=>n.t==='e'||n.t==='l'||n.qr);
 const dests=()=>D.nodes.filter(n=>(n.t==='z'||n.t==='e')&&n.name);
 const nodeLabel=n=>(n.name||TYPES[n.t][0])+' · '+(floorOf(n.f)?.name||'');
@@ -524,17 +542,34 @@ function renderHome(){
   $('#start-sel').innerHTML=startPoints().map(n=>`<option value="${esc(n.id)}"${n.id===V.start?' selected':''}>${esc(nodeLabel(n))}</option>`).join('');
   renderList();
 }
+const grpKey=n=>n.cat==='Anreise'?'Anreise':(n.bau||floorOf(n.f)?.name||'Sonstiges');
+function groups(items){
+  const m=new Map();
+  for(const n of items){const k=grpKey(n);if(!m.has(k))m.set(k,{key:k,items:[],n,fi:fIdx(n.f)});m.get(k).items.push(n)}
+  const gs=[...m.values()];
+  for(const g of gs){g.self=g.items.find(n=>n.cat==='Gebäude');g.sub=g.items.filter(n=>n!==g.self);
+    g.n=g.self||g.items.find(n=>n.badge)||g.items[0]}
+  const rank=g=>g.key==='Anreise'?2:g.key.startsWith('Bau ')?0:1;
+  return gs.sort((a,b)=>rank(a)-rank(b)||(rank(a)===1?a.fi-b.fi:a.key.localeCompare(b.key,'de')));
+}
+const gTitle=g=>g.key==='Anreise'?'Anreise & Eingänge':g.key;
+const rowHTML=(n,nobadge)=>`<button class="row${n.cat==='Gebäude'?' self':''}${nobadge?' nb':''}" data-dest="${esc(n.id)}">${nobadge?'':nb(n)}<span class="t"><b>${esc(n.cat==='Gebäude'?'Zum Gebäude '+n.name:n.name)}</b><small>${esc(n.where||floorOf(n.f).name)}${n.info?' · '+esc(n.info):''}</small></span><span class="chev" aria-hidden="true">›</span></button>`;
 function renderList(){
   const q=$('#q').value.trim().toLowerCase();
-  const all=dests().filter(n=>n.id!==V.start&&(!q||(n.name+' '+(n.info||'')+' '+(n.where||'')+' '+(n.lab||[]).join(' ')+' '+(floorOf(n.f)?.name||'')).toLowerCase().includes(q)));
-  if(!all.length){$('#list').innerHTML=`<p class="empty">${D.nodes.length?'Kein Ziel gefunden. Versuchen Sie einen anderen Begriff, z. B. „Station“ oder „WC“.':'Im Plan-Editor sind noch keine Ziele eingetragen.'}</p>`;return}
-  let h='';
-  for(const [c,label] of CATS){
-    const items=all.filter(n=>(n.cat||'Service')===c).sort((a,b)=>fIdx(a.f)-fIdx(b.f)||a.name.localeCompare(b.name,'de'));
-    if(!items.length)continue;
-    h+=`<div class="group"><h3>${label}</h3>`+items.map(n=>`<button class="row" data-dest="${esc(n.id)}">${nb(n)}<span class="t"><b>${esc(n.name)}</b><small>${esc(n.where||floorOf(n.f).name)}${n.info?' · '+esc(n.info):''}</small></span><span class="chev" aria-hidden="true">›</span></button>`).join('')+`</div>`;
-  }
-  $('#list').innerHTML=h;
+  const base=dests().filter(n=>n.id!==V.start);
+  if(!base.length){$('#list').innerHTML=`<p class="empty">${D.nodes.length?'Kein Ziel vorhanden.':'Im Plan-Editor sind noch keine Ziele eingetragen.'}</p>`;return}
+  if(q){
+    const all=base.filter(n=>(n.name+' '+(n.info||'')+' '+(n.where||'')+' '+(n.lab||[]).join(' ')+' '+(floorOf(n.f)?.name||'')).toLowerCase().includes(q));
+    $('#list').innerHTML=all.length?`<div class="glist">${all.map(rowHTML).join('')}</div>`:'<p class="empty">Kein Ziel gefunden. Versuchen Sie einen anderen Begriff, z. B. „Station“ oder „WC“.</p>';return}
+  const gs=groups(base),g=V.grp&&gs.find(x=>x.key===V.grp);
+  if(g){
+    const list=[...(g.self?[g.self]:[]),...g.sub.sort((a,b)=>fIdx(a.f)-fIdx(b.f)||a.name.localeCompare(b.name,'de'))];
+    $('#list').innerHTML=`<div class="ghead"><button class="gb" data-grp="" aria-label="Zurück zur Übersicht">‹</button>${nb(g.n,true)}<h2>${esc(gTitle(g))}<small>${g.sub.length} ${g.sub.length===1?'Ziel':'Ziele'}</small></h2></div><div class="glist">${list.map(n=>rowHTML(n,true)).join('')}</div>`;return}
+  V.grp=null;
+  $('#list').innerHTML=`<div class="tiles">`+gs.map(g=>{
+    const c=g.n.badge?g.n.badge.c:fColor(g.n.f),t=g.key==='Anreise'?'→':g.n.badge?g.n.badge.t:(floorOf(g.n.f)?.short||'?');
+    const cnt=g.sub.length,ct=cnt?`${cnt} ${cnt===1?'Ziel':'Ziele'}`:(g.self?'Gebäude':'');
+    return `<button class="tile" data-grp="${esc(g.key)}" style="--fc:${c}"><span class="big">${esc(t)}</span><span><b>${esc(gTitle(g))}</b><small>${ct||'&nbsp;'}</small></span></button>`}).join('')+`</div>`;
 }
 function openRoute(id){
   stopWalk();
@@ -602,7 +637,7 @@ function goHome(){stopWalk();V.dest=null;$('#route').hidden=true;$('#home').hidd
 
 $('#start-sel').addEventListener('change',e=>{V.start=e.target.value;try{history.replaceState(null,'','#s-'+V.start)}catch(_){}renderHome()});
 $('#q').addEventListener('input',renderList);
-$('#list').addEventListener('click',e=>{const b=e.target.closest('[data-dest]');if(b)openRoute(b.dataset.dest)});
+$('#list').addEventListener('click',e=>{const g=e.target.closest('[data-grp]');if(g){V.grp=g.dataset.grp||null;renderList();window.scrollTo(0,0);return}const b=e.target.closest('[data-dest]');if(b)openRoute(b.dataset.dest)});
 $('#back').addEventListener('click',goHome);
 $('#r-steps').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b)return;V.i=+b.dataset.step;V.show=null;V.full=false;renderRoute()});
 $('#r-floors').addEventListener('click',e=>{const b=e.target.closest('[data-floor]');if(!b)return;const f=b.dataset.floor;V.show=f===V.steps[V.i].f?null:f;renderRoute()});
