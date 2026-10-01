@@ -685,7 +685,7 @@ function refreshSOS(){
 }
 function renderRules(){
   const r=D.rules||[];$('#rules').hidden=!r.length;$('#rules-h').textContent=t('rules_h');
-  $('#rules-l').innerHTML=r.map(x=>`<li>${esc(x)}</li>`).join('');
+  $('#rules-l').innerHTML=r.map(x=>`<li>${esc(dt(x))}</li>`).join('');
 }
 const grpKey=n=>n.cat==='Anreise'?'Anreise':(n.bau||floorOf(n.f)?.name||'Sonstiges');
 function groups(items){
@@ -723,9 +723,9 @@ function openRoute(id){
   V.path=V.start===id?[id]:shortest(V.start,id);
   V.steps=V.path?(V.path.length===1?[{kind:'arrive',title:t('arrived'),text:t('here_already'),f:d.f,pts:[d]}]:makeSteps(V.path)):[];
   $('#home').hidden=true;$('#route').hidden=false;$('#navbar').hidden=!V.path;$('#walkctl').hidden=!V.path||V.steps.length<2;
-  const vis=d.visit||(d.cat==='Station'?'':null);
+  const vis=d.visit===false?null:d.visit||(d.cat==='Station'?'':null);
   $('#r-visit').hidden=vis===null;$('#r-visit').classList.toggle('ask',vis==='');
-  $('#r-visit-h').textContent=t('visit_h');$('#r-visit-t').textContent=vis?vis:t('visit_ask');
+  $('#r-visit-h').textContent=t('visit_h');$('#r-visit-t').textContent=vis?dt(vis):t('visit_ask');
   $('#r-name').textContent=tn(d.name);$('#r-info').textContent=tn(d.info)||'';$('#r-info').hidden=!d.info;
   if(!V.path){$('#r-meta').innerHTML='';$('#r-floors').innerHTML='';$('#r-plan').innerHTML='';$('#r-steps').innerHTML=`<li class="lost">${esc(t('no_route'))}</li>`;window.scrollTo(0,0);return}
   const dist=V.steps.reduce((s,x)=>s+(x.kind!=='lift'?legLen(x.pts)*scaleOf(x.f):0),0),lifts=V.steps.filter(x=>x.kind==='lift');
