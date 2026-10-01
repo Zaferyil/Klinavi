@@ -1,0 +1,138 @@
+/* ---------- i18n: Besucheransicht in 9 Sprachen (Grundlage: Statistik Austria, Staatsangehörigkeiten 2025) ----------
+   Reihenfolge der Werte: de, en, tr, ro, bks, ar, uk, pl, hu
+   Die Übersetzungen sind ein Entwurf und sollten von Muttersprachlern geprüft werden (besonders medizinische Begriffe). */
+const LANGS=[['de','Deutsch'],['en','English'],['tr','Türkçe'],['ro','Română'],['bks','Bosanski · Hrvatski · Srpski'],['ar','العربية'],['uk','Українська'],['pl','Polski'],['hu','Magyar']];
+const LCODE={de:'DE',en:'EN',tr:'TR',ro:'RO',bks:'BKS',ar:'AR',uk:'UK',pl:'PL',hu:'HU'};
+const LIDX=Object.fromEntries(LANGS.map((l,i)=>[l[0],i]));
+const TX={};
+function K(k,...v){TX[k]=v}
+function detectLang(){
+  try{const s=localStorage.getItem('klinavi-lang');if(s&&LIDX[s]!=null)return s}catch(_){}
+  const map={de:'de',en:'en',tr:'tr',ro:'ro',bs:'bks',hr:'bks',sr:'bks',ar:'ar',uk:'uk',pl:'pl',hu:'hu'};
+  for(const l of (navigator.languages||[navigator.language||'de'])){const m=map[String(l).slice(0,2).toLowerCase()];if(m)return m}
+  return 'de';
+}
+let LANG=detectLang();
+function t(k,p){const a=TX[k];let s=(a&&(a[LIDX[LANG]]??a[1]??a[0]))??k;
+  if(p)for(const x in p)s=s.split('{'+x+'}').join(p[x]);return s}
+
+K('visitor','Besucher','Visitors','Ziyaretçi','Vizitatori','Posjetitelji','الزوار','Відвідувачі','Odwiedzający','Látogatók');
+K('here','Sie sind hier','You are here','Buradasınız','Sunteți aici','Vi ste ovdje','أنتم هنا','Ви тут','Jesteś tutaj','Ön itt van');
+K('sim_qr','QR-Scan simulieren','Simulate QR scan','QR taramasını simüle et','Simulează scanarea QR','Simuliraj QR skeniranje','محاكاة مسح رمز QR','Імітувати сканування QR','Symuluj skan QR','QR-beolvasás szimulálása');
+K('search_ph','Ziel suchen, z. B. C302','Search destination, e.g. C302','Hedef ara, örn. C302','Căutați destinația, ex. C302','Pretražite odredište, npr. C302','ابحث عن وجهة، مثل C302','Пошук місця, напр. C302','Szukaj celu, np. C302','Cél keresése, pl. C302');
+K('search_lbl','Ziel suchen','Search destination','Hedef ara','Căutați destinația','Pretražite odredište','ابحث عن وجهة','Пошук місця','Szukaj celu','Cél keresése');
+K('goals','Ziele: {n}','Destinations: {n}','Hedef: {n}','Destinații: {n}','Odredišta: {n}','الوجهات: {n}','Місць: {n}','Cele: {n}','Célok: {n}');
+K('building','Gebäude','Building','Bina','Clădire','Zgrada','مبنى','Будівля','Budynek','Épület');
+K('arrival','Anreise & Eingänge','Arrival & entrances','Ulaşım ve girişler','Acces și intrări','Dolazak i ulazi','الوصول والمداخل','Прибуття та входи','Dojazd i wejścia','Érkezés és bejáratok');
+K('to_bld','Zum Gebäude {n}','To {n}','{n} için rota','Spre {n}','Do: {n}','إلى {n}','До: {n}','Do: {n}','Ide: {n}');
+K('back_ov','Zurück zur Übersicht','Back to overview','Genel bakışa dön','Înapoi la prezentare','Natrag na pregled','العودة إلى النظرة العامة','Назад до огляду','Wróć do przeglądu','Vissza az áttekintéshez');
+K('no_hit','Kein Ziel gefunden. Versuchen Sie einen anderen Begriff.','No destination found. Try another term.','Hedef bulunamadı. Başka bir terim deneyin.','Nu am găsit nicio destinație. Încercați alt termen.','Odredište nije pronađeno. Pokušajte s drugim pojmom.','لم يتم العثور على وجهة. جرّب كلمة أخرى.','Місце не знайдено. Спробуйте інше слово.','Nie znaleziono celu. Spróbuj innego hasła.','Nem találtunk célt. Próbáljon másik kifejezést.');
+K('no_dest','Noch keine Ziele eingetragen.','No destinations yet.','Henüz hedef yok.','Încă nu există destinații.','Još nema odredišta.','لا توجد وجهات بعد.','Місць ще немає.','Brak celów.','Még nincs cél.');
+K('bld','Bau {x}','Building {x}','Bina {x}','Clădirea {x}','Zgrada {x}','مبنى {x}','Корпус {x}','Budynek {x}','{x} épület');
+K('bld_g','Bau {x}','Building {x}','Bina {x}','Clădirea {x}','zgrade {x}','مبنى {x}','корпусу {x}','budynku {x}','{x} épület');
+K('stn','Station {x}','Ward {x}','Servis {x}','Secția {x}','Odjel {x}','قسم {x}','Відділення {x}','Oddział {x}','{x} osztály');
+K('other_dest','Anderes Ziel wählen','Choose another destination','Başka bir hedef seç','Alegeți altă destinație','Odaberite drugo odredište','اختر وجهة أخرى','Обрати інше місце','Wybierz inny cel','Másik cél választása');
+K('your_goal','Ihr Ziel','Your destination','Hedefiniz','Destinația dvs.','Vaše odredište','وجهتك','Ваше місце призначення','Twój cel','Az Ön célja');
+K('min','ca. {n} Min.','approx. {n} min','yakl. {n} dk','aprox. {n} min','oko {n} min','حوالي {n} دقيقة','бл. {n} хв','ok. {n} min','kb. {n} perc');
+K('walkdist','{d} Fußweg','{d} on foot','{d} yürüyüş','{d} pe jos','{d} pješice','{d} سيرًا','{d} пішки','{d} pieszo','{d} gyalog');
+K('via','über {x}','via {x}','{x} üzerinden','prin {x}','preko {x}','عبر {x}','через {x}','przez {x}','ezen át: {x}');
+K('walk_start','Mitlaufen starten','Start guided walking','Yürüyüşü başlat','Începeți ghidarea pas cu pas','Pokreni vođenje hodanjem','ابدأ التوجيه أثناء المشي','Почати супровід','Rozpocznij prowadzenie','Kísérés indítása');
+K('walk_sim','Gehen simulieren','Simulate walking','Yürümeyi simüle et','Simulează mersul','Simuliraj hodanje','محاكاة المشي','Імітувати ходьбу','Symuluj chodzenie','Séta szimulálása');
+K('step_len','Schrittlänge','Step length','Adım uzunluğu','Lungimea pasului','Dužina koraka','طول الخطوة','Довжина кроку','Długość kroku','Lépéshossz');
+K('len_s','kurz (50 cm)','short (50 cm)','kısa (50 cm)','scurt (50 cm)','kratki (50 cm)','قصير (50 سم)','короткий (50 см)','krótki (50 cm)','rövid (50 cm)');
+K('len_m','normal (65 cm)','normal (65 cm)','normal (65 cm)','normal (65 cm)','normalan (65 cm)','عادي (65 سم)','звичайний (65 см)','normalny (65 cm)','normál (65 cm)');
+K('len_l','lang (75 cm)','long (75 cm)','uzun (75 cm)','lung (75 cm)','dugi (75 cm)','طويل (75 سم)','довгий (75 см)','długi (75 cm)','hosszú (75 cm)');
+K('walk_note','Beim Mitlaufen zählt das Handy Ihre Schritte und schaltet bei Abbiegungen selbst weiter. Die Sensordaten bleiben auf Ihrem Gerät.','While walking, your phone counts your steps and advances at turns by itself. Sensor data stays on your device.','Yürürken telefonunuz adımlarınızı sayar ve dönüşlerde kendiliğinden bir sonraki adıma geçer. Sensör verileri cihazınızda kalır.','În timpul mersului, telefonul vă numără pașii și trece singur la pasul următor la viraje. Datele senzorilor rămân pe dispozitivul dvs.','Dok hodate, telefon broji vaše korake i sam prelazi na sljedeći korak na skretanjima. Podaci senzora ostaju na vašem uređaju.','أثناء المشي يحسب هاتفك خطواتك وينتقل تلقائيًا إلى الخطوة التالية عند المنعطفات. تبقى بيانات المستشعرات على جهازك.','Під час ходьби телефон рахує ваші кроки й самостійно переходить до наступного кроку на поворотах. Дані датчиків залишаються на вашому пристрої.','Podczas marszu telefon liczy Twoje kroki i sam przechodzi dalej na zakrętach. Dane z czujników pozostają na Twoim urządzeniu.','Séta közben a telefon számolja a lépéseit, és kanyaroknál magától lép tovább. Az érzékelők adatai az eszközén maradnak.');
+K('live_active','Mitlaufen aktiv','Guided walking active','Yürüyüş takibi etkin','Ghidare activă','Vođenje hodanjem aktivno','التوجيه نشط','Супровід активний','Prowadzenie aktywne','Kísérés aktív');
+K('stop','Beenden','Stop','Bitir','Opriți','Zaustavi','إنهاء','Завершити','Zakończ','Befejezés');
+K('close','Schließen','Close','Kapat','Închide','Zatvori','إغلاق','Закрити','Zamknij','Bezárás');
+K('full_plan','Ganzer Plan','Full map','Tüm harita','Harta completă','Cijeli plan','الخريطة كاملة','Весь план','Cały plan','Teljes térkép');
+K('prev','Zurück','Back','Geri','Înapoi','Natrag','السابق','Назад','Wstecz','Vissza');
+K('next','Weiter','Next','İleri','Înainte','Dalje','التالي','Далі','Dalej','Tovább');
+K('done','Fertig','Done','Bitti','Gata','Gotovo','تم','Готово','Gotowe','Kész');
+K('no_route','Zu diesem Ziel gibt es von Ihrem Standort noch keinen eingetragenen Weg. Bitte wenden Sie sich an den Portier.','There is no route to this destination from your location yet. Please ask the porter.','Bulunduğunuz yerden bu hedefe henüz kayıtlı bir yol yok. Lütfen danışmaya (kapıcıya) başvurun.','Din locația dvs. nu există încă un traseu înregistrat către această destinație. Vă rugăm să vă adresați portarului.','S vaše lokacije do ovog odredišta još nema unesenog puta. Molimo obratite se portiru.','لا يوجد بعد مسار مسجّل إلى هذه الوجهة من موقعك. يرجى التوجه إلى موظف الاستقبال (البوّاب).','Від вашого місця до цієї точки ще немає маршруту. Зверніться до портьє.','Z Twojej lokalizacji nie ma jeszcze zapisanej trasy do tego celu. Zwróć się do portiera.','Az Ön helyéről még nincs bejegyzett útvonal ehhez a célhoz. Kérjük, forduljon a portáshoz.');
+K('lost','Verlaufen? Scannen Sie den QR-Code beim nächsten Aufzug. Die Route startet dann neu von dort.','Lost? Scan the QR code at the nearest lift. The route will restart from there.','Kayboldunuz mu? En yakın asansördeki QR kodunu tarayın. Rota oradan yeniden başlar.','V-ați rătăcit? Scanați codul QR de la cel mai apropiat lift. Traseul va reîncepe de acolo.','Izgubili ste se? Skenirajte QR kod kod najbližeg lifta. Ruta će se ponovno pokrenuti odande.','هل ضللت الطريق؟ امسح رمز QR عند أقرب مصعد. سيبدأ المسار من جديد من هناك.','Загубилися? Скануйте QR-код біля найближчого ліфта. Маршрут почнеться звідти знову.','Zgubiłeś się? Zeskanuj kod QR przy najbliższej windzie. Trasa zacznie się stamtąd od nowa.','Eltévedt? Olvassa be a legközelebbi lifthez tartozó QR-kódot. Az útvonal onnan indul újra.');
+K('here_already','Sie befinden sich bereits hier.','You are already here.','Zaten buradasınız.','Vă aflați deja aici.','Već ste ovdje.','أنت هنا بالفعل.','Ви вже тут.','Jesteś już tutaj.','Már itt van.');
+K('lang','Sprache','Language','Dil','Limba','Jezik','اللغة','Мова','Język','Nyelv');
+
+/* Schritte */
+K('straight','Geradeaus','Straight ahead','Düz ilerleyin','Înainte','Ravno','استمر للأمام','Прямо','Prosto','Egyenesen');
+K('lead_straight','Gehen Sie geradeaus weiter, ca. {m}','Continue straight ahead for about {m}','Yaklaşık {m} düz devam edin','Mergeți drept înainte aproximativ {m}','Nastavite ravno oko {m}','تابع المشي للأمام حوالي {m}','Ідіть прямо приблизно {m}','Idź prosto przez ok. {m}','Haladjon egyenesen kb. {m}-t');
+K('slight_r','Leicht rechts','Slight right','Hafif sağa','Ușor la dreapta','Blago desno','انعطاف يمين خفيف','Трохи праворуч','Lekko w prawo','Enyhén jobbra');
+K('slight_l','Leicht links','Slight left','Hafif sola','Ușor la stânga','Blago lijevo','انعطاف يسار خفيف','Трохи ліворуч','Lekko w lewo','Enyhén balra');
+K('lead_slight_r','Halten Sie sich leicht rechts und gehen Sie ca. {m}','Keep slightly right and go about {m}','Hafifçe sağda kalın ve yaklaşık {m} gidin','Țineți ușor dreapta și mergeți aproximativ {m}','Držite se blago desno i idite oko {m}','حافظ على الاتجاه قليلًا نحو اليمين وامشِ حوالي {m}','Тримайтеся трохи праворуч і пройдіть приблизно {m}','Trzymaj się lekko prawej strony i idź ok. {m}','Tartson enyhén jobbra, és menjen kb. {m}-t');
+K('lead_slight_l','Halten Sie sich leicht links und gehen Sie ca. {m}','Keep slightly left and go about {m}','Hafifçe solda kalın ve yaklaşık {m} gidin','Țineți ușor stânga și mergeți aproximativ {m}','Držite se blago lijevo i idite oko {m}','حافظ على الاتجاه قليلًا نحو اليسار وامشِ حوالي {m}','Тримайтеся трохи ліворуч і пройдіть приблизно {m}','Trzymaj się lekko lewej strony i idź ok. {m}','Tartson enyhén balra, és menjen kb. {m}-t');
+K('turn_r','Rechts abbiegen','Turn right','Sağa dönün','Virați la dreapta','Skrenite desno','انعطف يمينًا','Поверніть праворуч','Skręć w prawo','Forduljon jobbra');
+K('turn_l','Links abbiegen','Turn left','Sola dönün','Virați la stânga','Skrenite lijevo','انعطف يسارًا','Поверніть ліворуч','Skręć w lewo','Forduljon balra');
+K('lead_turn_r','Biegen Sie rechts ab und gehen Sie ca. {m}','Turn right and walk about {m}','Sağa dönün ve yaklaşık {m} yürüyün','Virați la dreapta și mergeți aproximativ {m}','Skrenite desno i hodajte oko {m}','انعطف يمينًا وامشِ حوالي {m}','Поверніть праворуч і пройдіть приблизно {m}','Skręć w prawo i idź ok. {m}','Forduljon jobbra, és menjen kb. {m}-t');
+K('lead_turn_l','Biegen Sie links ab und gehen Sie ca. {m}','Turn left and walk about {m}','Sola dönün ve yaklaşık {m} yürüyün','Virați la stânga și mergeți aproximativ {m}','Skrenite lijevo i hodajte oko {m}','انعطف يسارًا وامشِ حوالي {m}','Поверніть ліворуч і пройдіть приблизно {m}','Skręć w lewo i idź ok. {m}','Forduljon balra, és menjen kb. {m}-t');
+K('uturn','Umkehren','Turn around','Geri dönün','Întoarceți-vă','Okrenite se','استدر للخلف','Розвернутися','Zawróć','Forduljon vissza');
+K('lead_uturn','Kehren Sie um und gehen Sie ca. {m}','Turn around and walk about {m}','Geri dönün ve yaklaşık {m} yürüyün','Întoarceți-vă și mergeți aproximativ {m}','Okrenite se i hodajte oko {m}','استدر للخلف وامشِ حوالي {m}','Розверніться і пройдіть приблизно {m}','Zawróć i idź ok. {m}','Forduljon vissza, és menjen kb. {m}-t');
+K('start_go','Losgehen','Start walking','Yürümeye başlayın','Porniți','Krenite','ابدأ المشي','Рушайте','Ruszaj','Induljon el');
+K('lead_start_e','Gehen Sie ca. {m} geradeaus','Walk straight ahead for about {m}','Yaklaşık {m} düz yürüyün','Mergeți drept aproximativ {m}','Hodajte ravno oko {m}','امشِ للأمام حوالي {m}','Ідіть прямо приблизно {m}','Idź prosto ok. {m}','Menjen egyenesen kb. {m}-t');
+K('lead_start_g','Folgen Sie dem Gang ca. {m}, wie im Plan gezeigt','Follow the corridor for about {m}, as shown on the map','Haritada gösterildiği gibi koridoru yaklaşık {m} izleyin','Urmați coridorul aproximativ {m}, ca pe hartă','Slijedite hodnik oko {m}, kako je prikazano na planu','اتبع الممر حوالي {m} كما هو موضح على الخريطة','Ідіть коридором приблизно {m}, як показано на плані','Idź korytarzem ok. {m}, jak na planie','Kövesse a folyosót kb. {m}-t, ahogy a térképen látható');
+K('exit','Aussteigen','Get out','Çıkın','Ieșiți','Izađite','اخرج','Вийдіть','Wysiądź','Szálljon ki');
+K('lead_exit','Steigen Sie aus und folgen Sie dem Gang ca. {m}','Get out and follow the corridor for about {m}','Çıkın ve koridoru yaklaşık {m} izleyin','Ieșiți și urmați coridorul aproximativ {m}','Izađite i slijedite hodnik oko {m}','اخرج واتبع الممر حوالي {m}','Вийдіть і йдіть коридором приблизно {m}','Wysiądź i idź korytarzem ok. {m}','Szálljon ki, és kövesse a folyosót kb. {m}-t');
+K('until',', bis Sie „{n}“ erreichen.',', until you reach “{n}”.',', “{n}” noktasına varana kadar.',', până ajungeți la „{n}”.',', dok ne stignete do „{n}“.','، حتى تصل إلى «{n}».',', доки не дійдете до «{n}».',', aż dojdziesz do „{n}”.',', amíg el nem éri a(z) „{n}” helyet.');
+K('lift_default','Aufzug','Elevator','Asansör','Lift','Lift','مصعد','Ліфт','Winda','Lift');
+K('lift_go','Ziel-Ebene: {f}.','Go to: {f}.','Gidilecek kat: {f}.','Mergeți la: {f}.','Idite na: {f}.','اذهب إلى: {f}.','Йдіть на: {f}.','Jedź na: {f}.','Menjen ide: {f}.');
+K('arrived','Angekommen','Arrived','Vardınız','Ați ajuns','Stigli ste','وصلت','Ви прибули','Jesteś na miejscu','Megérkezett');
+K('dest_def','Ihr Ziel','your destination','hedefiniz','destinația dvs.','vaše odredište','وجهتك','ваше місце','Twój cel','az Ön célja');
+K('arr_ahead','{n} liegt direkt vor Ihnen.','{n} is straight ahead of you.','{n} hemen önünüzde.','{n} se află chiar în fața dvs.','{n} je ravno ispred vas.','{n} أمامك مباشرة.','{n} прямо перед вами.','{n} jest bezpośrednio przed Tobą.','{n} közvetlenül Ön előtt van.');
+K('arr_right','{n} liegt auf der rechten Seite.','{n} is on the right-hand side.','{n} sağ tarafta.','{n} se află în partea dreaptă.','{n} je s desne strane.','{n} على الجهة اليمنى.','{n} з правого боку.','{n} jest po prawej stronie.','{n} a jobb oldalon van.');
+K('arr_left','{n} liegt auf der linken Seite.','{n} is on the left-hand side.','{n} sol tarafta.','{n} se află în partea stângă.','{n} je s lijeve strane.','{n} على الجهة اليسرى.','{n} з лівого боку.','{n} jest po lewej stronie.','{n} a bal oldalon van.');
+K('ent_ahead','Der Eingang zu {n} liegt direkt vor Ihnen.','The entrance to {n} is straight ahead of you.','{n} girişi hemen önünüzde.','Intrarea în {n} se află chiar în fața dvs.','Ulaz u {n} je ravno ispred vas.','مدخل {n} أمامك مباشرة.','Вхід до {n} прямо перед вами.','Wejście do {n} jest bezpośrednio przed Tobą.','A(z) {n} bejárata közvetlenül Ön előtt van.');
+K('ent_right','Der Eingang zu {n} liegt auf der rechten Seite.','The entrance to {n} is on the right-hand side.','{n} girişi sağ tarafta.','Intrarea în {n} se află în partea dreaptă.','Ulaz u {n} je s desne strane.','مدخل {n} على الجهة اليمنى.','Вхід до {n} з правого боку.','Wejście do {n} jest po prawej stronie.','A(z) {n} bejárata a jobb oldalon van.');
+K('ent_left','Der Eingang zu {n} liegt auf der linken Seite.','The entrance to {n} is on the left-hand side.','{n} girişi sol tarafta.','Intrarea în {n} se află în partea stângă.','Ulaz u {n} je s lijeve strane.','مدخل {n} على الجهة اليسرى.','Вхід до {n} з лівого боку.','Wejście do {n} jest po lewej stronie.','A(z) {n} bejárata a bal oldalon van.');
+K('stand_ent','Sie stehen vor dem Eingang zu {n}.','You are standing at the entrance to {n}.','{n} girişinin önündesiniz.','Vă aflați în fața intrării în {n}.','Stojite ispred ulaza u {n}.','أنت أمام مدخل {n}.','Ви біля входу до {n}.','Stoisz przed wejściem do {n}.','Ön a(z) {n} bejárata előtt áll.');
+K('ent_reached','Eingang erreicht','Entrance reached','Girişe ulaştınız','Ați ajuns la intrare','Stigli ste do ulaza','وصلت إلى المدخل','Ви біля входу','Dotarłeś do wejścia','Elérte a bejáratot');
+K('inside','Im Gebäude','Inside the building','Bina içinde','În clădire','U zgradi','داخل المبنى','У будівлі','W budynku','Az épületben');
+K('inside_txt','{n} liegt im {f}. Stock von {b}. Folgen Sie im Gebäude der Beschilderung „{c}“.','{n} is on floor {f} of {b}. Follow the signs for “{c}” inside the building.','{n}, {b} içinde {f}. kattadır. Bina içinde “{c}” tabelalarını izleyin.','{n} se află la etajul {f} în {b}. În clădire urmați indicatoarele „{c}”.','{n} je na {f}. katu, {b}. U zgradi slijedite oznake „{c}“.','{n} في الطابق {f} في {b}. اتبع اللافتات «{c}» داخل المبنى.','{n} — {f}-й поверх, {b}. Усередині будівлі йдіть за вказівниками «{c}».','{n} znajduje się na {f}. piętrze ({b}). W budynku kieruj się oznaczeniami „{c}”.','A(z) {n} itt van: {b}, {f}. emelet. Az épületben kövesse a „{c}” jelzéseket.');
+K('live_arrived','Sie sind angekommen','You have arrived','Vardınız','Ați ajuns','Stigli ste','لقد وصلت','Ви прибули','Jesteś na miejscu','Megérkezett');
+K('near_goal','Gleich am Ziel · noch ca. {m} m','Almost there · about {m} m left','Neredeyse vardınız · yaklaşık {m} m kaldı','Aproape ajuns · încă aprox. {m} m','Skoro ste stigli · još oko {m} m','تقريبًا وصلت · بقي حوالي {m} م','Майже на місці · ще бл. {m} м','Prawie na miejscu · jeszcze ok. {m} m','Mindjárt ott · még kb. {m} m');
+K('rem_m','noch ca. {m} m','about {m} m left','yaklaşık {m} m kaldı','încă aprox. {m} m','još oko {m} m','بقي حوالي {m} م','ще бл. {m} м','jeszcze ok. {m} m','még kb. {m} m');
+K('now','Jetzt: {x}','Now: {x}','Şimdi: {x}','Acum: {x}','Sada: {x}','الآن: {x}','Зараз: {x}','Teraz: {x}','Most: {x}');
+K('soon','Gleich: {x}','Soon: {x}','Birazdan: {x}','Imediat: {x}','Uskoro: {x}','قريبًا: {x}','Незабаром: {x}','Zaraz: {x}','Hamarosan: {x}');
+K('soon_lift','Aufzug „{n}“ erreichen','Reach lift “{n}”','“{n}” asansörüne ulaşın','Ajungeți la liftul „{n}”','Stignite do lifta „{n}“','الوصول إلى المصعد «{n}»','Дійдіть до ліфта «{n}»','Dojdź do windy „{n}”','Érje el a(z) „{n}” liftet');
+K('at_goal','Am Ziel ankommen','Arrive at your destination','Hedefe varın','Ajungeți la destinație','Stignite na odredište','الوصول إلى الوجهة','Прибути до місця','Dotrzyj na miejsce','Megérkezés a célhoz');
+K('auto_next','Klinavi schaltet weiter, sobald Sie abgebogen sind.','Klinavi moves on as soon as you have turned.','Döndüğünüzde Klinavi bir sonraki adıma geçer.','Klinavi trece mai departe imediat ce ați virat.','Klinavi prelazi dalje čim skrenete.','ينتقل Klinavi إلى الخطوة التالية بمجرد أن تنعطف.','Klinavi перейде далі, щойно ви повернете.','Klinavi przejdzie dalej, gdy skręcisz.','A Klinavi továbblép, amint kanyarodott.');
+K('steps_cnt','{n} Schritte gezählt','{n} steps counted','{n} adım sayıldı','{n} pași numărați','Izbrojano koraka: {n}','عدد الخطوات: {n}','Кроків: {n}','Policzone kroki: {n}','Megszámolt lépések: {n}');
+K('lift_wait','Tippen Sie nach dem Aussteigen auf „Weiter“.','After getting out, tap “Next”.','Çıktıktan sonra “İleri”ye dokunun.','După ce ieșiți, atingeți „Înainte”.','Nakon izlaska dodirnite „Dalje“.','بعد الخروج اضغط على «التالي».','Після виходу натисніть «Далі».','Po wyjściu naciśnij „Dalej”.','Kiszállás után koppintson a „Tovább” gombra.');
+K('lift_sim','Simulation: Der Aufzug fährt …','Simulation: the lift is moving…','Simülasyon: Asansör hareket ediyor…','Simulare: liftul se mișcă…','Simulacija: lift se kreće…','محاكاة: المصعد يتحرك…','Імітація: ліфт їде…','Symulacja: winda jedzie…','Szimuláció: a lift mozog…');
+K('err_perm','Ohne Freigabe der Bewegungssensoren funktioniert Mitlaufen nicht. Sie können weiterhin mit „Weiter“ navigieren.','Guided walking does not work without access to the motion sensors. You can still navigate with “Next”.','Hareket sensörlerine izin verilmezse yürüyüş takibi çalışmaz. “İleri” ile yönlendirmeyi sürdürebilirsiniz.','Fără acces la senzorii de mișcare, ghidarea pas cu pas nu funcționează. Puteți naviga în continuare cu „Înainte”.','Bez dopuštenja za senzore pokreta vođenje hodanjem ne radi. I dalje možete navigirati tipkom „Dalje“.','لا يعمل التوجيه أثناء المشي بدون السماح بالوصول إلى مستشعرات الحركة. يمكنك متابعة التنقل باستخدام «التالي».','Без доступу до датчиків руху супровід не працює. Ви можете й далі користуватися кнопкою «Далі».','Bez zgody na czujniki ruchu prowadzenie nie działa. Możesz dalej nawigować przyciskiem „Dalej”.','A mozgásérzékelők engedélye nélkül a kísérés nem működik. A „Tovább” gombbal továbbra is navigálhat.');
+K('err_none','Keine Bewegungsdaten empfangen. Bitte erlauben Sie den Zugriff auf die Bewegungssensoren oder nutzen Sie „Weiter“.','No motion data received. Please allow access to the motion sensors or use “Next”.','Hareket verisi alınamadı. Lütfen hareket sensörlerine erişime izin verin veya “İleri”yi kullanın.','Nu s-au primit date de mișcare. Permiteți accesul la senzorii de mișcare sau folosiți „Înainte”.','Nisu primljeni podaci o kretanju. Dopustite pristup senzorima pokreta ili koristite „Dalje“.','لم يتم استلام بيانات الحركة. يرجى السماح بالوصول إلى مستشعرات الحركة أو استخدام «التالي».','Дані руху не отримано. Дозвольте доступ до датчиків руху або скористайтеся «Далі».','Nie odebrano danych o ruchu. Zezwól na dostęp do czujników ruchu lub użyj „Dalej”.','Nem érkezett mozgásadat. Engedélyezze a mozgásérzékelők elérését, vagy használja a „Tovább” gombot.');
+K('floor_n','{n}. Stock','Floor {n}','Kat {n}','Etaj {n}','Kat {n}','الطابق {n}','Поверх {n}','Piętro {n}','{n}. emelet');
+
+/* Glossar für Namen und Hinweise der Neuromed-Daten (längere Begriffe zuerst) */
+const GLOSS=[
+ ['Linz AG Linien 41 und 43','Linz AG lines 41 and 43','Linz AG 41 ve 43 hatları','Linz AG liniile 41 și 43','Linz AG linije 41 i 43','Linz AG الخطان 41 و43','Linz AG, маршрути 41 і 43','Linz AG linie 41 i 43','Linz AG 41-es és 43-as járat'],
+ ['Bei der Ein- und Ausstiegszone','At the drop-off and pick-up zone','Bırakma ve bindirme alanında','La zona de îmbarcare și debarcare','Kod zone za ulazak i izlazak','عند منطقة النزول والصعود','Біля зони висадки та посадки','Przy strefie wsiadania i wysiadania','A fel- és leszállózónánál'],
+ ['Mit Behindertenparkplätzen','With disabled parking spaces','Engelli park yerleri mevcut','Cu locuri de parcare pentru persoane cu dizabilități','S parkirnim mjestima za osobe s invaliditetom','مع أماكن لذوي الإعاقة','З місцями для людей з інвалідністю','Z miejscami dla osób niepełnosprawnych','Mozgássérült-parkolóhelyekkel'],
+ ['Neurologische Tagesklinik','Neurological day clinic','Nörolojik gündüz kliniği','Clinică de zi neurologică','Neurološka dnevna klinika','العيادة النهارية لأمراض الأعصاب','Неврологічний денний стаціонар','Neurologiczna klinika dzienna','Neurológiai nappali klinika'],
+ ['Barrierefreier Zugang','Step-free access','Engelli erişimine uygun giriş','Acces fără bariere','Pristup bez prepreka','مدخل بلا عوائق','Безбар’єрний доступ','Dostęp bez barier','Akadálymentes bejárás'],
+ ['Epilepsie-Monitoring','Epilepsy monitoring','Epilepsi izleme','Monitorizare epilepsie','Praćenje epilepsije','مراقبة الصرع','Моніторинг епілепсії','Monitorowanie padaczki','Epilepszia-monitorozás'],
+ ['Besucherparkplatz','Visitor car park','Ziyaretçi otoparkı','Parcare pentru vizitatori','Parkiralište za posjetitelje','موقف سيارات الزوار','Паркінг для відвідувачів','Parking dla odwiedzających','Látogatóparkoló'],
+ ['Beim Kindergarten','Next to the kindergarten','Anaokulunun yanında','Lângă grădiniță','Pored vrtića','بجانب الروضة','Біля дитячого садка','Obok przedszkola','Az óvoda mellett'],
+ ['Haupteingang','Main entrance','Ana giriş','Intrarea principală','Glavni ulaz','المدخل الرئيسي','Головний вхід','Wejście główne','Főbejárat'],
+ ['Haltestelle','Bus stop','Durak','Stație','Stajalište','محطة','Зупинка','Przystanek','Megálló'],
+ ['Akutnachsorge','Acute aftercare','Akut sonrası bakım','Îngrijiri post-acute','Akutna naknadna skrb','الرعاية اللاحقة الحادة','Післягостра допомога','Opieka po leczeniu ostrym','Akut utókezelés'],
+ ['Psychosomatik','Psychosomatics','Psikosomatik','Psihosomatică','Psihosomatika','الطب النفسي الجسدي','Психосоматика','Psychosomatyka','Pszichoszomatika'],
+ ['Schlaflabor','Sleep laboratory','Uyku laboratuvarı','Laborator de somn','Laboratorij za spavanje','مختبر النوم','Лабораторія сну','Laboratorium snu','Alváslabor'],
+ ['Neurologie','Neurology','Nöroloji','Neurologie','Neurologija','طب الأعصاب','Неврологія','Neurologia','Neurológia'],
+ ['Parkplatz','Car park','Otopark','Parcare','Parkiralište','موقف سيارات','Паркінг','Parking','Parkoló'],
+ ['Eingang','Entrance','Giriş','Intrare','Ulaz','مدخل','Вхід','Wejście','Bejárat'],
+ ['Nahe','Near','Yakın:','Aproape de','Blizu:','بالقرب من','Поруч з','Blisko:','Közel:'],
+ ['Nord','North','Kuzey','Nord','Sjever','شمال','Північ','Północ','Észak'],
+ ['Süd','South','Güney','Sud','Jug','جنوب','Південь','Południe','Dél'],
+ ['West','West','Batı','Vest','Zapad','غرب','Захід','Zachód','Nyugat']
+];
+/* Namen und Hinweise aus den Daten (tn = translate name) in die gewählte Sprache übertragen (Eigennamen bleiben) */
+function tn(s){
+  if(s==null||s===''||LANG==='de')return s;
+  const i=LIDX[LANG];let r=String(s);
+  r=r.replace(/\bStation ([A-Z]\d{3})\b/g,(_,x)=>t('stn',{x}));
+  r=r.replace(/\bBau ([A-Z]{1,2})\b/g,(_,x)=>t('bld',{x}));
+  r=r.replace(/\b(\d+)\. Stock\b/g,(_,n)=>t('floor_n',{n}));
+  for(const g of GLOSS){const v=g[i]??g[1];if(r.includes(g[0]))r=r.split(g[0]).join(v)}
+  return r;
+}

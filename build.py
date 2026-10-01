@@ -3,6 +3,7 @@
 import base64, pathlib
 ROOT = pathlib.Path(__file__).parent
 app = (ROOT / 'src/app.html').read_text(encoding='utf-8')
+app = app.replace('/*I18N-SLOT*/', (ROOT / 'src/i18n.js').read_text(encoding='utf-8'))
 
 HEAD = ('<!doctype html>\n<html lang="de">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n')
@@ -23,3 +24,6 @@ nmc = (ROOT / 'src/neuromed/nmc-data.js').read_text(encoding='utf-8')
 html = app.replace('/*NMC-SLOT*/', "const NMC_IMG='" + img + "';\n" + nmc)
 html = html.replace('<title>Klinavi</title>', '<title>Klinavi – Neuromed Campus</title>')
 write('dist/neuromed/index.html', html)
+
+# 3) Neuromed ohne Seitengerüst (für die Vorschau in Claude, ohne <head>/<body>)
+(ROOT / 'dist/neuromed/artifact.html').write_text(html, encoding='utf-8'); print('-> dist/neuromed/artifact.html')

@@ -82,7 +82,7 @@ h1,h2,h3{font-family:var(--font-sign);text-wrap:balance;margin:0;line-height:1.1
 
 /* Bauteil tiles */
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
-.tile{display:flex;flex-direction:column;gap:10px;align-items:flex-start;text-align:left;padding:10px;border-radius:14px;border:1px solid var(--line);background:var(--surface);transition:transform .12s,border-color .12s}
+.tile{display:flex;flex-direction:column;gap:10px;align-items:flex-start;text-align:start;padding:10px;border-radius:14px;border:1px solid var(--line);background:var(--surface);transition:transform .12s,border-color .12s}
 .tile:hover{border-color:var(--fc)}
 .tile:active{transform:scale(.97)}
 .tile .big{width:38px;height:38px;border-radius:11px;background:var(--fc);color:#fff;display:grid;place-items:center;font:800 18px/1 var(--font-sign);box-shadow:inset 0 0 0 2px rgba(255,255,255,.22)}
@@ -336,6 +336,16 @@ body{font-size:18px;line-height:1.5}
 .lost{font-size:18px}
 .empty{font-size:18px}
 .p-t{font-size:26px}.p-tagt{font-size:26px}
+/* language picker + RTL */
+.top-in{position:relative}
+.lang-btn{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:16px}
+.lang-btn b{font:800 15px var(--font-sign);letter-spacing:.04em}
+.lang-pop{position:absolute;inset-inline:16px;top:100%;z-index:30;margin-top:6px;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;box-shadow:0 14px 40px rgba(0,0,0,.25);max-width:560px;margin-inline:auto}
+.lang-pop button{min-height:56px;padding:10px 14px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:18px;font-weight:700;text-align:start}
+.lang-pop button[aria-current="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.back .arr{display:inline-block}
+[dir="rtl"] .back .arr,[dir="rtl"] .chev,[dir="rtl"] .ghead .gb{transform:scaleX(-1)}
+[dir="rtl"] .tile,[dir="rtl"] .row,[dir="rtl"] .steps button{text-align:right}
 </style>
 
 </head>
@@ -346,8 +356,10 @@ body{font-size:18px;line-height:1.5}
       <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color:var(--brand-ink)"><path d="M12 22s7-6.6 7-12.2A7 7 0 0 0 5 9.8C5 15.4 12 22 12 22z" fill="currentColor"/><path d="M9 7.6l3 5 3-5" stroke="var(--brand)" stroke-width="2.4"/></svg></span>
       <div><b class="wordmark">Klinavi</b><small id="bname">Klinikum Demo</small></div>
     </div>
+    <button class="lang-btn" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lang-pop"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><b id="lang-cur">DE</b></button>
+    <div class="lang-pop" id="lang-pop" role="menu" hidden></div>
     <nav class="modes" role="tablist" aria-label="Ansicht">
-      <button role="tab" data-mode="visitor" aria-selected="true">Besucher</button>
+      <button role="tab" data-mode="visitor" aria-selected="true" id="tab-visitor">Besucher</button>
       <button role="tab" data-mode="editor" aria-selected="false">Plan-Editor</button>
       <button role="tab" data-mode="qr" aria-selected="false">QR-Codes</button>
     </nav>
@@ -358,19 +370,19 @@ body{font-size:18px;line-height:1.5}
   <section id="home" style="display:flex;flex-direction:column;gap:16px">
     <div class="here">
       <span class="fb" id="here-fb"></span>
-      <div class="here-t"><span class="eyebrow">Sie sind hier</span><strong id="here-name"></strong></div>
-      <details class="sim"><summary>Demo</summary><label for="start-sel">QR-Scan simulieren <select id="start-sel"></select></label></details>
+      <div class="here-t"><span class="eyebrow" id="t-here">Sie sind hier</span><strong id="here-name"></strong></div>
+      <details class="sim"><summary>Demo</summary><label for="start-sel"><span id="t-sim">QR-Scan simulieren</span> <select id="start-sel"></select></label></details>
     </div>
-    <label class="search"><span class="sr">Ziel suchen</span><input id="q" type="search" autocomplete="off" placeholder="Ziel suchen, z. B. C302"></label>
+    <label class="search"><span class="sr" id="t-search">Ziel suchen</span><input id="q" type="search" autocomplete="off" placeholder="Ziel suchen, z. B. C302"></label>
     <div id="list"></div>
   </section>
   <section id="route" hidden style="display:flex;flex-direction:column;gap:14px">
-    <button class="back" id="back">‹ Anderes Ziel wählen</button>
-    <div class="dest-head"><span class="eyebrow">Ihr Ziel</span><h1 id="r-name"></h1><p id="r-info"></p><div class="meta" id="r-meta"></div></div>
+    <button class="back" id="back"><span class="arr" aria-hidden="true">‹</span> <span id="t-other">Anderes Ziel wählen</span></button>
+    <div class="dest-head"><span class="eyebrow" id="t-goal">Ihr Ziel</span><h1 id="r-name"></h1><p id="r-info"></p><div class="meta" id="r-meta"></div></div>
     <div class="walkctl" id="walkctl">
       <button class="btn primary" id="walk-start">Mitlaufen starten</button>
       <button class="btn" id="walk-sim">Gehen simulieren</button>
-      <label for="walk-len">Schrittlänge <select id="walk-len"><option value="0.5">kurz (50 cm)</option><option value="0.65" selected>normal (65 cm)</option><option value="0.75">lang (75 cm)</option></select></label>
+      <label for="walk-len"><span id="t-len">Schrittlänge</span> <select id="walk-len"><option value="0.5">kurz (50 cm)</option><option value="0.65" selected>normal (65 cm)</option><option value="0.75">lang (75 cm)</option></select></label>
       <p class="note" id="walk-note">Beim Mitlaufen zählt das Handy Ihre Schritte und schaltet bei Abbiegungen selbst weiter. Die Sensordaten bleiben auf Ihrem Gerät.</p>
     </div>
     <div class="live" id="live" hidden aria-live="polite">
@@ -380,10 +392,10 @@ body{font-size:18px;line-height:1.5}
     </div>
     <div class="mapcard">
       <div class="maptools"><div id="r-floors" class="floors"></div><button id="r-full" class="ghost" aria-pressed="false">Ganzer Plan</button></div>
-      <div class="plan" id="r-plan"></div>
+      <div class="plan" id="r-plan" dir="ltr"></div>
     </div>
     <ol id="r-steps" class="steps"></ol>
-    <p class="lost">Verlaufen? Scannen Sie den QR-Code beim nächsten Aufzug. Die Route startet dann neu von dort.</p>
+    <p class="lost" id="t-lost">Verlaufen? Scannen Sie den QR-Code beim nächsten Aufzug. Die Route startet dann neu von dort.</p>
   </section>
 </main>
 <div class="navbar" id="navbar" hidden><div class="in"><button id="prev">Zurück</button><div id="stepcount"></div><button id="next" class="primary">Weiter</button></div></div>
@@ -434,6 +446,145 @@ body{font-size:18px;line-height:1.5}
 (()=>{
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ---------- i18n: Besucheransicht in 9 Sprachen (Grundlage: Statistik Austria, Staatsangehörigkeiten 2025) ----------
+   Reihenfolge der Werte: de, en, tr, ro, bks, ar, uk, pl, hu
+   Die Übersetzungen sind ein Entwurf und sollten von Muttersprachlern geprüft werden (besonders medizinische Begriffe). */
+const LANGS=[['de','Deutsch'],['en','English'],['tr','Türkçe'],['ro','Română'],['bks','Bosanski · Hrvatski · Srpski'],['ar','العربية'],['uk','Українська'],['pl','Polski'],['hu','Magyar']];
+const LCODE={de:'DE',en:'EN',tr:'TR',ro:'RO',bks:'BKS',ar:'AR',uk:'UK',pl:'PL',hu:'HU'};
+const LIDX=Object.fromEntries(LANGS.map((l,i)=>[l[0],i]));
+const TX={};
+function K(k,...v){TX[k]=v}
+function detectLang(){
+  try{const s=localStorage.getItem('klinavi-lang');if(s&&LIDX[s]!=null)return s}catch(_){}
+  const map={de:'de',en:'en',tr:'tr',ro:'ro',bs:'bks',hr:'bks',sr:'bks',ar:'ar',uk:'uk',pl:'pl',hu:'hu'};
+  for(const l of (navigator.languages||[navigator.language||'de'])){const m=map[String(l).slice(0,2).toLowerCase()];if(m)return m}
+  return 'de';
+}
+let LANG=detectLang();
+function t(k,p){const a=TX[k];let s=(a&&(a[LIDX[LANG]]??a[1]??a[0]))??k;
+  if(p)for(const x in p)s=s.split('{'+x+'}').join(p[x]);return s}
+
+K('visitor','Besucher','Visitors','Ziyaretçi','Vizitatori','Posjetitelji','الزوار','Відвідувачі','Odwiedzający','Látogatók');
+K('here','Sie sind hier','You are here','Buradasınız','Sunteți aici','Vi ste ovdje','أنتم هنا','Ви тут','Jesteś tutaj','Ön itt van');
+K('sim_qr','QR-Scan simulieren','Simulate QR scan','QR taramasını simüle et','Simulează scanarea QR','Simuliraj QR skeniranje','محاكاة مسح رمز QR','Імітувати сканування QR','Symuluj skan QR','QR-beolvasás szimulálása');
+K('search_ph','Ziel suchen, z. B. C302','Search destination, e.g. C302','Hedef ara, örn. C302','Căutați destinația, ex. C302','Pretražite odredište, npr. C302','ابحث عن وجهة، مثل C302','Пошук місця, напр. C302','Szukaj celu, np. C302','Cél keresése, pl. C302');
+K('search_lbl','Ziel suchen','Search destination','Hedef ara','Căutați destinația','Pretražite odredište','ابحث عن وجهة','Пошук місця','Szukaj celu','Cél keresése');
+K('goals','Ziele: {n}','Destinations: {n}','Hedef: {n}','Destinații: {n}','Odredišta: {n}','الوجهات: {n}','Місць: {n}','Cele: {n}','Célok: {n}');
+K('building','Gebäude','Building','Bina','Clădire','Zgrada','مبنى','Будівля','Budynek','Épület');
+K('arrival','Anreise & Eingänge','Arrival & entrances','Ulaşım ve girişler','Acces și intrări','Dolazak i ulazi','الوصول والمداخل','Прибуття та входи','Dojazd i wejścia','Érkezés és bejáratok');
+K('to_bld','Zum Gebäude {n}','To {n}','{n} için rota','Spre {n}','Do: {n}','إلى {n}','До: {n}','Do: {n}','Ide: {n}');
+K('back_ov','Zurück zur Übersicht','Back to overview','Genel bakışa dön','Înapoi la prezentare','Natrag na pregled','العودة إلى النظرة العامة','Назад до огляду','Wróć do przeglądu','Vissza az áttekintéshez');
+K('no_hit','Kein Ziel gefunden. Versuchen Sie einen anderen Begriff.','No destination found. Try another term.','Hedef bulunamadı. Başka bir terim deneyin.','Nu am găsit nicio destinație. Încercați alt termen.','Odredište nije pronađeno. Pokušajte s drugim pojmom.','لم يتم العثور على وجهة. جرّب كلمة أخرى.','Місце не знайдено. Спробуйте інше слово.','Nie znaleziono celu. Spróbuj innego hasła.','Nem találtunk célt. Próbáljon másik kifejezést.');
+K('no_dest','Noch keine Ziele eingetragen.','No destinations yet.','Henüz hedef yok.','Încă nu există destinații.','Još nema odredišta.','لا توجد وجهات بعد.','Місць ще немає.','Brak celów.','Még nincs cél.');
+K('bld','Bau {x}','Building {x}','Bina {x}','Clădirea {x}','Zgrada {x}','مبنى {x}','Корпус {x}','Budynek {x}','{x} épület');
+K('bld_g','Bau {x}','Building {x}','Bina {x}','Clădirea {x}','zgrade {x}','مبنى {x}','корпусу {x}','budynku {x}','{x} épület');
+K('stn','Station {x}','Ward {x}','Servis {x}','Secția {x}','Odjel {x}','قسم {x}','Відділення {x}','Oddział {x}','{x} osztály');
+K('other_dest','Anderes Ziel wählen','Choose another destination','Başka bir hedef seç','Alegeți altă destinație','Odaberite drugo odredište','اختر وجهة أخرى','Обрати інше місце','Wybierz inny cel','Másik cél választása');
+K('your_goal','Ihr Ziel','Your destination','Hedefiniz','Destinația dvs.','Vaše odredište','وجهتك','Ваше місце призначення','Twój cel','Az Ön célja');
+K('min','ca. {n} Min.','approx. {n} min','yakl. {n} dk','aprox. {n} min','oko {n} min','حوالي {n} دقيقة','бл. {n} хв','ok. {n} min','kb. {n} perc');
+K('walkdist','{d} Fußweg','{d} on foot','{d} yürüyüş','{d} pe jos','{d} pješice','{d} سيرًا','{d} пішки','{d} pieszo','{d} gyalog');
+K('via','über {x}','via {x}','{x} üzerinden','prin {x}','preko {x}','عبر {x}','через {x}','przez {x}','ezen át: {x}');
+K('walk_start','Mitlaufen starten','Start guided walking','Yürüyüşü başlat','Începeți ghidarea pas cu pas','Pokreni vođenje hodanjem','ابدأ التوجيه أثناء المشي','Почати супровід','Rozpocznij prowadzenie','Kísérés indítása');
+K('walk_sim','Gehen simulieren','Simulate walking','Yürümeyi simüle et','Simulează mersul','Simuliraj hodanje','محاكاة المشي','Імітувати ходьбу','Symuluj chodzenie','Séta szimulálása');
+K('step_len','Schrittlänge','Step length','Adım uzunluğu','Lungimea pasului','Dužina koraka','طول الخطوة','Довжина кроку','Długość kroku','Lépéshossz');
+K('len_s','kurz (50 cm)','short (50 cm)','kısa (50 cm)','scurt (50 cm)','kratki (50 cm)','قصير (50 سم)','короткий (50 см)','krótki (50 cm)','rövid (50 cm)');
+K('len_m','normal (65 cm)','normal (65 cm)','normal (65 cm)','normal (65 cm)','normalan (65 cm)','عادي (65 سم)','звичайний (65 см)','normalny (65 cm)','normál (65 cm)');
+K('len_l','lang (75 cm)','long (75 cm)','uzun (75 cm)','lung (75 cm)','dugi (75 cm)','طويل (75 سم)','довгий (75 см)','długi (75 cm)','hosszú (75 cm)');
+K('walk_note','Beim Mitlaufen zählt das Handy Ihre Schritte und schaltet bei Abbiegungen selbst weiter. Die Sensordaten bleiben auf Ihrem Gerät.','While walking, your phone counts your steps and advances at turns by itself. Sensor data stays on your device.','Yürürken telefonunuz adımlarınızı sayar ve dönüşlerde kendiliğinden bir sonraki adıma geçer. Sensör verileri cihazınızda kalır.','În timpul mersului, telefonul vă numără pașii și trece singur la pasul următor la viraje. Datele senzorilor rămân pe dispozitivul dvs.','Dok hodate, telefon broji vaše korake i sam prelazi na sljedeći korak na skretanjima. Podaci senzora ostaju na vašem uređaju.','أثناء المشي يحسب هاتفك خطواتك وينتقل تلقائيًا إلى الخطوة التالية عند المنعطفات. تبقى بيانات المستشعرات على جهازك.','Під час ходьби телефон рахує ваші кроки й самостійно переходить до наступного кроку на поворотах. Дані датчиків залишаються на вашому пристрої.','Podczas marszu telefon liczy Twoje kroki i sam przechodzi dalej na zakrętach. Dane z czujników pozostają na Twoim urządzeniu.','Séta közben a telefon számolja a lépéseit, és kanyaroknál magától lép tovább. Az érzékelők adatai az eszközén maradnak.');
+K('live_active','Mitlaufen aktiv','Guided walking active','Yürüyüş takibi etkin','Ghidare activă','Vođenje hodanjem aktivno','التوجيه نشط','Супровід активний','Prowadzenie aktywne','Kísérés aktív');
+K('stop','Beenden','Stop','Bitir','Opriți','Zaustavi','إنهاء','Завершити','Zakończ','Befejezés');
+K('close','Schließen','Close','Kapat','Închide','Zatvori','إغلاق','Закрити','Zamknij','Bezárás');
+K('full_plan','Ganzer Plan','Full map','Tüm harita','Harta completă','Cijeli plan','الخريطة كاملة','Весь план','Cały plan','Teljes térkép');
+K('prev','Zurück','Back','Geri','Înapoi','Natrag','السابق','Назад','Wstecz','Vissza');
+K('next','Weiter','Next','İleri','Înainte','Dalje','التالي','Далі','Dalej','Tovább');
+K('done','Fertig','Done','Bitti','Gata','Gotovo','تم','Готово','Gotowe','Kész');
+K('no_route','Zu diesem Ziel gibt es von Ihrem Standort noch keinen eingetragenen Weg. Bitte wenden Sie sich an den Portier.','There is no route to this destination from your location yet. Please ask the porter.','Bulunduğunuz yerden bu hedefe henüz kayıtlı bir yol yok. Lütfen danışmaya (kapıcıya) başvurun.','Din locația dvs. nu există încă un traseu înregistrat către această destinație. Vă rugăm să vă adresați portarului.','S vaše lokacije do ovog odredišta još nema unesenog puta. Molimo obratite se portiru.','لا يوجد بعد مسار مسجّل إلى هذه الوجهة من موقعك. يرجى التوجه إلى موظف الاستقبال (البوّاب).','Від вашого місця до цієї точки ще немає маршруту. Зверніться до портьє.','Z Twojej lokalizacji nie ma jeszcze zapisanej trasy do tego celu. Zwróć się do portiera.','Az Ön helyéről még nincs bejegyzett útvonal ehhez a célhoz. Kérjük, forduljon a portáshoz.');
+K('lost','Verlaufen? Scannen Sie den QR-Code beim nächsten Aufzug. Die Route startet dann neu von dort.','Lost? Scan the QR code at the nearest lift. The route will restart from there.','Kayboldunuz mu? En yakın asansördeki QR kodunu tarayın. Rota oradan yeniden başlar.','V-ați rătăcit? Scanați codul QR de la cel mai apropiat lift. Traseul va reîncepe de acolo.','Izgubili ste se? Skenirajte QR kod kod najbližeg lifta. Ruta će se ponovno pokrenuti odande.','هل ضللت الطريق؟ امسح رمز QR عند أقرب مصعد. سيبدأ المسار من جديد من هناك.','Загубилися? Скануйте QR-код біля найближчого ліфта. Маршрут почнеться звідти знову.','Zgubiłeś się? Zeskanuj kod QR przy najbliższej windzie. Trasa zacznie się stamtąd od nowa.','Eltévedt? Olvassa be a legközelebbi lifthez tartozó QR-kódot. Az útvonal onnan indul újra.');
+K('here_already','Sie befinden sich bereits hier.','You are already here.','Zaten buradasınız.','Vă aflați deja aici.','Već ste ovdje.','أنت هنا بالفعل.','Ви вже тут.','Jesteś już tutaj.','Már itt van.');
+K('lang','Sprache','Language','Dil','Limba','Jezik','اللغة','Мова','Język','Nyelv');
+
+/* Schritte */
+K('straight','Geradeaus','Straight ahead','Düz ilerleyin','Înainte','Ravno','استمر للأمام','Прямо','Prosto','Egyenesen');
+K('lead_straight','Gehen Sie geradeaus weiter, ca. {m}','Continue straight ahead for about {m}','Yaklaşık {m} düz devam edin','Mergeți drept înainte aproximativ {m}','Nastavite ravno oko {m}','تابع المشي للأمام حوالي {m}','Ідіть прямо приблизно {m}','Idź prosto przez ok. {m}','Haladjon egyenesen kb. {m}-t');
+K('slight_r','Leicht rechts','Slight right','Hafif sağa','Ușor la dreapta','Blago desno','انعطاف يمين خفيف','Трохи праворуч','Lekko w prawo','Enyhén jobbra');
+K('slight_l','Leicht links','Slight left','Hafif sola','Ușor la stânga','Blago lijevo','انعطاف يسار خفيف','Трохи ліворуч','Lekko w lewo','Enyhén balra');
+K('lead_slight_r','Halten Sie sich leicht rechts und gehen Sie ca. {m}','Keep slightly right and go about {m}','Hafifçe sağda kalın ve yaklaşık {m} gidin','Țineți ușor dreapta și mergeți aproximativ {m}','Držite se blago desno i idite oko {m}','حافظ على الاتجاه قليلًا نحو اليمين وامشِ حوالي {m}','Тримайтеся трохи праворуч і пройдіть приблизно {m}','Trzymaj się lekko prawej strony i idź ok. {m}','Tartson enyhén jobbra, és menjen kb. {m}-t');
+K('lead_slight_l','Halten Sie sich leicht links und gehen Sie ca. {m}','Keep slightly left and go about {m}','Hafifçe solda kalın ve yaklaşık {m} gidin','Țineți ușor stânga și mergeți aproximativ {m}','Držite se blago lijevo i idite oko {m}','حافظ على الاتجاه قليلًا نحو اليسار وامشِ حوالي {m}','Тримайтеся трохи ліворуч і пройдіть приблизно {m}','Trzymaj się lekko lewej strony i idź ok. {m}','Tartson enyhén balra, és menjen kb. {m}-t');
+K('turn_r','Rechts abbiegen','Turn right','Sağa dönün','Virați la dreapta','Skrenite desno','انعطف يمينًا','Поверніть праворуч','Skręć w prawo','Forduljon jobbra');
+K('turn_l','Links abbiegen','Turn left','Sola dönün','Virați la stânga','Skrenite lijevo','انعطف يسارًا','Поверніть ліворуч','Skręć w lewo','Forduljon balra');
+K('lead_turn_r','Biegen Sie rechts ab und gehen Sie ca. {m}','Turn right and walk about {m}','Sağa dönün ve yaklaşık {m} yürüyün','Virați la dreapta și mergeți aproximativ {m}','Skrenite desno i hodajte oko {m}','انعطف يمينًا وامشِ حوالي {m}','Поверніть праворуч і пройдіть приблизно {m}','Skręć w prawo i idź ok. {m}','Forduljon jobbra, és menjen kb. {m}-t');
+K('lead_turn_l','Biegen Sie links ab und gehen Sie ca. {m}','Turn left and walk about {m}','Sola dönün ve yaklaşık {m} yürüyün','Virați la stânga și mergeți aproximativ {m}','Skrenite lijevo i hodajte oko {m}','انعطف يسارًا وامشِ حوالي {m}','Поверніть ліворуч і пройдіть приблизно {m}','Skręć w lewo i idź ok. {m}','Forduljon balra, és menjen kb. {m}-t');
+K('uturn','Umkehren','Turn around','Geri dönün','Întoarceți-vă','Okrenite se','استدر للخلف','Розвернутися','Zawróć','Forduljon vissza');
+K('lead_uturn','Kehren Sie um und gehen Sie ca. {m}','Turn around and walk about {m}','Geri dönün ve yaklaşık {m} yürüyün','Întoarceți-vă și mergeți aproximativ {m}','Okrenite se i hodajte oko {m}','استدر للخلف وامشِ حوالي {m}','Розверніться і пройдіть приблизно {m}','Zawróć i idź ok. {m}','Forduljon vissza, és menjen kb. {m}-t');
+K('start_go','Losgehen','Start walking','Yürümeye başlayın','Porniți','Krenite','ابدأ المشي','Рушайте','Ruszaj','Induljon el');
+K('lead_start_e','Gehen Sie ca. {m} geradeaus','Walk straight ahead for about {m}','Yaklaşık {m} düz yürüyün','Mergeți drept aproximativ {m}','Hodajte ravno oko {m}','امشِ للأمام حوالي {m}','Ідіть прямо приблизно {m}','Idź prosto ok. {m}','Menjen egyenesen kb. {m}-t');
+K('lead_start_g','Folgen Sie dem Gang ca. {m}, wie im Plan gezeigt','Follow the corridor for about {m}, as shown on the map','Haritada gösterildiği gibi koridoru yaklaşık {m} izleyin','Urmați coridorul aproximativ {m}, ca pe hartă','Slijedite hodnik oko {m}, kako je prikazano na planu','اتبع الممر حوالي {m} كما هو موضح على الخريطة','Ідіть коридором приблизно {m}, як показано на плані','Idź korytarzem ok. {m}, jak na planie','Kövesse a folyosót kb. {m}-t, ahogy a térképen látható');
+K('exit','Aussteigen','Get out','Çıkın','Ieșiți','Izađite','اخرج','Вийдіть','Wysiądź','Szálljon ki');
+K('lead_exit','Steigen Sie aus und folgen Sie dem Gang ca. {m}','Get out and follow the corridor for about {m}','Çıkın ve koridoru yaklaşık {m} izleyin','Ieșiți și urmați coridorul aproximativ {m}','Izađite i slijedite hodnik oko {m}','اخرج واتبع الممر حوالي {m}','Вийдіть і йдіть коридором приблизно {m}','Wysiądź i idź korytarzem ok. {m}','Szálljon ki, és kövesse a folyosót kb. {m}-t');
+K('until',', bis Sie „{n}“ erreichen.',', until you reach “{n}”.',', “{n}” noktasına varana kadar.',', până ajungeți la „{n}”.',', dok ne stignete do „{n}“.','، حتى تصل إلى «{n}».',', доки не дійдете до «{n}».',', aż dojdziesz do „{n}”.',', amíg el nem éri a(z) „{n}” helyet.');
+K('lift_default','Aufzug','Elevator','Asansör','Lift','Lift','مصعد','Ліфт','Winda','Lift');
+K('lift_go','Ziel-Ebene: {f}.','Go to: {f}.','Gidilecek kat: {f}.','Mergeți la: {f}.','Idite na: {f}.','اذهب إلى: {f}.','Йдіть на: {f}.','Jedź na: {f}.','Menjen ide: {f}.');
+K('arrived','Angekommen','Arrived','Vardınız','Ați ajuns','Stigli ste','وصلت','Ви прибули','Jesteś na miejscu','Megérkezett');
+K('dest_def','Ihr Ziel','your destination','hedefiniz','destinația dvs.','vaše odredište','وجهتك','ваше місце','Twój cel','az Ön célja');
+K('arr_ahead','{n} liegt direkt vor Ihnen.','{n} is straight ahead of you.','{n} hemen önünüzde.','{n} se află chiar în fața dvs.','{n} je ravno ispred vas.','{n} أمامك مباشرة.','{n} прямо перед вами.','{n} jest bezpośrednio przed Tobą.','{n} közvetlenül Ön előtt van.');
+K('arr_right','{n} liegt auf der rechten Seite.','{n} is on the right-hand side.','{n} sağ tarafta.','{n} se află în partea dreaptă.','{n} je s desne strane.','{n} على الجهة اليمنى.','{n} з правого боку.','{n} jest po prawej stronie.','{n} a jobb oldalon van.');
+K('arr_left','{n} liegt auf der linken Seite.','{n} is on the left-hand side.','{n} sol tarafta.','{n} se află în partea stângă.','{n} je s lijeve strane.','{n} على الجهة اليسرى.','{n} з лівого боку.','{n} jest po lewej stronie.','{n} a bal oldalon van.');
+K('ent_ahead','Der Eingang zu {n} liegt direkt vor Ihnen.','The entrance to {n} is straight ahead of you.','{n} girişi hemen önünüzde.','Intrarea în {n} se află chiar în fața dvs.','Ulaz u {n} je ravno ispred vas.','مدخل {n} أمامك مباشرة.','Вхід до {n} прямо перед вами.','Wejście do {n} jest bezpośrednio przed Tobą.','A(z) {n} bejárata közvetlenül Ön előtt van.');
+K('ent_right','Der Eingang zu {n} liegt auf der rechten Seite.','The entrance to {n} is on the right-hand side.','{n} girişi sağ tarafta.','Intrarea în {n} se află în partea dreaptă.','Ulaz u {n} je s desne strane.','مدخل {n} على الجهة اليمنى.','Вхід до {n} з правого боку.','Wejście do {n} jest po prawej stronie.','A(z) {n} bejárata a jobb oldalon van.');
+K('ent_left','Der Eingang zu {n} liegt auf der linken Seite.','The entrance to {n} is on the left-hand side.','{n} girişi sol tarafta.','Intrarea în {n} se află în partea stângă.','Ulaz u {n} je s lijeve strane.','مدخل {n} على الجهة اليسرى.','Вхід до {n} з лівого боку.','Wejście do {n} jest po lewej stronie.','A(z) {n} bejárata a bal oldalon van.');
+K('stand_ent','Sie stehen vor dem Eingang zu {n}.','You are standing at the entrance to {n}.','{n} girişinin önündesiniz.','Vă aflați în fața intrării în {n}.','Stojite ispred ulaza u {n}.','أنت أمام مدخل {n}.','Ви біля входу до {n}.','Stoisz przed wejściem do {n}.','Ön a(z) {n} bejárata előtt áll.');
+K('ent_reached','Eingang erreicht','Entrance reached','Girişe ulaştınız','Ați ajuns la intrare','Stigli ste do ulaza','وصلت إلى المدخل','Ви біля входу','Dotarłeś do wejścia','Elérte a bejáratot');
+K('inside','Im Gebäude','Inside the building','Bina içinde','În clădire','U zgradi','داخل المبنى','У будівлі','W budynku','Az épületben');
+K('inside_txt','{n} liegt im {f}. Stock von {b}. Folgen Sie im Gebäude der Beschilderung „{c}“.','{n} is on floor {f} of {b}. Follow the signs for “{c}” inside the building.','{n}, {b} içinde {f}. kattadır. Bina içinde “{c}” tabelalarını izleyin.','{n} se află la etajul {f} în {b}. În clădire urmați indicatoarele „{c}”.','{n} je na {f}. katu, {b}. U zgradi slijedite oznake „{c}“.','{n} في الطابق {f} في {b}. اتبع اللافتات «{c}» داخل المبنى.','{n} — {f}-й поверх, {b}. Усередині будівлі йдіть за вказівниками «{c}».','{n} znajduje się na {f}. piętrze ({b}). W budynku kieruj się oznaczeniami „{c}”.','A(z) {n} itt van: {b}, {f}. emelet. Az épületben kövesse a „{c}” jelzéseket.');
+K('live_arrived','Sie sind angekommen','You have arrived','Vardınız','Ați ajuns','Stigli ste','لقد وصلت','Ви прибули','Jesteś na miejscu','Megérkezett');
+K('near_goal','Gleich am Ziel · noch ca. {m} m','Almost there · about {m} m left','Neredeyse vardınız · yaklaşık {m} m kaldı','Aproape ajuns · încă aprox. {m} m','Skoro ste stigli · još oko {m} m','تقريبًا وصلت · بقي حوالي {m} م','Майже на місці · ще бл. {m} м','Prawie na miejscu · jeszcze ok. {m} m','Mindjárt ott · még kb. {m} m');
+K('rem_m','noch ca. {m} m','about {m} m left','yaklaşık {m} m kaldı','încă aprox. {m} m','još oko {m} m','بقي حوالي {m} م','ще бл. {m} м','jeszcze ok. {m} m','még kb. {m} m');
+K('now','Jetzt: {x}','Now: {x}','Şimdi: {x}','Acum: {x}','Sada: {x}','الآن: {x}','Зараз: {x}','Teraz: {x}','Most: {x}');
+K('soon','Gleich: {x}','Soon: {x}','Birazdan: {x}','Imediat: {x}','Uskoro: {x}','قريبًا: {x}','Незабаром: {x}','Zaraz: {x}','Hamarosan: {x}');
+K('soon_lift','Aufzug „{n}“ erreichen','Reach lift “{n}”','“{n}” asansörüne ulaşın','Ajungeți la liftul „{n}”','Stignite do lifta „{n}“','الوصول إلى المصعد «{n}»','Дійдіть до ліфта «{n}»','Dojdź do windy „{n}”','Érje el a(z) „{n}” liftet');
+K('at_goal','Am Ziel ankommen','Arrive at your destination','Hedefe varın','Ajungeți la destinație','Stignite na odredište','الوصول إلى الوجهة','Прибути до місця','Dotrzyj na miejsce','Megérkezés a célhoz');
+K('auto_next','Klinavi schaltet weiter, sobald Sie abgebogen sind.','Klinavi moves on as soon as you have turned.','Döndüğünüzde Klinavi bir sonraki adıma geçer.','Klinavi trece mai departe imediat ce ați virat.','Klinavi prelazi dalje čim skrenete.','ينتقل Klinavi إلى الخطوة التالية بمجرد أن تنعطف.','Klinavi перейде далі, щойно ви повернете.','Klinavi przejdzie dalej, gdy skręcisz.','A Klinavi továbblép, amint kanyarodott.');
+K('steps_cnt','{n} Schritte gezählt','{n} steps counted','{n} adım sayıldı','{n} pași numărați','Izbrojano koraka: {n}','عدد الخطوات: {n}','Кроків: {n}','Policzone kroki: {n}','Megszámolt lépések: {n}');
+K('lift_wait','Tippen Sie nach dem Aussteigen auf „Weiter“.','After getting out, tap “Next”.','Çıktıktan sonra “İleri”ye dokunun.','După ce ieșiți, atingeți „Înainte”.','Nakon izlaska dodirnite „Dalje“.','بعد الخروج اضغط على «التالي».','Після виходу натисніть «Далі».','Po wyjściu naciśnij „Dalej”.','Kiszállás után koppintson a „Tovább” gombra.');
+K('lift_sim','Simulation: Der Aufzug fährt …','Simulation: the lift is moving…','Simülasyon: Asansör hareket ediyor…','Simulare: liftul se mișcă…','Simulacija: lift se kreće…','محاكاة: المصعد يتحرك…','Імітація: ліфт їде…','Symulacja: winda jedzie…','Szimuláció: a lift mozog…');
+K('err_perm','Ohne Freigabe der Bewegungssensoren funktioniert Mitlaufen nicht. Sie können weiterhin mit „Weiter“ navigieren.','Guided walking does not work without access to the motion sensors. You can still navigate with “Next”.','Hareket sensörlerine izin verilmezse yürüyüş takibi çalışmaz. “İleri” ile yönlendirmeyi sürdürebilirsiniz.','Fără acces la senzorii de mișcare, ghidarea pas cu pas nu funcționează. Puteți naviga în continuare cu „Înainte”.','Bez dopuštenja za senzore pokreta vođenje hodanjem ne radi. I dalje možete navigirati tipkom „Dalje“.','لا يعمل التوجيه أثناء المشي بدون السماح بالوصول إلى مستشعرات الحركة. يمكنك متابعة التنقل باستخدام «التالي».','Без доступу до датчиків руху супровід не працює. Ви можете й далі користуватися кнопкою «Далі».','Bez zgody na czujniki ruchu prowadzenie nie działa. Możesz dalej nawigować przyciskiem „Dalej”.','A mozgásérzékelők engedélye nélkül a kísérés nem működik. A „Tovább” gombbal továbbra is navigálhat.');
+K('err_none','Keine Bewegungsdaten empfangen. Bitte erlauben Sie den Zugriff auf die Bewegungssensoren oder nutzen Sie „Weiter“.','No motion data received. Please allow access to the motion sensors or use “Next”.','Hareket verisi alınamadı. Lütfen hareket sensörlerine erişime izin verin veya “İleri”yi kullanın.','Nu s-au primit date de mișcare. Permiteți accesul la senzorii de mișcare sau folosiți „Înainte”.','Nisu primljeni podaci o kretanju. Dopustite pristup senzorima pokreta ili koristite „Dalje“.','لم يتم استلام بيانات الحركة. يرجى السماح بالوصول إلى مستشعرات الحركة أو استخدام «التالي».','Дані руху не отримано. Дозвольте доступ до датчиків руху або скористайтеся «Далі».','Nie odebrano danych o ruchu. Zezwól na dostęp do czujników ruchu lub użyj „Dalej”.','Nem érkezett mozgásadat. Engedélyezze a mozgásérzékelők elérését, vagy használja a „Tovább” gombot.');
+K('floor_n','{n}. Stock','Floor {n}','Kat {n}','Etaj {n}','Kat {n}','الطابق {n}','Поверх {n}','Piętro {n}','{n}. emelet');
+
+/* Glossar für Namen und Hinweise der Neuromed-Daten (längere Begriffe zuerst) */
+const GLOSS=[
+ ['Linz AG Linien 41 und 43','Linz AG lines 41 and 43','Linz AG 41 ve 43 hatları','Linz AG liniile 41 și 43','Linz AG linije 41 i 43','Linz AG الخطان 41 و43','Linz AG, маршрути 41 і 43','Linz AG linie 41 i 43','Linz AG 41-es és 43-as járat'],
+ ['Bei der Ein- und Ausstiegszone','At the drop-off and pick-up zone','Bırakma ve bindirme alanında','La zona de îmbarcare și debarcare','Kod zone za ulazak i izlazak','عند منطقة النزول والصعود','Біля зони висадки та посадки','Przy strefie wsiadania i wysiadania','A fel- és leszállózónánál'],
+ ['Mit Behindertenparkplätzen','With disabled parking spaces','Engelli park yerleri mevcut','Cu locuri de parcare pentru persoane cu dizabilități','S parkirnim mjestima za osobe s invaliditetom','مع أماكن لذوي الإعاقة','З місцями для людей з інвалідністю','Z miejscami dla osób niepełnosprawnych','Mozgássérült-parkolóhelyekkel'],
+ ['Neurologische Tagesklinik','Neurological day clinic','Nörolojik gündüz kliniği','Clinică de zi neurologică','Neurološka dnevna klinika','العيادة النهارية لأمراض الأعصاب','Неврологічний денний стаціонар','Neurologiczna klinika dzienna','Neurológiai nappali klinika'],
+ ['Barrierefreier Zugang','Step-free access','Engelli erişimine uygun giriş','Acces fără bariere','Pristup bez prepreka','مدخل بلا عوائق','Безбар’єрний доступ','Dostęp bez barier','Akadálymentes bejárás'],
+ ['Epilepsie-Monitoring','Epilepsy monitoring','Epilepsi izleme','Monitorizare epilepsie','Praćenje epilepsije','مراقبة الصرع','Моніторинг епілепсії','Monitorowanie padaczki','Epilepszia-monitorozás'],
+ ['Besucherparkplatz','Visitor car park','Ziyaretçi otoparkı','Parcare pentru vizitatori','Parkiralište za posjetitelje','موقف سيارات الزوار','Паркінг для відвідувачів','Parking dla odwiedzających','Látogatóparkoló'],
+ ['Beim Kindergarten','Next to the kindergarten','Anaokulunun yanında','Lângă grădiniță','Pored vrtića','بجانب الروضة','Біля дитячого садка','Obok przedszkola','Az óvoda mellett'],
+ ['Haupteingang','Main entrance','Ana giriş','Intrarea principală','Glavni ulaz','المدخل الرئيسي','Головний вхід','Wejście główne','Főbejárat'],
+ ['Haltestelle','Bus stop','Durak','Stație','Stajalište','محطة','Зупинка','Przystanek','Megálló'],
+ ['Akutnachsorge','Acute aftercare','Akut sonrası bakım','Îngrijiri post-acute','Akutna naknadna skrb','الرعاية اللاحقة الحادة','Післягостра допомога','Opieka po leczeniu ostrym','Akut utókezelés'],
+ ['Psychosomatik','Psychosomatics','Psikosomatik','Psihosomatică','Psihosomatika','الطب النفسي الجسدي','Психосоматика','Psychosomatyka','Pszichoszomatika'],
+ ['Schlaflabor','Sleep laboratory','Uyku laboratuvarı','Laborator de somn','Laboratorij za spavanje','مختبر النوم','Лабораторія сну','Laboratorium snu','Alváslabor'],
+ ['Neurologie','Neurology','Nöroloji','Neurologie','Neurologija','طب الأعصاب','Неврологія','Neurologia','Neurológia'],
+ ['Parkplatz','Car park','Otopark','Parcare','Parkiralište','موقف سيارات','Паркінг','Parking','Parkoló'],
+ ['Eingang','Entrance','Giriş','Intrare','Ulaz','مدخل','Вхід','Wejście','Bejárat'],
+ ['Nahe','Near','Yakın:','Aproape de','Blizu:','بالقرب من','Поруч з','Blisko:','Közel:'],
+ ['Nord','North','Kuzey','Nord','Sjever','شمال','Північ','Północ','Észak'],
+ ['Süd','South','Güney','Sud','Jug','جنوب','Південь','Południe','Dél'],
+ ['West','West','Batı','Vest','Zapad','غرب','Захід','Zachód','Nyugat']
+];
+/* Namen und Hinweise aus den Daten (tn = translate name) in die gewählte Sprache übertragen (Eigennamen bleiben) */
+function tn(s){
+  if(s==null||s===''||LANG==='de')return s;
+  const i=LIDX[LANG];let r=String(s);
+  r=r.replace(/\bStation ([A-Z]\d{3})\b/g,(_,x)=>t('stn',{x}));
+  r=r.replace(/\bBau ([A-Z]{1,2})\b/g,(_,x)=>t('bld',{x}));
+  r=r.replace(/\b(\d+)\. Stock\b/g,(_,n)=>t('floor_n',{n}));
+  for(const g of GLOSS){const v=g[i]??g[1];if(r.includes(g[0]))r=r.split(g[0]).join(v)}
+  return r;
+}
+
 const KEY=(window.NMC?'nmc':'demo')+'-wegweiser-v2', SCALE=0.08, LIFT_COST=300;
 const CATS=[['Station','Stationen'],['Ambulanz','Ambulanzen & Untersuchungen'],['Gebäude','Gebäude'],['Anreise','Anreise & Eingänge'],['Service','Service & Orientierung']];
 const TYPES={g:['Gang-Punkt','var(--muted)'],z:['Ziel','var(--route)'],l:['Aufzug / Stiege','var(--brand)'],e:['Eingang','var(--fc4)']};
@@ -503,13 +654,21 @@ const legLen=l=>l.reduce((s,p,i)=>i?s+Math.hypot(p.x-l[i-1].x,p.y-l[i-1].y):0,0)
 const scaleOf=fid=>floorOf(fid)?.scale||SCALE;
 const meters=m=>{return m<10?Math.max(1,Math.round(m))+' m':Math.round(m/5)*5+' m'};
 const toFloor=fid=>{const n=floorOf(fid).name;return /stock$/i.test(n)?'in den '+n:'ins '+n};
+const liftText=fid=>LANG==='de'?`Fahren Sie ${toFloor(fid)}.`:t('lift_go',{f:floorOf(fid).name});
 const dirWord=a=>a>0?'rechts':'links';
-function turnInfo(a){const x=Math.abs(a);
-  if(x<25)return{title:'Geradeaus',lead:'Gehen Sie geradeaus weiter, ca. {m}',rot:0};
-  if(x<60)return{title:'Leicht '+dirWord(a),lead:'Halten Sie sich leicht '+dirWord(a)+' und gehen Sie ca. {m}',rot:a>0?45:-45};
-  if(x<150)return{title:dirWord(a)==='rechts'?'Rechts abbiegen':'Links abbiegen',lead:'Biegen Sie '+dirWord(a)+' ab und gehen Sie ca. {m}',rot:a>0?90:-90};
-  return{title:'Umkehren',lead:'Kehren Sie um und gehen Sie ca. {m}',rot:180};}
-const sideText=a=>a==null||Math.abs(a)<25||Math.abs(a)>=150?'direkt vor Ihnen':a>0?'auf der rechten Seite':'auf der linken Seite';
+function turnInfo(a){const x=Math.abs(a),r=a>0?'r':'l';
+  if(x<25)return{title:t('straight'),lead:t('lead_straight'),rot:0};
+  if(x<60)return{title:t('slight_'+r),lead:t('lead_slight_'+r),rot:a>0?45:-45};
+  if(x<150)return{title:t('turn_'+r),lead:t('lead_turn_'+r),rot:a>0?90:-90};
+  return{title:t('uturn'),lead:t('lead_uturn'),rot:180};}
+const sideKey=a=>a==null||Math.abs(a)<25||Math.abs(a)>=150?'ahead':a>0?'right':'left';
+const nm=n=>tn(n.name)||t('dest_def');
+const bauName=n=>{const m=/^Bau ([A-Z]{1,2})$/.exec(n.bau||'');return m&&LANG!=='de'?t('bld_g',{x:m[1]}):tn(n.bau)||t('dest_def')};
+function insideText(dz){
+  if(LANG==='de')return dz.then;
+  const m=/(\d+)\. Stock/.exec(dz.where||''),c=/\b([A-Z]\d{3})\b/.exec(dz.name||'');
+  return m&&c?t('inside_txt',{n:nm(dz),f:m[1],b:bauName(dz),c:c[1]}):dz.then;
+}
 
 function makeSteps(p){
   const N=p.map(byId),runs=[];let cur=[N[0]];
@@ -520,27 +679,27 @@ function makeSteps(p){
     if(ri>0){
       if(run.length===1&&ri<last)return;
       const L=run[0];
-      steps.push({kind:'lift',title:L.name||'Aufzug',text:`Fahren Sie ${toFloor(L.f)}.`,f:L.f,pts:[L]});
+      steps.push({kind:'lift',title:tn(L.name)||t('lift_default'),text:liftText(L.f),f:L.f,pts:[L]});
     }
-    if(run.length<2){ if(ri===last&&ri>0){steps.push({kind:'arrive',title:'Angekommen',text:`${run[0].name||'Ihr Ziel'} liegt direkt vor Ihnen.`,f:run[0].f,pts:[run[0]]})} return;}
+    if(run.length<2){ if(ri===last&&ri>0){steps.push({kind:'arrive',title:t('arrived'),text:t('arr_ahead',{n:nm(run[0])}),f:run[0].f,pts:[run[0]]})} return;}
     const legs=[];let s=0;
     for(let k=1;k<run.length;k++){if(k===run.length-1||Math.abs(turnAng(run[k-1],run[k],run[k+1]))>=25){legs.push(run.slice(s,k+1));s=k}}
     legs.forEach((leg,li)=>{
       const finalLeg=ri===last&&li===legs.length-1,end=leg[leg.length-1],len=legLen(leg)*scaleOf(leg[0].f),raw=legLen(leg);
       const ang=li>0?turnAng(legs[li-1][legs[li-1].length-2],leg[0],leg[1]):null;
       if(finalLeg&&(end.t==='z'||end.t==='e')&&raw<220&&(li>0||ri>0)){
-        steps.push({kind:'arrive',title:'Angekommen',text:end.then?`Der Eingang zu ${end.bau||'Ihrem Ziel'} liegt ${sideText(ang)}.`:`${end.name} liegt ${sideText(ang)}.`,f:end.f,pts:leg});return;
+        steps.push({kind:'arrive',title:t('arrived'),text:end.then?t('ent_'+sideKey(ang),{n:bauName(end)}):t('arr_'+sideKey(ang),{n:nm(end)}),f:end.f,pts:leg});return;
       }
       let st;
-      if(li===0&&ri===0)st={kind:'turn',rot:0,title:'Losgehen',lead:start.t==='e'?'Gehen Sie ca. {m} geradeaus':'Folgen Sie dem Gang ca. {m}, wie im Plan gezeigt'};
-      else if(li===0)st={kind:'turn',rot:0,title:'Aussteigen',lead:'Steigen Sie aus und folgen Sie dem Gang ca. {m}'};
+      if(li===0&&ri===0)st={kind:'turn',rot:0,title:t('start_go'),lead:t(start.t==='e'?'lead_start_e':'lead_start_g')};
+      else if(li===0)st={kind:'turn',rot:0,title:t('exit'),lead:t('lead_exit')};
       else{const t=turnInfo(ang);st={kind:'turn',rot:t.rot,title:t.title,lead:t.lead}}
-      const tail=end.t==='l'&&!finalLeg?`, bis Sie „${end.name}“ erreichen.`:'.';
+      const tail=end.t==='l'&&!finalLeg?t('until',{n:nm(end)}):'.';
       steps.push({kind:st.kind,rot:st.rot,title:st.title,text:st.lead.replace('{m}',meters(len))+tail,f:leg[0].f,pts:leg,dist:len});
-      if(finalLeg)steps.push({kind:'arrive',title:'Angekommen',text:end.then?`Sie stehen vor dem Eingang zu ${end.bau||'Ihrem Ziel'}.`:`${end.name} liegt direkt vor Ihnen.`,f:end.f,pts:[end]});
+      if(finalLeg)steps.push({kind:'arrive',title:t('arrived'),text:end.then?t('stand_ent',{n:bauName(end)}):t('arr_ahead',{n:nm(end)}),f:end.f,pts:[end]});
     });
   });
-  const dz=N[N.length-1];if(dz.then&&steps.length){steps[steps.length-1].title='Eingang erreicht';steps.push({kind:'inside',title:'Im Gebäude',text:dz.then,f:dz.f,pts:[dz]})}
+  const dz=N[N.length-1];if(dz.then&&steps.length){steps[steps.length-1].title=t('ent_reached');steps.push({kind:'inside',title:t('inside'),text:insideText(dz),f:dz.f,pts:[dz]})}
   return steps;
 }
 
@@ -575,7 +734,7 @@ function planSVG(fid,o={}){
   if(o.seg&&o.seg.length>1){const pts=o.seg.map(p=>p.x+','+p.y).join(' ');s+=`<polyline class="p-seg" points="${pts}"/><polyline class="p-flow" points="${pts}"/>`}
   if(o.end){const e=o.end;
     s+=`<path class="p-pin" d="M${e.x} ${e.y}c-6-14-22-22-22-38a22 22 0 1 1 44 0c0 16-16 24-22 38z"/><circle cx="${e.x}" cy="${e.y-38}" r="8" fill="var(--surface)"/>`;
-    if(F.image){const t=e.tag||e.name||'Ziel',w=t.length*12+28;s+=`<rect class="p-tag" x="${e.x-w/2}" y="${e.y-104}" width="${w}" height="38" rx="8"/><text class="p-tagt" x="${e.x}" y="${e.y-78}" text-anchor="middle">${esc(t)}</text>`}
+    if(F.image){const tg=tn(e.tag||e.name)||t('dest_def'),w=tg.length*12+28;s+=`<rect class="p-tag" x="${e.x-w/2}" y="${e.y-104}" width="${w}" height="38" rx="8"/><text class="p-tagt" x="${e.x}" y="${e.y-78}" text-anchor="middle">${esc(tg)}</text>`}
   }
   if(o.seg)s+=`<polyline id="walked" class="p-walked" points=""/>`;
   if(o.here){const h=o.here;s+=`<circle id="here-ring" class="p-ring" cx="${h.x}" cy="${h.y}" r="20"/><circle id="here-dot" class="p-here" cx="${h.x}" cy="${h.y}" r="15"/>`}
@@ -587,7 +746,7 @@ function planSVG(fid,o={}){
 const V={grp:null,start:null,dest:null,path:null,steps:[],i:0,show:null,full:false,vb:null};
 const startPoints=()=>D.nodes.filter(n=>n.t==='e'||n.t==='l'||n.qr);
 const dests=()=>D.nodes.filter(n=>(n.t==='z'||n.t==='e')&&n.name);
-const nodeLabel=n=>(n.name||TYPES[n.t][0])+' · '+(floorOf(n.f)?.name||'');
+const nodeLabel=n=>(tn(n.name)||TYPES[n.t][0])+' · '+(floorOf(n.f)?.name||'');
 function pickStart(){
   const h=decodeURIComponent((location.hash||'').slice(1));
   if(h.startsWith('s-')&&graph().byId.has(h.slice(2)))return h.slice(2);
@@ -599,7 +758,7 @@ function renderHome(){
   V.start=pickStart();
   $('#bname').textContent=D.name||'Klinikum';
   const st=V.start&&byId(V.start);
-  $('#here-name').textContent=st?(st.name||'Standort'):'Noch kein Plan angelegt';
+  $('#here-name').textContent=st?(tn(st.name)||'Standort'):'Noch kein Plan angelegt';
   $('#here-fb').outerHTML=st?nb(st).replace('class="fb"','class="fb" id="here-fb"'):'<span class="fb" id="here-fb">–</span>';
   $('#start-sel').innerHTML=startPoints().map(n=>`<option value="${esc(n.id)}"${n.id===V.start?' selected':''}>${esc(nodeLabel(n))}</option>`).join('');
   renderList();
@@ -614,38 +773,38 @@ function groups(items){
   const rank=g=>g.key==='Anreise'?2:g.key.startsWith('Bau ')?0:1;
   return gs.sort((a,b)=>rank(a)-rank(b)||(rank(a)===1?a.fi-b.fi:a.key.localeCompare(b.key,'de')));
 }
-const gTitle=g=>g.key==='Anreise'?'Anreise & Eingänge':g.key;
-const rowHTML=(n,nobadge)=>`<button class="row${n.cat==='Gebäude'?' self':''}${nobadge?' nb':''}" data-dest="${esc(n.id)}">${nobadge?'':nb(n)}<span class="t"><b>${esc(n.cat==='Gebäude'?'Zum Gebäude '+n.name:n.name)}</b><small>${esc(n.where||floorOf(n.f).name)}${n.info?' · '+esc(n.info):''}</small></span><span class="chev" aria-hidden="true">›</span></button>`;
+const gTitle=g=>g.key==='Anreise'?t('arrival'):tn(g.key);
+const rowHTML=(n,nobadge)=>`<button class="row${n.cat==='Gebäude'?' self':''}${nobadge?' nb':''}" data-dest="${esc(n.id)}">${nobadge?'':nb(n)}<span class="t"><b>${esc(n.cat==='Gebäude'?t('to_bld',{n:tn(n.name)}):tn(n.name))}</b><small>${esc(tn(n.where||floorOf(n.f).name))}${n.info?' · '+esc(tn(n.info)):''}</small></span><span class="chev" aria-hidden="true">›</span></button>`;
 function renderList(){
   const q=$('#q').value.trim().toLowerCase();
   const base=dests().filter(n=>n.id!==V.start);
-  if(!base.length){$('#list').innerHTML=`<p class="empty">${D.nodes.length?'Kein Ziel vorhanden.':'Im Plan-Editor sind noch keine Ziele eingetragen.'}</p>`;return}
+  if(!base.length){$('#list').innerHTML=`<p class="empty">${D.nodes.length?t('no_dest'):'Im Plan-Editor sind noch keine Ziele eingetragen.'}</p>`;return}
   if(q){
-    const all=base.filter(n=>(n.name+' '+(n.info||'')+' '+(n.where||'')+' '+(n.lab||[]).join(' ')+' '+(floorOf(n.f)?.name||'')).toLowerCase().includes(q));
-    $('#list').innerHTML=all.length?`<div class="glist">${all.map(rowHTML).join('')}</div>`:'<p class="empty">Kein Ziel gefunden. Versuchen Sie einen anderen Begriff, z. B. „Station“ oder „WC“.</p>';return}
+    const all=base.filter(n=>(n.name+' '+tn(n.name)+' '+(n.info||'')+' '+tn(n.info||'')+' '+(n.where||'')+' '+(n.lab||[]).join(' ')+' '+(floorOf(n.f)?.name||'')).toLowerCase().includes(q));
+    $('#list').innerHTML=all.length?`<div class="glist">${all.map(rowHTML).join('')}</div>`:`<p class="empty">${esc(t('no_hit'))}</p>`;return}
   const gs=groups(base),g=V.grp&&gs.find(x=>x.key===V.grp);
   if(g){
     const list=[...(g.self?[g.self]:[]),...g.sub.sort((a,b)=>fIdx(a.f)-fIdx(b.f)||a.name.localeCompare(b.name,'de'))];
-    $('#list').innerHTML=`<div class="ghead"><button class="gb" data-grp="" aria-label="Zurück zur Übersicht">‹</button>${nb(g.n,true)}<h2>${esc(gTitle(g))}<small>${g.sub.length} ${g.sub.length===1?'Ziel':'Ziele'}</small></h2></div><div class="glist">${list.map(n=>rowHTML(n,true)).join('')}</div>`;return}
+    $('#list').innerHTML=`<div class="ghead"><button class="gb" data-grp="" aria-label="${esc(t('back_ov'))}">‹</button>${nb(g.n,true)}<h2>${esc(gTitle(g))}<small>${esc(t('goals',{n:g.sub.length}))}</small></h2></div><div class="glist">${list.map(n=>rowHTML(n,true)).join('')}</div>`;return}
   V.grp=null;
   $('#list').innerHTML=`<div class="tiles">`+gs.map(g=>{
-    const c=g.n.badge?g.n.badge.c:fColor(g.n.f),t=g.key==='Anreise'?'→':g.n.badge?g.n.badge.t:(floorOf(g.n.f)?.short||'?');
-    const cnt=g.sub.length,ct=cnt?`${cnt} ${cnt===1?'Ziel':'Ziele'}`:(g.self?'Gebäude':'');
-    return `<button class="tile" data-grp="${esc(g.key)}" style="--fc:${c}"><span class="big">${esc(t)}</span><span><b>${esc(gTitle(g))}</b><small>${ct||'&nbsp;'}</small></span></button>`}).join('')+`</div>`;
+    const c=g.n.badge?g.n.badge.c:fColor(g.n.f),tl=g.key==='Anreise'?'→':g.n.badge?g.n.badge.t:(floorOf(g.n.f)?.short||'?');
+    const cnt=g.sub.length,ct=cnt?t('goals',{n:cnt}):(g.self?t('building'):'');
+    return `<button class="tile" data-grp="${esc(g.key)}" style="--fc:${c}"><span class="big">${esc(tl)}</span><span><b>${esc(gTitle(g))}</b><small>${ct||'&nbsp;'}</small></span></button>`}).join('')+`</div>`;
 }
 function openRoute(id){
   stopWalk();
   V.dest=id;V.i=0;V.show=null;V.full=false;V.vb=null;
   const d=byId(id);
   V.path=V.start===id?[id]:shortest(V.start,id);
-  V.steps=V.path?(V.path.length===1?[{kind:'arrive',title:'Angekommen',text:'Sie befinden sich bereits hier.',f:d.f,pts:[d]}]:makeSteps(V.path)):[];
+  V.steps=V.path?(V.path.length===1?[{kind:'arrive',title:t('arrived'),text:t('here_already'),f:d.f,pts:[d]}]:makeSteps(V.path)):[];
   $('#home').hidden=true;$('#route').hidden=false;$('#navbar').hidden=!V.path;$('#walkctl').hidden=!V.path||V.steps.length<2;
-  $('#r-name').textContent=d.name;$('#r-info').textContent=d.info||'';$('#r-info').hidden=!d.info;
-  if(!V.path){$('#r-meta').innerHTML='';$('#r-floors').innerHTML='';$('#r-plan').innerHTML='';$('#r-steps').innerHTML=`<li class="lost">Zu diesem Ziel gibt es von Ihrem Standort noch keinen eingetragenen Weg. Bitte wenden Sie sich an den Portier.</li>`;window.scrollTo(0,0);return}
+  $('#r-name').textContent=tn(d.name);$('#r-info').textContent=tn(d.info)||'';$('#r-info').hidden=!d.info;
+  if(!V.path){$('#r-meta').innerHTML='';$('#r-floors').innerHTML='';$('#r-plan').innerHTML='';$('#r-steps').innerHTML=`<li class="lost">${esc(t('no_route'))}</li>`;window.scrollTo(0,0);return}
   const dist=V.steps.reduce((s,x)=>s+(x.kind!=='lift'?legLen(x.pts)*scaleOf(x.f):0),0),lifts=V.steps.filter(x=>x.kind==='lift');
   const min=Math.max(1,Math.round((dist/0.9+lifts.length*45)/60));
   const via=[...new Set(lifts.map(x=>x.title))];
-  $('#r-meta').innerHTML=`<span class="chip">ca. ${min} Min.</span><span class="chip">${meters(dist)} Fußweg</span><span class="chip">${nb(d,true)}${esc(d.badge?(d.bau||floorOf(d.f).name):floorOf(d.f).name)}</span>`+(via.length?`<span class="chip">über ${esc(via.join(', '))}</span>`:'');
+  $('#r-meta').innerHTML=`<span class="chip">${esc(t('min',{n:min}))}</span><span class="chip">${esc(t('walkdist',{d:meters(dist)}))}</span><span class="chip">${nb(d,true)}${esc(tn(d.badge?(d.bau||floorOf(d.f).name):floorOf(d.f).name))}</span>`+(via.length?`<span class="chip">${esc(t('via',{x:via.map(tn).join(', ')}))}</span>`:'');
   renderRoute(true);window.scrollTo(0,0);
 }
 const ICON={
@@ -674,7 +833,7 @@ function renderRoute(fresh){
     target=[x,y,w,h];
   }
   const box=$('#r-plan');
-  box.innerHTML=`<svg viewBox="${(V.vb&&!fresh&&V.vbFloor===floor?V.vb:target).join(' ')}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Plan ${esc(F.name)} mit Route">${svgInner}</svg>`;
+  box.innerHTML=`<svg viewBox="${(V.vb&&!fresh&&V.vbFloor===floor?V.vb:target).join(' ')}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${esc(F.name)}">${svgInner}</svg>`;
   tweenVB(box.firstChild,(V.vb&&!fresh&&V.vbFloor===floor)?V.vb:target,target);V.vb=target;V.vbFloor=floor;
   let h='',lastF=null;
   V.steps.forEach((x,k)=>{
@@ -685,7 +844,7 @@ function renderRoute(fresh){
   $('#r-steps').innerHTML=h;
   $('#stepcount').textContent=`${V.i+1} / ${V.steps.length}`;
   $('#prev').disabled=V.i===0;
-  $('#next').textContent=V.i===V.steps.length-1?'Fertig':'Weiter';
+  $('#next').textContent=V.i===V.steps.length-1?t('done'):t('next');
   walkSync();
 }
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -725,7 +884,7 @@ function placeDot(){
   for(const id of ['here-dot','here-ring']){const c=document.getElementById(id);if(c){c.setAttribute('cx',p.x);c.setAttribute('cy',p.y)}}
   const wk=document.getElementById('walked');if(wk)wk.setAttribute('points',W.prog>0?[...st.pts.slice(0,p.i),p].map(q=>q.x+','+q.y).join(' '):'');
 }
-function soonText(nx){return nx.kind==='turn'?nx.title.charAt(0).toLowerCase()+nx.title.slice(1):nx.kind==='lift'?`erreichen Sie „${nx.title}“`:'sind Sie am Ziel'}
+function soonText(nx){return nx.kind==='turn'?nx.title:nx.kind==='lift'?t('soon_lift',{n:nx.title}):t('at_goal')}
 function live(msg,frac,sub,warn){$('#live-msg').textContent=msg;$('#live-bar').style.width=Math.round(Math.min(1,frac)*100)+'%';$('#live-sub').textContent=sub||'';$('#live').classList.toggle('warn',!!warn)}
 function walkSync(){
   if(W.stepIdx===V.i){if(W.on)placeDot();return}
@@ -733,9 +892,9 @@ function walkSync(){
   if(!W.on)return;
   const st=V.steps[V.i];
   if(st.kind==='lift'){W.paused=true;
-    live(st.text,0,W.sim?'Simulation: Der Aufzug fährt …':'Tippen Sie nach dem Aussteigen auf „Weiter“.');
+    live(st.text,0,W.sim?t('lift_sim'):t('lift_wait'));
     if(W.sim)setTimeout(()=>{if(W.on&&V.steps[V.i]===st)goStep(V.i+1)},2500);return}
-  if(st.kind==='inside'){live('Eingang erreicht',1,st.text);stopWalk(true);return}
+  if(st.kind==='inside'){live(t('ent_reached'),1,st.text);stopWalk(true);return}
   evaluate();
 }
 function goStep(i){if(i>=V.steps.length)return;V.i=i;V.show=null;V.full=false;vib(40);renderRoute();scrollStep()}
@@ -749,15 +908,15 @@ function evaluate(){
   const st=V.steps[V.i],nx=V.steps[V.i+1],tot=Math.max(stepM(st),0.5),frac=W.prog/tot,rem=Math.max(0,tot-W.prog);
   placeDot();
   if(st.kind==='arrive'){
-    if(frac>=1){vib([300,120,300]);if(nx&&nx.kind==='inside'){goStep(V.i+1);return}live('Sie sind angekommen',1,st.text);stopWalk(true);return}
-    live(`Gleich am Ziel · noch ca. ${Math.ceil(rem)} m`,frac,st.text);return;
+    if(frac>=1){vib([300,120,300]);if(nx&&nx.kind==='inside'){goStep(V.i+1);return}live(t('live_arrived'),1,st.text);stopWalk(true);return}
+    live(t('near_goal',{m:Math.ceil(rem)}),frac,st.text);return;
   }
   if(nx&&!W.warned&&(rem<=5||frac>=0.85)){W.warned=true;vib([150,80,150])}
   const turnNext=nx&&nx.kind==='turn'&&Math.abs(nx.rot||0)>=45;
   if(nx&&frac>=1&&(W.sim||!turnNext||W.hd==null||frac>=1.15)){goStep(V.i+1);return}
-  if(nx&&frac>=1)live(`Jetzt ${soonText(nx)}`,1,'Klinavi schaltet weiter, sobald Sie abgebogen sind.',true);
-  else if(W.warned&&nx)live(`Gleich ${soonText(nx)}`,frac,`noch ca. ${Math.ceil(rem)} m`,true);
-  else live(`${st.title} · noch ca. ${Math.ceil(rem)} m`,frac,`${W.steps} Schritte gezählt`);
+  if(nx&&frac>=1)live(t('now',{x:soonText(nx)}),1,t('auto_next'),true);
+  else if(W.warned&&nx)live(t('soon',{x:soonText(nx)}),frac,t('rem_m',{m:Math.ceil(rem)}),true);
+  else live(`${st.title} · ${t('rem_m',{m:Math.ceil(rem)})}`,frac,t('steps_cnt',{n:W.steps}));
 }
 function onMotion(e){
   const a=e.accelerationIncludingGravity;if(!a||a.x==null)return;W.seen=true;
@@ -780,25 +939,25 @@ async function startWalk(sim){
     try{
       if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){if(await DeviceMotionEvent.requestPermission()!=='granted')throw 0}
       if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){try{await DeviceOrientationEvent.requestPermission()}catch(_){}}
-    }catch(_){walkNote('Ohne Freigabe der Bewegungssensoren funktioniert Mitlaufen nicht. Sie können weiterhin mit „Weiter“ navigieren.',true);return}
+    }catch(_){walkNote(t('err_perm'),true);return}
     W.seen=false;addEventListener('devicemotion',onMotion);addEventListener(ORIENT,onOrient);
-    setTimeout(()=>{if(W.on&&!W.sim&&!W.seen){stopWalk();walkNote('Keine Bewegungsdaten empfangen. In der Vorschau sind die Sensoren gesperrt. Öffnen Sie Klinavi auf dem Handy über die echte Web-Adresse oder testen Sie mit „Gehen simulieren“.',true)}},2500);
+    setTimeout(()=>{if(W.on&&!W.sim&&!W.seen){stopWalk();walkNote(t('err_none'),true)}},2500);
   }
   W.sim=sim;W.on=true;W.steps=0;W.hd=null;
   if(sim)W.timer=setInterval(onStep,450);
   try{W.wake=navigator.wakeLock?await navigator.wakeLock.request('screen'):null}catch(_){}
-  $('#walkctl').hidden=true;$('#live').hidden=false;$('#live-stop').textContent='Beenden';
+  $('#walkctl').hidden=true;$('#live').hidden=false;$('#live-stop').textContent=t('stop');
   W.stepIdx=-1;walkSync();
 }
 function stopWalk(done){
   clearInterval(W.timer);W.timer=null;removeEventListener('devicemotion',onMotion);removeEventListener(ORIENT,onOrient);
   try{W.wake&&W.wake.release()}catch(_){}W.wake=null;W.on=false;
-  if(done){$('#live-stop').textContent='Schließen';$('#live').classList.remove('warn')}
+  if(done){$('#live-stop').textContent=t('close');$('#live').classList.remove('warn')}
   else{$('#live').hidden=true;$('#walkctl').hidden=!V.path||V.steps.length<2}
 }
 $('#walk-start').addEventListener('click',()=>startWalk(false));
 $('#walk-sim').addEventListener('click',()=>startWalk(true));
-$('#live-stop').addEventListener('click',()=>{stopWalk();walkNote('Beim Mitlaufen zählt das Handy Ihre Schritte und schaltet bei Abbiegungen selbst weiter. Die Sensordaten bleiben auf Ihrem Gerät.')});
+$('#live-stop').addEventListener('click',()=>{stopWalk();walkNote(t('walk_note'))});
 $('#walk-len').addEventListener('change',e=>{W.len=parseFloat(e.target.value);try{localStorage.setItem('klinavi-step',e.target.value)}catch(_){}});
 
 /* ---------- modes ---------- */
@@ -954,6 +1113,31 @@ function renderQR(){
     else el.innerHTML='<small>QR-Bibliothek nicht geladen</small>'});
 }
 $('#qr-base').addEventListener('change',()=>{try{localStorage.setItem(KEY+'-base',$('#qr-base').value)}catch(_){}renderQR()});
+
+/* ---------- Sprache ---------- */
+function applyI18n(){
+  const H=document.documentElement;H.lang=LANG==='bks'?'bs':LANG;H.dir=LANG==='ar'?'rtl':'ltr';
+  const set=(id,k)=>{const e=$(id);if(e)e.textContent=t(k)};
+  set('#tab-visitor','visitor');set('#t-here','here');set('#t-sim','sim_qr');set('#t-search','search_lbl');
+  set('#t-other','other_dest');set('#t-goal','your_goal');set('#t-len','step_len');set('#t-lost','lost');
+  set('#walk-start','walk_start');set('#walk-sim','walk_sim');set('#r-full','full_plan');set('#prev','prev');
+  set('#live-msg','live_active');set('#live-stop','stop');
+  $('#q').placeholder=t('search_ph');
+  const o=$('#walk-len').options;o[0].textContent=t('len_s');o[1].textContent=t('len_m');o[2].textContent=t('len_l');
+  const n=$('#walk-note');if(!n.classList.contains('err'))n.textContent=t('walk_note');
+  $('#next').textContent=V.steps.length&&V.i===V.steps.length-1?t('done'):t('next');
+  $('#lang-cur').textContent=LCODE[LANG];$('#lang-btn').setAttribute('aria-label',t('lang'));
+  $('#lang-pop').innerHTML=LANGS.map(([c,n])=>`<button role="menuitem" data-lang="${c}" lang="${c==='bks'?'bs':c}" aria-current="${c===LANG}">${esc(n)}</button>`).join('');
+}
+function setLang(c){
+  LANG=c;try{localStorage.setItem('klinavi-lang',c)}catch(_){}
+  applyI18n();renderHome();
+  if(V.dest&&!$('#route').hidden){const i=V.i;openRoute(V.dest);if(V.steps.length){V.i=Math.min(i,V.steps.length-1);renderRoute()}}
+}
+$('#lang-btn').addEventListener('click',()=>{const p=$('#lang-pop');p.hidden=!p.hidden;$('#lang-btn').setAttribute('aria-expanded',!p.hidden)});
+$('#lang-pop').addEventListener('click',e=>{const b=e.target.closest('[data-lang]');if(!b)return;$('#lang-pop').hidden=true;$('#lang-btn').setAttribute('aria-expanded','false');setLang(b.dataset.lang)});
+document.addEventListener('click',e=>{if(!e.target.closest('#lang-pop,#lang-btn')&&!$('#lang-pop').hidden){$('#lang-pop').hidden=true;$('#lang-btn').setAttribute('aria-expanded','false')}});
+applyI18n();
 
 const h0=location.hash.slice(1);
 if(['editor','qr'].includes(h0))setMode(h0);else goHome();

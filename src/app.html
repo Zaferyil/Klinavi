@@ -77,7 +77,7 @@ h1,h2,h3{font-family:var(--font-sign);text-wrap:balance;margin:0;line-height:1.1
 
 /* Bauteil tiles */
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
-.tile{display:flex;flex-direction:column;gap:10px;align-items:flex-start;text-align:left;padding:10px;border-radius:14px;border:1px solid var(--line);background:var(--surface);transition:transform .12s,border-color .12s}
+.tile{display:flex;flex-direction:column;gap:10px;align-items:flex-start;text-align:start;padding:10px;border-radius:14px;border:1px solid var(--line);background:var(--surface);transition:transform .12s,border-color .12s}
 .tile:hover{border-color:var(--fc)}
 .tile:active{transform:scale(.97)}
 .tile .big{width:38px;height:38px;border-radius:11px;background:var(--fc);color:#fff;display:grid;place-items:center;font:800 18px/1 var(--font-sign);box-shadow:inset 0 0 0 2px rgba(255,255,255,.22)}
@@ -331,6 +331,16 @@ body{font-size:18px;line-height:1.5}
 .lost{font-size:18px}
 .empty{font-size:18px}
 .p-t{font-size:26px}.p-tagt{font-size:26px}
+/* language picker + RTL */
+.top-in{position:relative}
+.lang-btn{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:16px}
+.lang-btn b{font:800 15px var(--font-sign);letter-spacing:.04em}
+.lang-pop{position:absolute;inset-inline:16px;top:100%;z-index:30;margin-top:6px;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;box-shadow:0 14px 40px rgba(0,0,0,.25);max-width:560px;margin-inline:auto}
+.lang-pop button{min-height:56px;padding:10px 14px;border-radius:14px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font-size:18px;font-weight:700;text-align:start}
+.lang-pop button[aria-current="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.back .arr{display:inline-block}
+[dir="rtl"] .back .arr,[dir="rtl"] .chev,[dir="rtl"] .ghead .gb{transform:scaleX(-1)}
+[dir="rtl"] .tile,[dir="rtl"] .row,[dir="rtl"] .steps button{text-align:right}
 </style>
 
 <header class="top">
@@ -339,8 +349,10 @@ body{font-size:18px;line-height:1.5}
       <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color:var(--brand-ink)"><path d="M12 22s7-6.6 7-12.2A7 7 0 0 0 5 9.8C5 15.4 12 22 12 22z" fill="currentColor"/><path d="M9 7.6l3 5 3-5" stroke="var(--brand)" stroke-width="2.4"/></svg></span>
       <div><b class="wordmark">Klinavi</b><small id="bname">Klinikum Demo</small></div>
     </div>
+    <button class="lang-btn" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lang-pop"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><b id="lang-cur">DE</b></button>
+    <div class="lang-pop" id="lang-pop" role="menu" hidden></div>
     <nav class="modes" role="tablist" aria-label="Ansicht">
-      <button role="tab" data-mode="visitor" aria-selected="true">Besucher</button>
+      <button role="tab" data-mode="visitor" aria-selected="true" id="tab-visitor">Besucher</button>
       <button role="tab" data-mode="editor" aria-selected="false">Plan-Editor</button>
       <button role="tab" data-mode="qr" aria-selected="false">QR-Codes</button>
     </nav>
@@ -351,19 +363,19 @@ body{font-size:18px;line-height:1.5}
   <section id="home" style="display:flex;flex-direction:column;gap:16px">
     <div class="here">
       <span class="fb" id="here-fb"></span>
-      <div class="here-t"><span class="eyebrow">Sie sind hier</span><strong id="here-name"></strong></div>
-      <details class="sim"><summary>Demo</summary><label for="start-sel">QR-Scan simulieren <select id="start-sel"></select></label></details>
+      <div class="here-t"><span class="eyebrow" id="t-here">Sie sind hier</span><strong id="here-name"></strong></div>
+      <details class="sim"><summary>Demo</summary><label for="start-sel"><span id="t-sim">QR-Scan simulieren</span> <select id="start-sel"></select></label></details>
     </div>
-    <label class="search"><span class="sr">Ziel suchen</span><input id="q" type="search" autocomplete="off" placeholder="Ziel suchen, z. B. C302"></label>
+    <label class="search"><span class="sr" id="t-search">Ziel suchen</span><input id="q" type="search" autocomplete="off" placeholder="Ziel suchen, z. B. C302"></label>
     <div id="list"></div>
   </section>
   <section id="route" hidden style="display:flex;flex-direction:column;gap:14px">
-    <button class="back" id="back">‹ Anderes Ziel wählen</button>
-    <div class="dest-head"><span class="eyebrow">Ihr Ziel</span><h1 id="r-name"></h1><p id="r-info"></p><div class="meta" id="r-meta"></div></div>
+    <button class="back" id="back"><span class="arr" aria-hidden="true">‹</span> <span id="t-other">Anderes Ziel wählen</span></button>
+    <div class="dest-head"><span class="eyebrow" id="t-goal">Ihr Ziel</span><h1 id="r-name"></h1><p id="r-info"></p><div class="meta" id="r-meta"></div></div>
     <div class="walkctl" id="walkctl">
       <button class="btn primary" id="walk-start">Mitlaufen starten</button>
       <button class="btn" id="walk-sim">Gehen simulieren</button>
-      <label for="walk-len">Schrittlänge <select id="walk-len"><option value="0.5">kurz (50 cm)</option><option value="0.65" selected>normal (65 cm)</option><option value="0.75">lang (75 cm)</option></select></label>
+      <label for="walk-len"><span id="t-len">Schrittlänge</span> <select id="walk-len"><option value="0.5">kurz (50 cm)</option><option value="0.65" selected>normal (65 cm)</option><option value="0.75">lang (75 cm)</option></select></label>
       <p class="note" id="walk-note">Beim Mitlaufen zählt das Handy Ihre Schritte und schaltet bei Abbiegungen selbst weiter. Die Sensordaten bleiben auf Ihrem Gerät.</p>
     </div>
     <div class="live" id="live" hidden aria-live="polite">
@@ -373,10 +385,10 @@ body{font-size:18px;line-height:1.5}
     </div>
     <div class="mapcard">
       <div class="maptools"><div id="r-floors" class="floors"></div><button id="r-full" class="ghost" aria-pressed="false">Ganzer Plan</button></div>
-      <div class="plan" id="r-plan"></div>
+      <div class="plan" id="r-plan" dir="ltr"></div>
     </div>
     <ol id="r-steps" class="steps"></ol>
-    <p class="lost">Verlaufen? Scannen Sie den QR-Code beim nächsten Aufzug. Die Route startet dann neu von dort.</p>
+    <p class="lost" id="t-lost">Verlaufen? Scannen Sie den QR-Code beim nächsten Aufzug. Die Route startet dann neu von dort.</p>
   </section>
 </main>
 <div class="navbar" id="navbar" hidden><div class="in"><button id="prev">Zurück</button><div id="stepcount"></div><button id="next" class="primary">Weiter</button></div></div>
@@ -427,6 +439,7 @@ body{font-size:18px;line-height:1.5}
 (()=>{
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/*I18N-SLOT*/
 const KEY=(window.NMC?'nmc':'demo')+'-wegweiser-v2', SCALE=0.08, LIFT_COST=300;
 const CATS=[['Station','Stationen'],['Ambulanz','Ambulanzen & Untersuchungen'],['Gebäude','Gebäude'],['Anreise','Anreise & Eingänge'],['Service','Service & Orientierung']];
 const TYPES={g:['Gang-Punkt','var(--muted)'],z:['Ziel','var(--route)'],l:['Aufzug / Stiege','var(--brand)'],e:['Eingang','var(--fc4)']};
@@ -496,13 +509,21 @@ const legLen=l=>l.reduce((s,p,i)=>i?s+Math.hypot(p.x-l[i-1].x,p.y-l[i-1].y):0,0)
 const scaleOf=fid=>floorOf(fid)?.scale||SCALE;
 const meters=m=>{return m<10?Math.max(1,Math.round(m))+' m':Math.round(m/5)*5+' m'};
 const toFloor=fid=>{const n=floorOf(fid).name;return /stock$/i.test(n)?'in den '+n:'ins '+n};
+const liftText=fid=>LANG==='de'?`Fahren Sie ${toFloor(fid)}.`:t('lift_go',{f:floorOf(fid).name});
 const dirWord=a=>a>0?'rechts':'links';
-function turnInfo(a){const x=Math.abs(a);
-  if(x<25)return{title:'Geradeaus',lead:'Gehen Sie geradeaus weiter, ca. {m}',rot:0};
-  if(x<60)return{title:'Leicht '+dirWord(a),lead:'Halten Sie sich leicht '+dirWord(a)+' und gehen Sie ca. {m}',rot:a>0?45:-45};
-  if(x<150)return{title:dirWord(a)==='rechts'?'Rechts abbiegen':'Links abbiegen',lead:'Biegen Sie '+dirWord(a)+' ab und gehen Sie ca. {m}',rot:a>0?90:-90};
-  return{title:'Umkehren',lead:'Kehren Sie um und gehen Sie ca. {m}',rot:180};}
-const sideText=a=>a==null||Math.abs(a)<25||Math.abs(a)>=150?'direkt vor Ihnen':a>0?'auf der rechten Seite':'auf der linken Seite';
+function turnInfo(a){const x=Math.abs(a),r=a>0?'r':'l';
+  if(x<25)return{title:t('straight'),lead:t('lead_straight'),rot:0};
+  if(x<60)return{title:t('slight_'+r),lead:t('lead_slight_'+r),rot:a>0?45:-45};
+  if(x<150)return{title:t('turn_'+r),lead:t('lead_turn_'+r),rot:a>0?90:-90};
+  return{title:t('uturn'),lead:t('lead_uturn'),rot:180};}
+const sideKey=a=>a==null||Math.abs(a)<25||Math.abs(a)>=150?'ahead':a>0?'right':'left';
+const nm=n=>tn(n.name)||t('dest_def');
+const bauName=n=>{const m=/^Bau ([A-Z]{1,2})$/.exec(n.bau||'');return m&&LANG!=='de'?t('bld_g',{x:m[1]}):tn(n.bau)||t('dest_def')};
+function insideText(dz){
+  if(LANG==='de')return dz.then;
+  const m=/(\d+)\. Stock/.exec(dz.where||''),c=/\b([A-Z]\d{3})\b/.exec(dz.name||'');
+  return m&&c?t('inside_txt',{n:nm(dz),f:m[1],b:bauName(dz),c:c[1]}):dz.then;
+}
 
 function makeSteps(p){
   const N=p.map(byId),runs=[];let cur=[N[0]];
@@ -513,27 +534,27 @@ function makeSteps(p){
     if(ri>0){
       if(run.length===1&&ri<last)return;
       const L=run[0];
-      steps.push({kind:'lift',title:L.name||'Aufzug',text:`Fahren Sie ${toFloor(L.f)}.`,f:L.f,pts:[L]});
+      steps.push({kind:'lift',title:tn(L.name)||t('lift_default'),text:liftText(L.f),f:L.f,pts:[L]});
     }
-    if(run.length<2){ if(ri===last&&ri>0){steps.push({kind:'arrive',title:'Angekommen',text:`${run[0].name||'Ihr Ziel'} liegt direkt vor Ihnen.`,f:run[0].f,pts:[run[0]]})} return;}
+    if(run.length<2){ if(ri===last&&ri>0){steps.push({kind:'arrive',title:t('arrived'),text:t('arr_ahead',{n:nm(run[0])}),f:run[0].f,pts:[run[0]]})} return;}
     const legs=[];let s=0;
     for(let k=1;k<run.length;k++){if(k===run.length-1||Math.abs(turnAng(run[k-1],run[k],run[k+1]))>=25){legs.push(run.slice(s,k+1));s=k}}
     legs.forEach((leg,li)=>{
       const finalLeg=ri===last&&li===legs.length-1,end=leg[leg.length-1],len=legLen(leg)*scaleOf(leg[0].f),raw=legLen(leg);
       const ang=li>0?turnAng(legs[li-1][legs[li-1].length-2],leg[0],leg[1]):null;
       if(finalLeg&&(end.t==='z'||end.t==='e')&&raw<220&&(li>0||ri>0)){
-        steps.push({kind:'arrive',title:'Angekommen',text:end.then?`Der Eingang zu ${end.bau||'Ihrem Ziel'} liegt ${sideText(ang)}.`:`${end.name} liegt ${sideText(ang)}.`,f:end.f,pts:leg});return;
+        steps.push({kind:'arrive',title:t('arrived'),text:end.then?t('ent_'+sideKey(ang),{n:bauName(end)}):t('arr_'+sideKey(ang),{n:nm(end)}),f:end.f,pts:leg});return;
       }
       let st;
-      if(li===0&&ri===0)st={kind:'turn',rot:0,title:'Losgehen',lead:start.t==='e'?'Gehen Sie ca. {m} geradeaus':'Folgen Sie dem Gang ca. {m}, wie im Plan gezeigt'};
-      else if(li===0)st={kind:'turn',rot:0,title:'Aussteigen',lead:'Steigen Sie aus und folgen Sie dem Gang ca. {m}'};
+      if(li===0&&ri===0)st={kind:'turn',rot:0,title:t('start_go'),lead:t(start.t==='e'?'lead_start_e':'lead_start_g')};
+      else if(li===0)st={kind:'turn',rot:0,title:t('exit'),lead:t('lead_exit')};
       else{const t=turnInfo(ang);st={kind:'turn',rot:t.rot,title:t.title,lead:t.lead}}
-      const tail=end.t==='l'&&!finalLeg?`, bis Sie „${end.name}“ erreichen.`:'.';
+      const tail=end.t==='l'&&!finalLeg?t('until',{n:nm(end)}):'.';
       steps.push({kind:st.kind,rot:st.rot,title:st.title,text:st.lead.replace('{m}',meters(len))+tail,f:leg[0].f,pts:leg,dist:len});
-      if(finalLeg)steps.push({kind:'arrive',title:'Angekommen',text:end.then?`Sie stehen vor dem Eingang zu ${end.bau||'Ihrem Ziel'}.`:`${end.name} liegt direkt vor Ihnen.`,f:end.f,pts:[end]});
+      if(finalLeg)steps.push({kind:'arrive',title:t('arrived'),text:end.then?t('stand_ent',{n:bauName(end)}):t('arr_ahead',{n:nm(end)}),f:end.f,pts:[end]});
     });
   });
-  const dz=N[N.length-1];if(dz.then&&steps.length){steps[steps.length-1].title='Eingang erreicht';steps.push({kind:'inside',title:'Im Gebäude',text:dz.then,f:dz.f,pts:[dz]})}
+  const dz=N[N.length-1];if(dz.then&&steps.length){steps[steps.length-1].title=t('ent_reached');steps.push({kind:'inside',title:t('inside'),text:insideText(dz),f:dz.f,pts:[dz]})}
   return steps;
 }
 
@@ -568,7 +589,7 @@ function planSVG(fid,o={}){
   if(o.seg&&o.seg.length>1){const pts=o.seg.map(p=>p.x+','+p.y).join(' ');s+=`<polyline class="p-seg" points="${pts}"/><polyline class="p-flow" points="${pts}"/>`}
   if(o.end){const e=o.end;
     s+=`<path class="p-pin" d="M${e.x} ${e.y}c-6-14-22-22-22-38a22 22 0 1 1 44 0c0 16-16 24-22 38z"/><circle cx="${e.x}" cy="${e.y-38}" r="8" fill="var(--surface)"/>`;
-    if(F.image){const t=e.tag||e.name||'Ziel',w=t.length*12+28;s+=`<rect class="p-tag" x="${e.x-w/2}" y="${e.y-104}" width="${w}" height="38" rx="8"/><text class="p-tagt" x="${e.x}" y="${e.y-78}" text-anchor="middle">${esc(t)}</text>`}
+    if(F.image){const tg=tn(e.tag||e.name)||t('dest_def'),w=tg.length*12+28;s+=`<rect class="p-tag" x="${e.x-w/2}" y="${e.y-104}" width="${w}" height="38" rx="8"/><text class="p-tagt" x="${e.x}" y="${e.y-78}" text-anchor="middle">${esc(tg)}</text>`}
   }
   if(o.seg)s+=`<polyline id="walked" class="p-walked" points=""/>`;
   if(o.here){const h=o.here;s+=`<circle id="here-ring" class="p-ring" cx="${h.x}" cy="${h.y}" r="20"/><circle id="here-dot" class="p-here" cx="${h.x}" cy="${h.y}" r="15"/>`}
@@ -580,7 +601,7 @@ function planSVG(fid,o={}){
 const V={grp:null,start:null,dest:null,path:null,steps:[],i:0,show:null,full:false,vb:null};
 const startPoints=()=>D.nodes.filter(n=>n.t==='e'||n.t==='l'||n.qr);
 const dests=()=>D.nodes.filter(n=>(n.t==='z'||n.t==='e')&&n.name);
-const nodeLabel=n=>(n.name||TYPES[n.t][0])+' · '+(floorOf(n.f)?.name||'');
+const nodeLabel=n=>(tn(n.name)||TYPES[n.t][0])+' · '+(floorOf(n.f)?.name||'');
 function pickStart(){
   const h=decodeURIComponent((location.hash||'').slice(1));
   if(h.startsWith('s-')&&graph().byId.has(h.slice(2)))return h.slice(2);
@@ -592,7 +613,7 @@ function renderHome(){
   V.start=pickStart();
   $('#bname').textContent=D.name||'Klinikum';
   const st=V.start&&byId(V.start);
-  $('#here-name').textContent=st?(st.name||'Standort'):'Noch kein Plan angelegt';
+  $('#here-name').textContent=st?(tn(st.name)||'Standort'):'Noch kein Plan angelegt';
   $('#here-fb').outerHTML=st?nb(st).replace('class="fb"','class="fb" id="here-fb"'):'<span class="fb" id="here-fb">–</span>';
   $('#start-sel').innerHTML=startPoints().map(n=>`<option value="${esc(n.id)}"${n.id===V.start?' selected':''}>${esc(nodeLabel(n))}</option>`).join('');
   renderList();
@@ -607,38 +628,38 @@ function groups(items){
   const rank=g=>g.key==='Anreise'?2:g.key.startsWith('Bau ')?0:1;
   return gs.sort((a,b)=>rank(a)-rank(b)||(rank(a)===1?a.fi-b.fi:a.key.localeCompare(b.key,'de')));
 }
-const gTitle=g=>g.key==='Anreise'?'Anreise & Eingänge':g.key;
-const rowHTML=(n,nobadge)=>`<button class="row${n.cat==='Gebäude'?' self':''}${nobadge?' nb':''}" data-dest="${esc(n.id)}">${nobadge?'':nb(n)}<span class="t"><b>${esc(n.cat==='Gebäude'?'Zum Gebäude '+n.name:n.name)}</b><small>${esc(n.where||floorOf(n.f).name)}${n.info?' · '+esc(n.info):''}</small></span><span class="chev" aria-hidden="true">›</span></button>`;
+const gTitle=g=>g.key==='Anreise'?t('arrival'):tn(g.key);
+const rowHTML=(n,nobadge)=>`<button class="row${n.cat==='Gebäude'?' self':''}${nobadge?' nb':''}" data-dest="${esc(n.id)}">${nobadge?'':nb(n)}<span class="t"><b>${esc(n.cat==='Gebäude'?t('to_bld',{n:tn(n.name)}):tn(n.name))}</b><small>${esc(tn(n.where||floorOf(n.f).name))}${n.info?' · '+esc(tn(n.info)):''}</small></span><span class="chev" aria-hidden="true">›</span></button>`;
 function renderList(){
   const q=$('#q').value.trim().toLowerCase();
   const base=dests().filter(n=>n.id!==V.start);
-  if(!base.length){$('#list').innerHTML=`<p class="empty">${D.nodes.length?'Kein Ziel vorhanden.':'Im Plan-Editor sind noch keine Ziele eingetragen.'}</p>`;return}
+  if(!base.length){$('#list').innerHTML=`<p class="empty">${D.nodes.length?t('no_dest'):'Im Plan-Editor sind noch keine Ziele eingetragen.'}</p>`;return}
   if(q){
-    const all=base.filter(n=>(n.name+' '+(n.info||'')+' '+(n.where||'')+' '+(n.lab||[]).join(' ')+' '+(floorOf(n.f)?.name||'')).toLowerCase().includes(q));
-    $('#list').innerHTML=all.length?`<div class="glist">${all.map(rowHTML).join('')}</div>`:'<p class="empty">Kein Ziel gefunden. Versuchen Sie einen anderen Begriff, z. B. „Station“ oder „WC“.</p>';return}
+    const all=base.filter(n=>(n.name+' '+tn(n.name)+' '+(n.info||'')+' '+tn(n.info||'')+' '+(n.where||'')+' '+(n.lab||[]).join(' ')+' '+(floorOf(n.f)?.name||'')).toLowerCase().includes(q));
+    $('#list').innerHTML=all.length?`<div class="glist">${all.map(rowHTML).join('')}</div>`:`<p class="empty">${esc(t('no_hit'))}</p>`;return}
   const gs=groups(base),g=V.grp&&gs.find(x=>x.key===V.grp);
   if(g){
     const list=[...(g.self?[g.self]:[]),...g.sub.sort((a,b)=>fIdx(a.f)-fIdx(b.f)||a.name.localeCompare(b.name,'de'))];
-    $('#list').innerHTML=`<div class="ghead"><button class="gb" data-grp="" aria-label="Zurück zur Übersicht">‹</button>${nb(g.n,true)}<h2>${esc(gTitle(g))}<small>${g.sub.length} ${g.sub.length===1?'Ziel':'Ziele'}</small></h2></div><div class="glist">${list.map(n=>rowHTML(n,true)).join('')}</div>`;return}
+    $('#list').innerHTML=`<div class="ghead"><button class="gb" data-grp="" aria-label="${esc(t('back_ov'))}">‹</button>${nb(g.n,true)}<h2>${esc(gTitle(g))}<small>${esc(t('goals',{n:g.sub.length}))}</small></h2></div><div class="glist">${list.map(n=>rowHTML(n,true)).join('')}</div>`;return}
   V.grp=null;
   $('#list').innerHTML=`<div class="tiles">`+gs.map(g=>{
-    const c=g.n.badge?g.n.badge.c:fColor(g.n.f),t=g.key==='Anreise'?'→':g.n.badge?g.n.badge.t:(floorOf(g.n.f)?.short||'?');
-    const cnt=g.sub.length,ct=cnt?`${cnt} ${cnt===1?'Ziel':'Ziele'}`:(g.self?'Gebäude':'');
-    return `<button class="tile" data-grp="${esc(g.key)}" style="--fc:${c}"><span class="big">${esc(t)}</span><span><b>${esc(gTitle(g))}</b><small>${ct||'&nbsp;'}</small></span></button>`}).join('')+`</div>`;
+    const c=g.n.badge?g.n.badge.c:fColor(g.n.f),tl=g.key==='Anreise'?'→':g.n.badge?g.n.badge.t:(floorOf(g.n.f)?.short||'?');
+    const cnt=g.sub.length,ct=cnt?t('goals',{n:cnt}):(g.self?t('building'):'');
+    return `<button class="tile" data-grp="${esc(g.key)}" style="--fc:${c}"><span class="big">${esc(tl)}</span><span><b>${esc(gTitle(g))}</b><small>${ct||'&nbsp;'}</small></span></button>`}).join('')+`</div>`;
 }
 function openRoute(id){
   stopWalk();
   V.dest=id;V.i=0;V.show=null;V.full=false;V.vb=null;
   const d=byId(id);
   V.path=V.start===id?[id]:shortest(V.start,id);
-  V.steps=V.path?(V.path.length===1?[{kind:'arrive',title:'Angekommen',text:'Sie befinden sich bereits hier.',f:d.f,pts:[d]}]:makeSteps(V.path)):[];
+  V.steps=V.path?(V.path.length===1?[{kind:'arrive',title:t('arrived'),text:t('here_already'),f:d.f,pts:[d]}]:makeSteps(V.path)):[];
   $('#home').hidden=true;$('#route').hidden=false;$('#navbar').hidden=!V.path;$('#walkctl').hidden=!V.path||V.steps.length<2;
-  $('#r-name').textContent=d.name;$('#r-info').textContent=d.info||'';$('#r-info').hidden=!d.info;
-  if(!V.path){$('#r-meta').innerHTML='';$('#r-floors').innerHTML='';$('#r-plan').innerHTML='';$('#r-steps').innerHTML=`<li class="lost">Zu diesem Ziel gibt es von Ihrem Standort noch keinen eingetragenen Weg. Bitte wenden Sie sich an den Portier.</li>`;window.scrollTo(0,0);return}
+  $('#r-name').textContent=tn(d.name);$('#r-info').textContent=tn(d.info)||'';$('#r-info').hidden=!d.info;
+  if(!V.path){$('#r-meta').innerHTML='';$('#r-floors').innerHTML='';$('#r-plan').innerHTML='';$('#r-steps').innerHTML=`<li class="lost">${esc(t('no_route'))}</li>`;window.scrollTo(0,0);return}
   const dist=V.steps.reduce((s,x)=>s+(x.kind!=='lift'?legLen(x.pts)*scaleOf(x.f):0),0),lifts=V.steps.filter(x=>x.kind==='lift');
   const min=Math.max(1,Math.round((dist/0.9+lifts.length*45)/60));
   const via=[...new Set(lifts.map(x=>x.title))];
-  $('#r-meta').innerHTML=`<span class="chip">ca. ${min} Min.</span><span class="chip">${meters(dist)} Fußweg</span><span class="chip">${nb(d,true)}${esc(d.badge?(d.bau||floorOf(d.f).name):floorOf(d.f).name)}</span>`+(via.length?`<span class="chip">über ${esc(via.join(', '))}</span>`:'');
+  $('#r-meta').innerHTML=`<span class="chip">${esc(t('min',{n:min}))}</span><span class="chip">${esc(t('walkdist',{d:meters(dist)}))}</span><span class="chip">${nb(d,true)}${esc(tn(d.badge?(d.bau||floorOf(d.f).name):floorOf(d.f).name))}</span>`+(via.length?`<span class="chip">${esc(t('via',{x:via.map(tn).join(', ')}))}</span>`:'');
   renderRoute(true);window.scrollTo(0,0);
 }
 const ICON={
@@ -667,7 +688,7 @@ function renderRoute(fresh){
     target=[x,y,w,h];
   }
   const box=$('#r-plan');
-  box.innerHTML=`<svg viewBox="${(V.vb&&!fresh&&V.vbFloor===floor?V.vb:target).join(' ')}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Plan ${esc(F.name)} mit Route">${svgInner}</svg>`;
+  box.innerHTML=`<svg viewBox="${(V.vb&&!fresh&&V.vbFloor===floor?V.vb:target).join(' ')}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${esc(F.name)}">${svgInner}</svg>`;
   tweenVB(box.firstChild,(V.vb&&!fresh&&V.vbFloor===floor)?V.vb:target,target);V.vb=target;V.vbFloor=floor;
   let h='',lastF=null;
   V.steps.forEach((x,k)=>{
@@ -678,7 +699,7 @@ function renderRoute(fresh){
   $('#r-steps').innerHTML=h;
   $('#stepcount').textContent=`${V.i+1} / ${V.steps.length}`;
   $('#prev').disabled=V.i===0;
-  $('#next').textContent=V.i===V.steps.length-1?'Fertig':'Weiter';
+  $('#next').textContent=V.i===V.steps.length-1?t('done'):t('next');
   walkSync();
 }
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -718,7 +739,7 @@ function placeDot(){
   for(const id of ['here-dot','here-ring']){const c=document.getElementById(id);if(c){c.setAttribute('cx',p.x);c.setAttribute('cy',p.y)}}
   const wk=document.getElementById('walked');if(wk)wk.setAttribute('points',W.prog>0?[...st.pts.slice(0,p.i),p].map(q=>q.x+','+q.y).join(' '):'');
 }
-function soonText(nx){return nx.kind==='turn'?nx.title.charAt(0).toLowerCase()+nx.title.slice(1):nx.kind==='lift'?`erreichen Sie „${nx.title}“`:'sind Sie am Ziel'}
+function soonText(nx){return nx.kind==='turn'?nx.title:nx.kind==='lift'?t('soon_lift',{n:nx.title}):t('at_goal')}
 function live(msg,frac,sub,warn){$('#live-msg').textContent=msg;$('#live-bar').style.width=Math.round(Math.min(1,frac)*100)+'%';$('#live-sub').textContent=sub||'';$('#live').classList.toggle('warn',!!warn)}
 function walkSync(){
   if(W.stepIdx===V.i){if(W.on)placeDot();return}
@@ -726,9 +747,9 @@ function walkSync(){
   if(!W.on)return;
   const st=V.steps[V.i];
   if(st.kind==='lift'){W.paused=true;
-    live(st.text,0,W.sim?'Simulation: Der Aufzug fährt …':'Tippen Sie nach dem Aussteigen auf „Weiter“.');
+    live(st.text,0,W.sim?t('lift_sim'):t('lift_wait'));
     if(W.sim)setTimeout(()=>{if(W.on&&V.steps[V.i]===st)goStep(V.i+1)},2500);return}
-  if(st.kind==='inside'){live('Eingang erreicht',1,st.text);stopWalk(true);return}
+  if(st.kind==='inside'){live(t('ent_reached'),1,st.text);stopWalk(true);return}
   evaluate();
 }
 function goStep(i){if(i>=V.steps.length)return;V.i=i;V.show=null;V.full=false;vib(40);renderRoute();scrollStep()}
@@ -742,15 +763,15 @@ function evaluate(){
   const st=V.steps[V.i],nx=V.steps[V.i+1],tot=Math.max(stepM(st),0.5),frac=W.prog/tot,rem=Math.max(0,tot-W.prog);
   placeDot();
   if(st.kind==='arrive'){
-    if(frac>=1){vib([300,120,300]);if(nx&&nx.kind==='inside'){goStep(V.i+1);return}live('Sie sind angekommen',1,st.text);stopWalk(true);return}
-    live(`Gleich am Ziel · noch ca. ${Math.ceil(rem)} m`,frac,st.text);return;
+    if(frac>=1){vib([300,120,300]);if(nx&&nx.kind==='inside'){goStep(V.i+1);return}live(t('live_arrived'),1,st.text);stopWalk(true);return}
+    live(t('near_goal',{m:Math.ceil(rem)}),frac,st.text);return;
   }
   if(nx&&!W.warned&&(rem<=5||frac>=0.85)){W.warned=true;vib([150,80,150])}
   const turnNext=nx&&nx.kind==='turn'&&Math.abs(nx.rot||0)>=45;
   if(nx&&frac>=1&&(W.sim||!turnNext||W.hd==null||frac>=1.15)){goStep(V.i+1);return}
-  if(nx&&frac>=1)live(`Jetzt ${soonText(nx)}`,1,'Klinavi schaltet weiter, sobald Sie abgebogen sind.',true);
-  else if(W.warned&&nx)live(`Gleich ${soonText(nx)}`,frac,`noch ca. ${Math.ceil(rem)} m`,true);
-  else live(`${st.title} · noch ca. ${Math.ceil(rem)} m`,frac,`${W.steps} Schritte gezählt`);
+  if(nx&&frac>=1)live(t('now',{x:soonText(nx)}),1,t('auto_next'),true);
+  else if(W.warned&&nx)live(t('soon',{x:soonText(nx)}),frac,t('rem_m',{m:Math.ceil(rem)}),true);
+  else live(`${st.title} · ${t('rem_m',{m:Math.ceil(rem)})}`,frac,t('steps_cnt',{n:W.steps}));
 }
 function onMotion(e){
   const a=e.accelerationIncludingGravity;if(!a||a.x==null)return;W.seen=true;
@@ -773,25 +794,25 @@ async function startWalk(sim){
     try{
       if(typeof DeviceMotionEvent!=='undefined'&&typeof DeviceMotionEvent.requestPermission==='function'){if(await DeviceMotionEvent.requestPermission()!=='granted')throw 0}
       if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){try{await DeviceOrientationEvent.requestPermission()}catch(_){}}
-    }catch(_){walkNote('Ohne Freigabe der Bewegungssensoren funktioniert Mitlaufen nicht. Sie können weiterhin mit „Weiter“ navigieren.',true);return}
+    }catch(_){walkNote(t('err_perm'),true);return}
     W.seen=false;addEventListener('devicemotion',onMotion);addEventListener(ORIENT,onOrient);
-    setTimeout(()=>{if(W.on&&!W.sim&&!W.seen){stopWalk();walkNote('Keine Bewegungsdaten empfangen. In der Vorschau sind die Sensoren gesperrt. Öffnen Sie Klinavi auf dem Handy über die echte Web-Adresse oder testen Sie mit „Gehen simulieren“.',true)}},2500);
+    setTimeout(()=>{if(W.on&&!W.sim&&!W.seen){stopWalk();walkNote(t('err_none'),true)}},2500);
   }
   W.sim=sim;W.on=true;W.steps=0;W.hd=null;
   if(sim)W.timer=setInterval(onStep,450);
   try{W.wake=navigator.wakeLock?await navigator.wakeLock.request('screen'):null}catch(_){}
-  $('#walkctl').hidden=true;$('#live').hidden=false;$('#live-stop').textContent='Beenden';
+  $('#walkctl').hidden=true;$('#live').hidden=false;$('#live-stop').textContent=t('stop');
   W.stepIdx=-1;walkSync();
 }
 function stopWalk(done){
   clearInterval(W.timer);W.timer=null;removeEventListener('devicemotion',onMotion);removeEventListener(ORIENT,onOrient);
   try{W.wake&&W.wake.release()}catch(_){}W.wake=null;W.on=false;
-  if(done){$('#live-stop').textContent='Schließen';$('#live').classList.remove('warn')}
+  if(done){$('#live-stop').textContent=t('close');$('#live').classList.remove('warn')}
   else{$('#live').hidden=true;$('#walkctl').hidden=!V.path||V.steps.length<2}
 }
 $('#walk-start').addEventListener('click',()=>startWalk(false));
 $('#walk-sim').addEventListener('click',()=>startWalk(true));
-$('#live-stop').addEventListener('click',()=>{stopWalk();walkNote('Beim Mitlaufen zählt das Handy Ihre Schritte und schaltet bei Abbiegungen selbst weiter. Die Sensordaten bleiben auf Ihrem Gerät.')});
+$('#live-stop').addEventListener('click',()=>{stopWalk();walkNote(t('walk_note'))});
 $('#walk-len').addEventListener('change',e=>{W.len=parseFloat(e.target.value);try{localStorage.setItem('klinavi-step',e.target.value)}catch(_){}});
 
 /* ---------- modes ---------- */
@@ -947,6 +968,31 @@ function renderQR(){
     else el.innerHTML='<small>QR-Bibliothek nicht geladen</small>'});
 }
 $('#qr-base').addEventListener('change',()=>{try{localStorage.setItem(KEY+'-base',$('#qr-base').value)}catch(_){}renderQR()});
+
+/* ---------- Sprache ---------- */
+function applyI18n(){
+  const H=document.documentElement;H.lang=LANG==='bks'?'bs':LANG;H.dir=LANG==='ar'?'rtl':'ltr';
+  const set=(id,k)=>{const e=$(id);if(e)e.textContent=t(k)};
+  set('#tab-visitor','visitor');set('#t-here','here');set('#t-sim','sim_qr');set('#t-search','search_lbl');
+  set('#t-other','other_dest');set('#t-goal','your_goal');set('#t-len','step_len');set('#t-lost','lost');
+  set('#walk-start','walk_start');set('#walk-sim','walk_sim');set('#r-full','full_plan');set('#prev','prev');
+  set('#live-msg','live_active');set('#live-stop','stop');
+  $('#q').placeholder=t('search_ph');
+  const o=$('#walk-len').options;o[0].textContent=t('len_s');o[1].textContent=t('len_m');o[2].textContent=t('len_l');
+  const n=$('#walk-note');if(!n.classList.contains('err'))n.textContent=t('walk_note');
+  $('#next').textContent=V.steps.length&&V.i===V.steps.length-1?t('done'):t('next');
+  $('#lang-cur').textContent=LCODE[LANG];$('#lang-btn').setAttribute('aria-label',t('lang'));
+  $('#lang-pop').innerHTML=LANGS.map(([c,n])=>`<button role="menuitem" data-lang="${c}" lang="${c==='bks'?'bs':c}" aria-current="${c===LANG}">${esc(n)}</button>`).join('');
+}
+function setLang(c){
+  LANG=c;try{localStorage.setItem('klinavi-lang',c)}catch(_){}
+  applyI18n();renderHome();
+  if(V.dest&&!$('#route').hidden){const i=V.i;openRoute(V.dest);if(V.steps.length){V.i=Math.min(i,V.steps.length-1);renderRoute()}}
+}
+$('#lang-btn').addEventListener('click',()=>{const p=$('#lang-pop');p.hidden=!p.hidden;$('#lang-btn').setAttribute('aria-expanded',!p.hidden)});
+$('#lang-pop').addEventListener('click',e=>{const b=e.target.closest('[data-lang]');if(!b)return;$('#lang-pop').hidden=true;$('#lang-btn').setAttribute('aria-expanded','false');setLang(b.dataset.lang)});
+document.addEventListener('click',e=>{if(!e.target.closest('#lang-pop,#lang-btn')&&!$('#lang-pop').hidden){$('#lang-pop').hidden=true;$('#lang-btn').setAttribute('aria-expanded','false')}});
+applyI18n();
 
 const h0=location.hash.slice(1);
 if(['editor','qr'].includes(h0))setMode(h0);else goHome();

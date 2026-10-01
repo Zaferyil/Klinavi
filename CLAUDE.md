@@ -3,7 +3,7 @@
 Klinavi, hastane ziyaretçilerinin kendi telefonlarıyla QR kod okutup gidecekleri istasyona (Station) adım adım yönlendirildiği bir web uygulaması. Proje sahibi Zafer, Kepler Universitätsklinikum Neuromed Campus'ta (Linz) Portier bölümünün sorumlusu. Uygulama başlangıçta bu kampüs için geliştiriliyor.
 
 ## Temel kararlar
-- **Uygulama dili: sadece Almanca.** Ziyaretçiye görünen bütün metinler Almanca. Zafer ile iletişim Türkçe.
+- **Uygulama dili: Almanca (varsayılan) + 8 dil.** Ziyaretçi ekranı DE, EN, TR, RO, BKS (Bosnisch/Kroatisch/Serbisch), AR (sağdan sola), UK, PL, HU dillerinde. Seçim Statistik Austria 2025 uyruk verilerine dayanıyor (DE, RO, TR, RS, HR, SY, BA, UA, PL, HU). Çeviriler `src/i18n.js` içinde (`K('anahtar', de, en, tr, ro, bks, ar, uk, pl, hu)`); **taslak, anadili konuşanlar kontrol etmeli.** Plan-Editor ve QR sekmeleri sadece Almanca (personel aracı). Zafer ile iletişim Türkçe.
 - **İsim: Klinavi** (Klinik + Navigation). Logo: içinde "v" harfi olan bir konum pini. Marka ve domain kontrolü (see.ip / TMview, klinavi.at / klinavi.app) henüz yapılmadı.
 - **Kurulum yok:** Tek HTML dosyası, harici backend yok. QR kod `https://<adres>/#s-<nodeId>` adresini açıyor, başlangıç noktası buradan geliyor.
 - **Kişisel veri yok:** Takip, giriş veya sunucu tarafında kayıt yok. Sensör verisi telefondan çıkmıyor (DSGVO).
@@ -12,9 +12,10 @@ Klinavi, hastane ziyaretçilerinin kendi telefonlarıyla QR kod okutup gidecekle
 
 ## Dosyalar
 - `src/app.html` – Uygulamanın tamamı (CSS + JS). Head ve body etiketleri yok, `build.py` ekliyor.
+- `src/i18n.js` – Diller, `t(key,{x})` ve `tn(isim)` (veri adlarını sözlükle çevirir). `build.py` bunu `/*I18N-SLOT*/` yerine ekliyor.
 - `src/neuromed/nmc-data.js` – Neuromed Campus'un düğüm ve kenar verisi (`window.NMC=true`, `nmcData()`).
 - `src/neuromed/campus-plan.jpg` – KUK'un resmi kampüs planı (Gebäudeplan, 1600 px).
-- `build.py` – `python3 build.py` komutu `dist/demo/index.html` ve `dist/neuromed/index.html` dosyalarını üretiyor. Neuromed sürümünde plan base64 olarak gömülü, `/*NMC-SLOT*/` yerine veri ekleniyor.
+- `build.py` – `python3 build.py` komutu `dist/demo/index.html`, `dist/neuromed/index.html` ve `dist/neuromed/artifact.html` (head/body'siz, Claude önizlemesi için) dosyalarını üretiyor. Neuromed sürümünde plan base64 olarak gömülü, `/*NMC-SLOT*/` yerine veri ekleniyor.
 - **`dist/` dosyalarını elle düzenleme**, her zaman `src/` içinde değiştirip build et.
 
 ## Uygulamanın yapısı (src/app.html)
@@ -61,7 +62,7 @@ Klinavi, hastane ziyaretçilerinin kendi telefonlarıyla QR kod okutup gidecekle
 1. Zafer gerçek telefonla test edecek: Cloudflare Pages'e `dist/neuromed` yüklenip koridorda Mitlaufen denenecek. Adım sayma eşikleri ve adım uzunluğu sonuçlara göre ayarlanacak.
 2. C, D ve N binalarının ziyaretçi girişleri ve binalar arası iç bağlantılar netleşecek, `nmc-data.js` düzeltilecek.
 3. Binaların içi: Fluchtwegplan fotoğraflarıyla kat planları eklenecek ("Im Gebäude" adımı gerçek rotaya dönüşecek).
-4. İleride düşünülebilecekler: PWA (manifest + offline), barrierefrei rota seçeneği (sadece asansör), çok dilli destek (şu an sadece Almanca), yönetim sunumu.
+4. İleride düşünülebilecekler: PWA (manifest + offline), barrierefrei rota seçeneği (sadece asansör), Kiosk modu, rota paylaşma, çevirilerin anadili konuşanlarca kontrolü, yönetim sunumu.
 
 ## Çalışma şekli
 - Zafer adım adım ve "test et, sonra devam et" yaklaşımını tercih ediyor.
