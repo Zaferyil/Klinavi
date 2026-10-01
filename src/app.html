@@ -7,35 +7,19 @@
 <style>
 /* Layout: clean clinical one-column phone app; editor + QR views widen to a two-column work surface. */
 :root{
-  --bg:#FFFFFF; --surface:#FFFFFF; --ink:#08192B; --muted:#3C5167; --line:#CCD8E4;
-  --brand:#0052D4; --brand-ink:#FFFFFF; --tint:#E6F0FF;
-  --route:#E04E00; --route-soft:#FFD5BD;
-  --plan-bg:#F4F8FC; --room:#E9F0F6; --room-line:#C8D5E2; --corridor:#FFFFFF; --wall:#8EA2B6;
-  --shadow:0 1px 2px rgba(11,37,64,.05),0 6px 18px rgba(11,37,64,.05);
-  --soft:#EEF3F9; --on-bg:#FFF3EB; --route-ink:#FFFFFF; --card-bg:#FFFFFF;
+  --bg:#0A1624; --surface:#12233A; --ink:#E8F0F8; --muted:#8DA3BA; --line:#203650;
+  --brand:#5AA2FF; --brand-ink:#04162B; --tint:#16314F;
+  --route:#FF8A55; --route-soft:#5A3420;
+  --plan-bg:#0F1D2F; --room:#1A2D45; --room-line:#2E4766; --corridor:#26405F; --wall:#607B9A;
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+  --soft:#1B3049; --on-bg:#3A2417; --route-ink:#2A1204; --card-bg:#12233A;
   --fc0:#5B4FC4; --fc1:#0E7C74; --fc2:#A86A12; --fc3:#B0365F; --fc4:#2F6DB5; --fc5:#5F7A24;
-  --danger:#B42318;
+  --danger:#F97066;
   --font-sign:'Plus Jakarta Sans','Helvetica Neue',Arial,sans-serif;
   --font-body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0A1624; --surface:#12233A; --ink:#E8F0F8; --muted:#8DA3BA; --line:#203650;
-  --brand:#5AA2FF; --brand-ink:#04162B; --tint:#16314F;
-  --route:#FF8A55; --route-soft:#5A3420;
-  --plan-bg:#0F1D2F; --room:#1A2D45; --room-line:#2E4766; --corridor:#26405F; --wall:#607B9A;
-  --shadow:0 1px 2px rgba(0,0,0,.3);
-  --soft:#1B3049; --on-bg:#3A2417; --route-ink:#2A1204; --card-bg:#12233A;
-  --danger:#F97066;
-  color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0A1624; --surface:#12233A; --ink:#E8F0F8; --muted:#8DA3BA; --line:#203650;
-  --brand:#5AA2FF; --brand-ink:#04162B; --tint:#16314F;
-  --route:#FF8A55; --route-soft:#5A3420;
-  --plan-bg:#0F1D2F; --room:#1A2D45; --room-line:#2E4766; --corridor:#26405F; --wall:#607B9A;
-  --shadow:0 1px 2px rgba(0,0,0,.3);
-  --soft:#1B3049; --on-bg:#3A2417; --route-ink:#2A1204; --card-bg:#12233A;
-  --danger:#F97066;
-  color-scheme:dark}
+/* Das Erscheinungsbild ist immer dunkel, unabhängig von der Telefon-Einstellung. */
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -388,7 +372,10 @@ body{padding-top:44px}
 .sos{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;height:44px;z-index:40;display:flex;background:#C8102E;color:#fff}
 .sos-a{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 10px;color:#fff;text-decoration:none;font-size:16px;white-space:nowrap;overflow:hidden}
 .sos-a b{font:800 16px var(--font-sign);overflow:hidden;text-overflow:ellipsis}
-.sos-p{flex:1.35 1 0;border-inline-start:2px solid rgba(255,255,255,.45);background:#A50D26;font-weight:700;font-size:15px;padding:0 6px;text-overflow:ellipsis}
+.sos-p{flex:1.4 1 0;flex-direction:column;gap:0;line-height:1.1;border-inline-start:2px solid rgba(255,255,255,.45);background:#A50D26;font-weight:700;font-size:14px;padding:0 6px;text-overflow:ellipsis}
+.sos-p small{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;opacity:.9}
+.sos-p b{font:800 15px var(--font-sign)}
+@media (max-width:430px){.sos-a svg{display:none}.sos-a b{font-size:15px}}
 .sos-a:focus-visible{outline:3px solid #fff;outline-offset:-4px}
 .top{top:calc(env(safe-area-inset-top,0px) + 44px)}
 /* Offline + Installieren */
@@ -687,7 +674,7 @@ function renderHome(){
 function refreshSOS(){
   $('#sos-t').textContent=t('sos');
   const ph=(D.portier||'').trim(),a=$('#sos-p');a.hidden=!ph;
-  if(ph){a.textContent=t('portier')+': '+ph;a.href='tel:'+ph.replace(/[^\d+]/g,'')}
+  if(ph){a.innerHTML=`<small>${esc(t('portier'))}</small><b>${esc(ph)}</b>`;a.href='tel:'+ph.replace(/[^\d+]/g,'')}
 }
 function renderRules(){
   const r=D.rules||[];$('#rules').hidden=!r.length;$('#rules-h').textContent=t('rules_h');

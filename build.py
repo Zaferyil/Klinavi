@@ -9,7 +9,7 @@ app = app.replace('<!--JSQR-SLOT-->', '<script>' + (ROOT / 'src/vendor/jsQR.min.
 
 HEAD = ('<!doctype html>\n<html lang="de">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
-        '<meta name="theme-color" content="#0052D4">\n'
+        '<meta name="theme-color" content="#0A1624">\n<meta name="color-scheme" content="dark">\n'
         '<meta name="mobile-web-app-capable" content="yes">\n<meta name="apple-mobile-web-app-capable" content="yes">\n'
         '<meta name="apple-mobile-web-app-title" content="Klinavi">\n'
         '<link rel="manifest" href="manifest.webmanifest">\n'
@@ -28,7 +28,7 @@ def write(rel, html, name='Klinavi'):
     (d / 'manifest.webmanifest').write_text(json.dumps({
         'name': name, 'short_name': 'Klinavi', 'description': 'Digitaler Wegweiser für Krankenhausbesucher',
         'lang': 'de', 'start_url': './', 'scope': './', 'display': 'standalone',
-        'background_color': '#FFFFFF', 'theme_color': '#0052D4',
+        'background_color': '#0A1624', 'theme_color': '#0A1624',
         'icons': [{'src': 'icon-192.png', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any maskable'},
                   {'src': 'icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any maskable'}]},
         ensure_ascii=False, indent=2), encoding='utf-8')
