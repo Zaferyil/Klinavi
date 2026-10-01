@@ -365,6 +365,26 @@ body{font-size:18px;line-height:1.5}
 .rules ul{margin:0 0 14px;padding-inline-start:22px;display:flex;flex-direction:column;gap:8px;font-size:17px}
 .fld{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:700;color:var(--muted)}
 .fld .field{font-weight:400}
+/* Schriftgröße */
+.top-tools{display:flex;gap:8px;align-items:center;margin-inline-start:auto}
+.fs{display:flex;border:2px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.fs button{min-width:46px;min-height:44px;border:0;background:none;color:var(--ink);font:800 20px var(--font-sign);padding:0 8px}
+.fs button+button{border-inline-start:2px solid var(--line);font-size:26px}
+.fs button small{font-size:15px;margin-inline-start:1px;vertical-align:top}
+.fs button:disabled{opacity:.35}
+/* schmale Breite / große Schrift */
+.walkctl label{flex-wrap:wrap;min-width:0;max-width:100%}
+.walkctl select{max-width:100%;min-width:0}
+.big .top{position:static}
+.here{flex-wrap:wrap}
+.here-t{flex:1 1 130px}
+.here-t strong{overflow-wrap:anywhere}
+.modes button{min-width:0;padding-inline:4px;overflow:hidden;text-overflow:ellipsis}
+.tiles{grid-template-columns:repeat(auto-fit,minmax(min(100%,138px),1fr))}
+.tile,.tile b,.tile small{min-width:0;overflow-wrap:anywhere}
+.top-in{flex-wrap:wrap}
+.brand{flex:1 1 150px}
+.brand small{white-space:normal}
 </style>
 
 </head>
@@ -375,7 +395,8 @@ body{font-size:18px;line-height:1.5}
       <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" style="color:var(--brand-ink)"><path d="M12 22s7-6.6 7-12.2A7 7 0 0 0 5 9.8C5 15.4 12 22 12 22z" fill="currentColor"/><path d="M9 7.6l3 5 3-5" stroke="var(--brand)" stroke-width="2.4"/></svg></span>
       <div><b class="wordmark">Klinavi</b><small id="bname">Klinikum Demo</small></div>
     </div>
-    <button class="lang-btn" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lang-pop"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><b id="lang-cur">DE</b></button>
+    <div class="top-tools"><div class="fs" role="group"><button id="fs-minus" aria-label="Schrift kleiner">A<small>−</small></button><button id="fs-plus" aria-label="Schrift größer">A<small>+</small></button></div>
+    <button class="lang-btn" id="lang-btn" aria-haspopup="true" aria-expanded="false" aria-controls="lang-pop"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><b id="lang-cur">DE</b></button></div>
     <div class="lang-pop" id="lang-pop" role="menu" hidden></div>
     <nav class="modes" role="tablist" aria-label="Ansicht">
       <button role="tab" data-mode="visitor" aria-selected="true" id="tab-visitor">Besucher</button>
@@ -548,6 +569,11 @@ K('scan_ok','Standort aktualisiert','Location updated','Konum güncellendi','Loc
 K('visit_h','Besuchszeiten','Visiting hours','Ziyaret saatleri','Program de vizită','Vrijeme posjeta','ساعات الزيارة','Години відвідування','Godziny odwiedzin','Látogatási idő');
 K('visit_ask','Besuchszeiten bitte beim Portier oder telefonisch erfragen.','Please ask the porter or call for visiting hours.','Ziyaret saatleri için lütfen danışmaya sorun veya telefonla arayın.','Pentru programul de vizită întrebați la portar sau telefonic.','Za vrijeme posjeta pitajte portira ili nazovite telefonom.','للاستفسار عن ساعات الزيارة يرجى سؤال موظف الاستقبال أو الاتصال هاتفيًا.','Про години відвідування запитайте у портьє або зателефонуйте.','O godziny odwiedzin zapytaj portiera lub zadzwoń.','A látogatási időről kérdezze a portást, vagy telefonáljon.');
 K('rules_h','Hinweise für Besucher','Information for visitors','Ziyaretçiler için bilgiler','Informații pentru vizitatori','Informacije za posjetitelje','معلومات للزوار','Інформація для відвідувачів','Informacje dla odwiedzających','Tudnivalók látogatóknak');
+
+
+/* Schriftgröße */
+K('fs_minus','Schrift kleiner','Smaller text','Yazıyı küçült','Text mai mic','Manji tekst','تصغير الخط','Менший шрифт','Mniejszy tekst','Kisebb betű');
+K('fs_plus','Schrift größer','Larger text','Yazıyı büyüt','Text mai mare','Veći tekst','تكبير الخط','Більший шрифт','Większy tekst','Nagyobb betű');
 
 /* Schritte */
 K('straight','Geradeaus','Straight ahead','Düz ilerleyin','Înainte','Ravno','استمر للأمام','Прямо','Prosto','Egyenesen');
@@ -1265,6 +1291,19 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-scan]'))openSca
 $('#scan-x').addEventListener('click',closeScan);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#scan').hidden)closeScan()});
 
+/* ---------- Schriftgröße (A− / A+) ---------- */
+const FS=[1,1.15,1.3,1.5];let fsI=0;
+try{const v=parseInt(localStorage.getItem('klinavi-fs'));if(v>=0&&v<FS.length)fsI=v}catch(_){}
+function applyFS(){
+  document.body.style.zoom=FS[fsI]===1?'':FS[fsI];
+  document.body.classList.toggle('big',fsI>=2);
+  $('#fs-minus').disabled=fsI===0;$('#fs-plus').disabled=fsI===FS.length-1;
+  try{localStorage.setItem('klinavi-fs',fsI)}catch(_){}
+}
+$('#fs-minus').addEventListener('click',()=>{if(fsI>0){fsI--;applyFS()}});
+$('#fs-plus').addEventListener('click',()=>{if(fsI<FS.length-1){fsI++;applyFS()}});
+applyFS();
+
 /* ---------- Sprache ---------- */
 function applyI18n(){
   const H=document.documentElement;H.lang=LANG==='bks'?'bs':LANG;H.dir=LANG==='ar'?'rtl':'ltr';
@@ -1272,6 +1311,7 @@ function applyI18n(){
   set('#tab-visitor','visitor');set('#t-here','here');set('#t-sim','sim_qr');set('#t-search','search_lbl');
   set('#t-other','other_dest');set('#t-goal','your_goal');set('#t-len','step_len');set('#t-lost','lost');
   set('#walk-start','walk_start');set('#walk-sim','walk_sim');set('#r-full','full_plan');set('#prev','prev');
+  $('#fs-minus').setAttribute('aria-label',t('fs_minus'));$('#fs-plus').setAttribute('aria-label',t('fs_plus'));
   set('#live-msg','live_active');set('#live-stop','stop');
   $('#q').placeholder=t('search_ph');
   document.querySelectorAll('.t-scan').forEach(e=>e.textContent=t('scan_btn'));document.querySelectorAll('.t-relocate').forEach(e=>e.textContent=t('relocate'));

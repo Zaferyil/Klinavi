@@ -71,6 +71,11 @@ K('visit_h','Besuchszeiten','Visiting hours','Ziyaret saatleri','Program de vizi
 K('visit_ask','Besuchszeiten bitte beim Portier oder telefonisch erfragen.','Please ask the porter or call for visiting hours.','Ziyaret saatleri için lütfen danışmaya sorun veya telefonla arayın.','Pentru programul de vizită întrebați la portar sau telefonic.','Za vrijeme posjeta pitajte portira ili nazovite telefonom.','للاستفسار عن ساعات الزيارة يرجى سؤال موظف الاستقبال أو الاتصال هاتفيًا.','Про години відвідування запитайте у портьє або зателефонуйте.','O godziny odwiedzin zapytaj portiera lub zadzwoń.','A látogatási időről kérdezze a portást, vagy telefonáljon.');
 K('rules_h','Hinweise für Besucher','Information for visitors','Ziyaretçiler için bilgiler','Informații pentru vizitatori','Informacije za posjetitelje','معلومات للزوار','Інформація для відвідувачів','Informacje dla odwiedzających','Tudnivalók látogatóknak');
 
+
+/* Schriftgröße */
+K('fs_minus','Schrift kleiner','Smaller text','Yazıyı küçült','Text mai mic','Manji tekst','تصغير الخط','Менший шрифт','Mniejszy tekst','Kisebb betű');
+K('fs_plus','Schrift größer','Larger text','Yazıyı büyüt','Text mai mare','Veći tekst','تكبير الخط','Більший шрифт','Większy tekst','Nagyobb betű');
+
 /* Schritte */
 K('straight','Geradeaus','Straight ahead','Düz ilerleyin','Înainte','Ravno','استمر للأمام','Прямо','Prosto','Egyenesen');
 K('lead_straight','Gehen Sie geradeaus weiter, ca. {m}','Continue straight ahead for about {m}','Yaklaşık {m} düz devam edin','Mergeți drept înainte aproximativ {m}','Nastavite ravno oko {m}','تابع المشي للأمام حوالي {m}','Ідіть прямо приблизно {m}','Idź prosto przez ok. {m}','Haladjon egyenesen kb. {m}-t');
