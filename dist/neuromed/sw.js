@@ -1,6 +1,6 @@
 /* Klinavi Service Worker: lädt die App einmal und hält sie danach offline bereit.
-   c051dab939 wird beim Build durch einen Hash der Seite ersetzt, so wird bei jeder neuen Version der Cache erneuert. */
-const V = 'klinavi-c051dab939';
+   0c0619e6e3 wird beim Build durch einen Hash der Seite ersetzt, so wird bei jeder neuen Version der Cache erneuert. */
+const V = 'klinavi-0c0619e6e3';
 const CORE = ['./', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 const EXTERN = /(^|\.)(fonts\.googleapis\.com|fonts\.gstatic\.com|cdnjs\.cloudflare\.com)$/;
 

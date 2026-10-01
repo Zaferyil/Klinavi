@@ -742,7 +742,8 @@ function nmcData(){
   // Wege (Entwurf)
   N('j1',205,555);N('j2',370,580);N('j5',378,420);N('j3',480,622);N('j4',705,648);
   N('b1',900,725);N('b2',1050,745);N('b3',1205,738);N('azk',930,915);
-  E('bus','j1','j2','j3','j4','he','b1','b2','b3');E('pw','j2');E('j2','j5','pnw','dn');E('ps','az','azk');
+  N('qrtest',770,700,{t:'e',name:'QR-Testpunkt',cat:'Anreise',info:'Nur zum Testen des QR-Scans (vor Inbetriebnahme entfernen)',badge:badge('B'),where:'Bau B · Haupteingang',tag:'QR-Test',qr:true});
+  E('bus','j1','j2','j3','j4','he','b1','b2','b3');E('he','qrtest');E('pw','j2');E('j2','j5','pnw','dn');E('ps','az','azk');
   // Gebäude-Eingänge
   const ENT={C:{x:805,y:752,via:['he']},D:{x:705,y:632,via:['j4','dn']},G:{x:990,y:660,via:['b1']},K:{x:935,y:792,via:['b1','azk']},
     L:{x:1265,y:735,via:['b3']},J:{x:1185,y:792,via:['b3']},R:{x:1172,y:648,via:['b3']},N:{x:1280,y:668,via:['b3']},H:{x:1495,y:770,via:['b3']}};
