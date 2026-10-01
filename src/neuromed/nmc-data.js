@@ -5,7 +5,7 @@ function nmcData(){
   const nodes=[],edges=[];
   const N=(id,x,y,o={})=>{nodes.push({id,f:'campus',...P(x,y),t:'g',...o});return id};
   const E=(...ids)=>{for(let i=1;i<ids.length;i++)edges.push([ids[i-1],ids[i]])};
-  const COL={B:'#B8901A',C:'#3D63B8',D:'#2F8A60',G:'#A06A3E',K:'#C23B45',L:'#6F7877',J:'#7457B0',N:'#D06A2A',R:'#9466C4',H:'#2E918E',AZ:'#5F6766',P:'#2F6DB5',Bus:'#2E7D4F'};
+  const COL={B:'#B07A00',C:'#1D5FDB',D:'#04864A',G:'#BF5A0E',K:'#D4202F',L:'#46586A',J:'#6A38CF',N:'#D94A08',R:'#A332C4',H:'#06809A',AZ:'#46586A',P:'#1D5FDB',Bus:'#04864A'};
   const badge=k=>({t:k==='Bus'?'H':k,c:COL[k]});
   // Anreise & Eingänge
   N('bus',150,515,{t:'e',name:'Haltestelle Wagner-Jauregg-Weg',cat:'Anreise',info:'Linz AG Linien 41 und 43',badge:badge('Bus'),where:'Hanuschstraße'});
