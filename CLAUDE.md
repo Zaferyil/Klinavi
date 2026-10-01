@@ -64,11 +64,13 @@ Klinavi, hastane ziyaretçilerinin kendi telefonlarıyla QR kod okutup gidecekle
 - **Yazı boyutu A−/A+:** 4 kademe (×1, 1.15, 1.3, 1.5), `body.style.zoom`, `klinavi-fs` ile hatırlanır. ≥1.3'te üst bar sabit kalmaz.
 - **Acil durum çubuğu:** Her ekranda sabit kırmızı bar, "Notfall? 144" (tel:). Portier telefonu `D.portier` alanından gelir (Plan-Editor → "Daten sichern" kartında girilir). Neuromed'de şimdilik resmi santral `+43 5 7680 87-0` (etiket "Zentrale"). Ayrı bir Portier hattı yayınlanmamış, Zafer kendi numarasını verirse `nmc-data.js` içindeki `portier` alanı değiştirilir. Boşsa sadece 144 görünür.
 
+- **Çevrimdışı (PWA):** `src/sw.js` (build'de sürüm hash'i eklenir), `manifest.webmanifest`, `src/icon.svg` → `icon-192/512.png`. Her `dist/<varyant>/` klasörü tamamen aynı HTTPS sunucuya yüklenmeli. Sayfa: önce ağ (3,5 sn), olmazsa önbellek; fontlar ve cdnjs: önbellek + arka planda yenileme. jsQR (Apache-2.0, `src/vendor/`) sayfaya gömülü, QR tarama offline çalışır. Offline iken üstte sarı bilgi şeridi; Android'de "App installieren" düğmesi. Claude önizlemesinde service worker çalışmaz (sandbox), gerçek sunucuda test edilmeli.
+
 ## Sıradaki adımlar
 1. Zafer gerçek telefonla test edecek: Cloudflare Pages'e `dist/neuromed` yüklenip koridorda Mitlaufen denenecek. Adım sayma eşikleri ve adım uzunluğu sonuçlara göre ayarlanacak.
 2. C, D ve N binalarının ziyaretçi girişleri ve binalar arası iç bağlantılar netleşecek, `nmc-data.js` düzeltilecek.
 3. Binaların içi: Fluchtwegplan fotoğraflarıyla kat planları eklenecek ("Im Gebäude" adımı gerçek rotaya dönüşecek).
-4. İleride düşünülebilecekler: PWA (manifest + offline), barrierefrei rota seçeneği (sadece asansör), Kiosk modu, rota paylaşma, çevirilerin anadili konuşanlarca kontrolü, yönetim sunumu.
+4. İleride düşünülebilecekler: barrierefrei rota seçeneği (sadece asansör), Kiosk modu, rota paylaşma, çevirilerin anadili konuşanlarca kontrolü, yönetim sunumu.
 
 ## Çalışma şekli
 - Zafer adım adım ve "test et, sonra devam et" yaklaşımını tercih ediyor.
