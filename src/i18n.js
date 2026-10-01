@@ -55,6 +55,16 @@ K('lost','Verlaufen? Scannen Sie den QR-Code beim nächsten Aufzug. Die Route st
 K('here_already','Sie befinden sich bereits hier.','You are already here.','Zaten buradasınız.','Vă aflați deja aici.','Već ste ovdje.','أنت هنا بالفعل.','Ви вже тут.','Jesteś już tutaj.','Már itt van.');
 K('lang','Sprache','Language','Dil','Limba','Jezik','اللغة','Мова','Język','Nyelv');
 
+
+/* QR-Scan in der App */
+K('scan_btn','QR scannen','Scan QR','QR tara','Scanați QR','Skeniraj QR','مسح رمز QR','Сканувати QR','Skanuj QR','QR beolvasása');
+K('relocate','Standort per QR-Code neu bestimmen','Find my location with a QR code','Konumumu QR kodla bul','Aflați locația cu un cod QR','Odredi lokaciju QR kodom','تحديد موقعي برمز QR','Визначити місце за QR-кодом','Ustal lokalizację kodem QR','Helyem meghatározása QR-kóddal');
+K('scan_hint','Halten Sie die Kamera auf einen QR-Code „Sie sind hier“.','Point the camera at a “You are here” QR code.','Kamerayı “Buradasınız” QR koduna doğrultun.','Îndreptați camera spre un cod QR „Sunteți aici”.','Usmjerite kameru na QR kod „Vi ste ovdje“.','وجّه الكاميرا نحو رمز QR «أنتم هنا».','Наведіть камеру на QR-код «Ви тут».','Skieruj aparat na kod QR „Jesteś tutaj”.','Irányítsa a kamerát egy „Ön itt van” QR-kódra.');
+K('scan_err','Die Kamera ist nicht verfügbar. Bitte erlauben Sie den Zugriff auf die Kamera.','The camera is not available. Please allow access to the camera.','Kamera kullanılamıyor. Lütfen kameraya erişime izin verin.','Camera nu este disponibilă. Permiteți accesul la cameră.','Kamera nije dostupna. Dopustite pristup kameri.','الكاميرا غير متاحة. يرجى السماح بالوصول إلى الكاميرا.','Камера недоступна. Дозвольте доступ до камери.','Aparat jest niedostępny. Zezwól na dostęp do aparatu.','A kamera nem érhető el. Engedélyezze a kamera használatát.');
+K('scan_unknown','Dieser QR-Code gehört nicht zu diesem Haus. Bitte scannen Sie einen „Sie sind hier“-Code.','This QR code does not belong to this site. Please scan a “You are here” code.','Bu QR kodu bu binaya ait değil. Lütfen bir “Buradasınız” kodu tarayın.','Acest cod QR nu aparține acestei clădiri. Scanați un cod „Sunteți aici”.','Ovaj QR kod ne pripada ovoj zgradi. Skenirajte kod „Vi ste ovdje“.','رمز QR هذا لا يخص هذا المكان. يرجى مسح رمز «أنتم هنا».','Цей QR-код не належить цьому закладу. Скануйте код «Ви тут».','Ten kod QR nie należy do tego miejsca. Zeskanuj kod „Jesteś tutaj”.','Ez a QR-kód nem ehhez a helyhez tartozik. Olvasson be egy „Ön itt van” kódot.');
+K('cancel','Abbrechen','Cancel','İptal','Anulați','Odustani','إلغاء','Скасувати','Anuluj','Mégse');
+K('scan_ok','Standort aktualisiert','Location updated','Konum güncellendi','Locație actualizată','Lokacija ažurirana','تم تحديث الموقع','Місце оновлено','Lokalizacja zaktualizowana','Hely frissítve');
+
 /* Schritte */
 K('straight','Geradeaus','Straight ahead','Düz ilerleyin','Înainte','Ravno','استمر للأمام','Прямо','Prosto','Egyenesen');
 K('lead_straight','Gehen Sie geradeaus weiter, ca. {m}','Continue straight ahead for about {m}','Yaklaşık {m} düz devam edin','Mergeți drept înainte aproximativ {m}','Nastavite ravno oko {m}','تابع المشي للأمام حوالي {m}','Ідіть прямо приблизно {m}','Idź prosto przez ok. {m}','Haladjon egyenesen kb. {m}-t');

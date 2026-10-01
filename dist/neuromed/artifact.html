@@ -3,6 +3,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Plus+Jakarta+Sans:wght@600;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
 <style>
 /* Layout: clean clinical one-column phone app; editor + QR views widen to a two-column work surface. */
 :root{
@@ -341,6 +342,14 @@ body{font-size:18px;line-height:1.5}
 .back .arr{display:inline-block}
 [dir="rtl"] .back .arr,[dir="rtl"] .chev,[dir="rtl"] .ghead .gb{transform:scaleX(-1)}
 [dir="rtl"] .tile,[dir="rtl"] .row,[dir="rtl"] .steps button{text-align:right}
+/* QR scanner */
+.scan-open{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:64px;min-height:56px;padding:6px 10px;border-radius:14px;border:0;background:var(--brand);color:var(--brand-ink);font-size:12px;font-weight:700}
+.scan-btn{justify-content:center;width:100%}
+.scan{position:fixed;inset:0;z-index:60;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:16px;color:#fff}
+.scan video{width:100%;max-width:520px;max-height:60vh;object-fit:cover;border-radius:18px;background:#111}
+.scan-frame{position:absolute;width:min(62vw,260px);aspect-ratio:1;border:4px solid #fff;border-radius:22px;box-shadow:0 0 0 9999px rgba(0,0,0,.35);pointer-events:none;top:calc(50% - min(31vw,130px) - 40px)}
+.scan p{margin:0;font-size:19px;text-align:center;max-width:420px}
+.scan.err p{color:#FFB4A8}
 </style>
 
 <header class="top">
@@ -364,6 +373,7 @@ body{font-size:18px;line-height:1.5}
     <div class="here">
       <span class="fb" id="here-fb"></span>
       <div class="here-t"><span class="eyebrow" id="t-here">Sie sind hier</span><strong id="here-name"></strong></div>
+      <button class="scan-open" data-scan aria-label="QR scannen"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 12h8"/></svg><span class="t-scan">QR scannen</span></button>
       <details class="sim"><summary>Demo</summary><label for="start-sel"><span id="t-sim">QR-Scan simulieren</span> <select id="start-sel"></select></label></details>
     </div>
     <label class="search"><span class="sr" id="t-search">Ziel suchen</span><input id="q" type="search" autocomplete="off" placeholder="Ziel suchen, z. B. C302"></label>
@@ -388,9 +398,16 @@ body{font-size:18px;line-height:1.5}
       <div class="plan" id="r-plan" dir="ltr"></div>
     </div>
     <ol id="r-steps" class="steps"></ol>
+    <button class="btn primary scan-btn" data-scan><span class="t-relocate">Standort per QR-Code neu bestimmen</span></button>
     <p class="lost" id="t-lost">Verlaufen? Scannen Sie den QR-Code beim nächsten Aufzug. Die Route startet dann neu von dort.</p>
   </section>
 </main>
+<div class="scan" id="scan" hidden role="dialog" aria-modal="true" aria-labelledby="scan-msg">
+  <video id="scan-v" playsinline muted></video>
+  <div class="scan-frame" aria-hidden="true"></div>
+  <p id="scan-msg"></p>
+  <button class="btn" id="scan-x"><span id="scan-cancel">Abbrechen</span></button>
+</div>
 <div class="navbar" id="navbar" hidden><div class="in"><button id="prev">Zurück</button><div id="stepcount"></div><button id="next" class="primary">Weiter</button></div></div>
 
 <main id="v-editor" class="wrap wide" hidden>
@@ -495,6 +512,16 @@ K('no_route','Zu diesem Ziel gibt es von Ihrem Standort noch keinen eingetragene
 K('lost','Verlaufen? Scannen Sie den QR-Code beim nächsten Aufzug. Die Route startet dann neu von dort.','Lost? Scan the QR code at the nearest lift. The route will restart from there.','Kayboldunuz mu? En yakın asansördeki QR kodunu tarayın. Rota oradan yeniden başlar.','V-ați rătăcit? Scanați codul QR de la cel mai apropiat lift. Traseul va reîncepe de acolo.','Izgubili ste se? Skenirajte QR kod kod najbližeg lifta. Ruta će se ponovno pokrenuti odande.','هل ضللت الطريق؟ امسح رمز QR عند أقرب مصعد. سيبدأ المسار من جديد من هناك.','Загубилися? Скануйте QR-код біля найближчого ліфта. Маршрут почнеться звідти знову.','Zgubiłeś się? Zeskanuj kod QR przy najbliższej windzie. Trasa zacznie się stamtąd od nowa.','Eltévedt? Olvassa be a legközelebbi lifthez tartozó QR-kódot. Az útvonal onnan indul újra.');
 K('here_already','Sie befinden sich bereits hier.','You are already here.','Zaten buradasınız.','Vă aflați deja aici.','Već ste ovdje.','أنت هنا بالفعل.','Ви вже тут.','Jesteś już tutaj.','Már itt van.');
 K('lang','Sprache','Language','Dil','Limba','Jezik','اللغة','Мова','Język','Nyelv');
+
+
+/* QR-Scan in der App */
+K('scan_btn','QR scannen','Scan QR','QR tara','Scanați QR','Skeniraj QR','مسح رمز QR','Сканувати QR','Skanuj QR','QR beolvasása');
+K('relocate','Standort per QR-Code neu bestimmen','Find my location with a QR code','Konumumu QR kodla bul','Aflați locația cu un cod QR','Odredi lokaciju QR kodom','تحديد موقعي برمز QR','Визначити місце за QR-кодом','Ustal lokalizację kodem QR','Helyem meghatározása QR-kóddal');
+K('scan_hint','Halten Sie die Kamera auf einen QR-Code „Sie sind hier“.','Point the camera at a “You are here” QR code.','Kamerayı “Buradasınız” QR koduna doğrultun.','Îndreptați camera spre un cod QR „Sunteți aici”.','Usmjerite kameru na QR kod „Vi ste ovdje“.','وجّه الكاميرا نحو رمز QR «أنتم هنا».','Наведіть камеру на QR-код «Ви тут».','Skieruj aparat na kod QR „Jesteś tutaj”.','Irányítsa a kamerát egy „Ön itt van” QR-kódra.');
+K('scan_err','Die Kamera ist nicht verfügbar. Bitte erlauben Sie den Zugriff auf die Kamera.','The camera is not available. Please allow access to the camera.','Kamera kullanılamıyor. Lütfen kameraya erişime izin verin.','Camera nu este disponibilă. Permiteți accesul la cameră.','Kamera nije dostupna. Dopustite pristup kameri.','الكاميرا غير متاحة. يرجى السماح بالوصول إلى الكاميرا.','Камера недоступна. Дозвольте доступ до камери.','Aparat jest niedostępny. Zezwól na dostęp do aparatu.','A kamera nem érhető el. Engedélyezze a kamera használatát.');
+K('scan_unknown','Dieser QR-Code gehört nicht zu diesem Haus. Bitte scannen Sie einen „Sie sind hier“-Code.','This QR code does not belong to this site. Please scan a “You are here” code.','Bu QR kodu bu binaya ait değil. Lütfen bir “Buradasınız” kodu tarayın.','Acest cod QR nu aparține acestei clădiri. Scanați un cod „Sunteți aici”.','Ovaj QR kod ne pripada ovoj zgradi. Skenirajte kod „Vi ste ovdje“.','رمز QR هذا لا يخص هذا المكان. يرجى مسح رمز «أنتم هنا».','Цей QR-код не належить цьому закладу. Скануйте код «Ви тут».','Ten kod QR nie należy do tego miejsca. Zeskanuj kod „Jesteś tutaj”.','Ez a QR-kód nem ehhez a helyhez tartozik. Olvasson be egy „Ön itt van” kódot.');
+K('cancel','Abbrechen','Cancel','İptal','Anulați','Odustani','إلغاء','Скасувати','Anuluj','Mégse');
+K('scan_ok','Standort aktualisiert','Location updated','Konum güncellendi','Locație actualizată','Lokacija ažurirana','تم تحديث الموقع','Місце оновлено','Lokalizacja zaktualizowana','Hely frissítve');
 
 /* Schritte */
 K('straight','Geradeaus','Straight ahead','Düz ilerleyin','Înainte','Ravno','استمر للأمام','Прямо','Prosto','Egyenesen');
@@ -1147,6 +1174,57 @@ function renderQR(){
 }
 $('#qr-base').addEventListener('change',()=>{try{localStorage.setItem(KEY+'-base',$('#qr-base').value)}catch(_){}renderQR()});
 
+/* ---------- QR-Scan ---------- */
+const SC={stream:null,raf:0,det:null,busy:false,cv:document.createElement('canvas')};
+function setStart(id){
+  V.start=id;try{history.replaceState(null,'','#s-'+id)}catch(_){}
+  if(V.dest&&!$('#route').hidden){openRoute(V.dest)}else renderHome();
+}
+function scanText(txt){
+  const m=/(?:^|[#/])s-([A-Za-z0-9_-]+)\s*$/.exec(String(txt).trim());
+  return m&&graph().byId.has(m[1])?m[1]:null;
+}
+function scanMsg(k,err){const e=$('#scan');e.classList.toggle('err',!!err);$('#scan-msg').textContent=t(k)}
+function closeScan(){
+  cancelAnimationFrame(SC.raf);SC.raf=0;
+  if(SC.stream){SC.stream.getTracks().forEach(x=>x.stop());SC.stream=null}
+  $('#scan-v').srcObject=null;$('#scan').hidden=true;
+}
+async function openScan(){
+  $('#scan').hidden=false;scanMsg('scan_hint');
+  try{
+    SC.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+    const v=$('#scan-v');v.srcObject=SC.stream;await v.play();
+    if('BarcodeDetector' in window){try{SC.det=new BarcodeDetector({formats:['qr_code']})}catch(_){SC.det=null}}
+    SC.busy=false;scanLoop();
+  }catch(_){scanMsg('scan_err',true)}
+}
+async function scanLoop(){
+  const v=$('#scan-v');if($('#scan').hidden)return;
+  if(v.readyState>=2&&!SC.busy){
+    SC.busy=true;let txt=null;
+    try{
+      if(SC.det){const r=await SC.det.detect(v);if(r.length)txt=r[0].rawValue}
+      else if(window.jsQR&&v.videoWidth){
+        const w=Math.min(640,v.videoWidth),h=Math.round(w*v.videoHeight/v.videoWidth);SC.cv.width=w;SC.cv.height=h;
+        const c=SC.cv.getContext('2d',{willReadFrequently:true});c.drawImage(v,0,0,w,h);
+        const r=jsQR(c.getImageData(0,0,w,h).data,w,h);if(r)txt=r.data;
+      }
+    }catch(_){}
+    SC.busy=false;
+    if(txt!=null)gotScan(txt);
+  }
+  SC.raf=requestAnimationFrame(scanLoop);
+}
+function gotScan(txt){
+  const id=scanText(txt);
+  if(!id){scanMsg('scan_unknown',true);return}
+  vib(60);closeScan();stopWalk();setStart(id);
+}
+document.addEventListener('click',e=>{if(e.target.closest('[data-scan]'))openScan()});
+$('#scan-x').addEventListener('click',closeScan);
+addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#scan').hidden)closeScan()});
+
 /* ---------- Sprache ---------- */
 function applyI18n(){
   const H=document.documentElement;H.lang=LANG==='bks'?'bs':LANG;H.dir=LANG==='ar'?'rtl':'ltr';
@@ -1156,6 +1234,8 @@ function applyI18n(){
   set('#walk-start','walk_start');set('#walk-sim','walk_sim');set('#r-full','full_plan');set('#prev','prev');
   set('#live-msg','live_active');set('#live-stop','stop');
   $('#q').placeholder=t('search_ph');
+  document.querySelectorAll('.t-scan').forEach(e=>e.textContent=t('scan_btn'));document.querySelectorAll('.t-relocate').forEach(e=>e.textContent=t('relocate'));
+  set('#scan-cancel','cancel');$('.scan-open').setAttribute('aria-label',t('scan_btn'));
   const o=$('#walk-len').options;o[0].textContent=t('len_s');o[1].textContent=t('len_m');o[2].textContent=t('len_l');
   const n=$('#walk-note');if(!n.classList.contains('err'))n.textContent=t('walk_note');
   $('#next').textContent=V.steps.length&&V.i===V.steps.length-1?t('done'):t('next');
